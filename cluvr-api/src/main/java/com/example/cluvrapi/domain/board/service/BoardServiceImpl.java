@@ -6,8 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
+import com.example.cluvrapi.domain.board.dto.request.UpdateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
@@ -23,11 +25,13 @@ public class BoardServiceImpl implements BoardService {
 	private final BoardRepository boardRepository;
 
 	@Override
+	@Transactional
 	public long createBoard(CreateBoardRequestDto dto) {
 		return boardRepository.save(dto.fromDto()).getId();
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Page<ReadBoardsResponseDto> readBoards(CategoryType category, int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
 
@@ -44,6 +48,7 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public ReadBoardResponseDto readBoard(long boardId) {
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
 		return new ReadBoardResponseDto(
@@ -57,5 +62,12 @@ public class BoardServiceImpl implements BoardService {
 			board.getCreatedAt(),
 			board.getModifiedAt()
 		);
+	}
+
+	@Transactional
+	@Override
+	public void updateBoard(UpdateBoardRequestDto dto, long boardId) {
+		Board board = boardRepository.findByIdOrElseThrow(boardId);
+		board.update(dto.getTitle(), dto.getContent(), dto.getClover());
 	}
 }
