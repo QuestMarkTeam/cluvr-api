@@ -1,6 +1,5 @@
 package com.example.chat.entity;
 
-import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

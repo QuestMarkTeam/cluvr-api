@@ -1,7 +1,8 @@
 package com.example.chat.repository;
 
 import com.example.chat.entity.ChatRoom;
-import com.example.cluvrapi.domain.common.repository.BaseRepository;
 
-public interface ChatRoomRepository extends BaseRepository<ChatRoom, Long> {
+
+public interface ChatRoomRepository extends
+    com.example.common.repository.BaseRepository<ChatRoom, Long> {
 }
