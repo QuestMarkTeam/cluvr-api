@@ -1,6 +1,5 @@
 package com.example.cluvrapi;
 
-import com.example.chat.service.ChatService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
