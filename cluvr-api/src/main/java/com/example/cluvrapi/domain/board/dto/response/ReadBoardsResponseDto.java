@@ -15,5 +15,4 @@ public class ReadBoardsResponseDto {
 	// private String userName;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-
 }
