@@ -1,7 +1,5 @@
 package com.example.cluvrapi.domain.rank.entity;
 
-import com.example.cluvrapi.domain.rank.eunms.Tier;
-import com.example.cluvrapi.domain.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -11,9 +9,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import com.example.cluvrapi.domain.rank.eunms.Tier;
+import com.example.cluvrapi.domain.user.entity.User;
 
 @Entity
 @Getter
@@ -21,22 +23,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Rank {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private Tier tier;
+	@Enumerated(EnumType.STRING)
+	private Tier tier;
 
-    private Integer score;
+	private Integer score;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+	@OneToOne
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
-    public Rank(Tier tier, Integer score, User user) {
-        this.tier = tier;
-        this.score = score;
-        this.user = user;
-    }
+	public Rank(Tier tier, Integer score, User user) {
+		this.tier = tier;
+		this.score = score;
+		this.user = user;
+	}
+
+	public void updateScore(Integer score) {
+		this.score = score;
+	}
 }
