@@ -1,8 +1,8 @@
 package com.example.chat.repository;
 
+import org.springframework.data.mongodb.repository.MongoRepository;
+
 import com.example.chat.entity.ChatLog;
 
-
-public interface ChatLogRepository extends
-    com.example.common.repository.BaseRepository<ChatLog, Long> {
+public interface ChatLogRepository extends MongoRepository<ChatLog, String> {
 }

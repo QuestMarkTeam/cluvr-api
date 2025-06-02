@@ -1,38 +1,32 @@
 package com.example.chat.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import java.time.LocalDateTime;
+
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@Entity
-@Table(name = "chat_logs")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Document(collation = "chat_log")
 public class ChatLog {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	private String id; // MongoDB에서 id는 String 값
 
-    private Long roomId;
-    private Long userId;
+	private Long roomId;
+	private Long userId;
 
-    @Lob
-    private String message;
+	@Lob
+	private String message;
 
-    private LocalDateTime createdAt;
+	private LocalDateTime createdAt;
 
-    public ChatLog(Long roomId, Long userId, String message, LocalDateTime createdAt) {
-        this.roomId = roomId;
-        this.userId = userId;
-        this.message = message;
-        this.createdAt = createdAt;
-    }
+	public ChatLog(Long roomId, Long userId, String message, LocalDateTime createdAt) {
+		this.roomId = roomId;
+		this.userId = userId;
+		this.message = message;
+		this.createdAt = createdAt;
+	}
 }
