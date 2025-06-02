@@ -1,0 +1,78 @@
+package com.example.cluvrapi.domain.club.controller;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.cluvrapi.domain.club.dto.request.CreateClubRequestDto;
+import com.example.cluvrapi.domain.club.dto.request.UpdateClubRequestDto;
+import com.example.cluvrapi.domain.club.dto.response.CreateClubResponseDto;
+import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
+import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
+import com.example.cluvrapi.domain.club.enums.ClubType;
+import com.example.cluvrapi.domain.club.service.ClubService;
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.global.response.BaseResponse;
+import com.example.cluvrapi.global.response.ResponseCode;
+
+@RestController
+@RequestMapping("/clubs")
+@RequiredArgsConstructor
+public class ClubController {
+
+	private final ClubService clubService;
+
+	@PostMapping
+	public ResponseEntity<BaseResponse<CreateClubResponseDto>> createClub(
+		// @Auth AuthUser authUser,
+		@RequestBody CreateClubRequestDto createClubRequestDto
+	) {
+		CreateClubResponseDto dto = clubService.createClub(1L, createClubRequestDto);
+		return ResponseEntity.ok(BaseResponse.success(dto, ResponseCode.CREATED));
+	}
+
+	@GetMapping("/{clubId}")
+	public ResponseEntity<BaseResponse<FindClubResponseDto>> findClubById(
+		@PathVariable Long clubId
+	) {
+		FindClubResponseDto dto = clubService.findClubById(clubId);
+		return ResponseEntity.ok(BaseResponse.success(dto, ResponseCode.OK));
+	}
+
+	@GetMapping
+	public ResponseEntity<BaseResponse<PageResponseDto<FindAllClubResponseDto>>> findAllClub(
+		@RequestParam(defaultValue = "STUDY") ClubType clubType,
+		@PageableDefault(size = 5, sort = "createdAt") Pageable pageable
+	) {
+		PageResponseDto<FindAllClubResponseDto> dto = clubService.findAllClub(clubType, pageable);
+		return ResponseEntity.ok(BaseResponse.success(dto, ResponseCode.OK));
+	}
+
+	@PatchMapping("/{clubId}")
+	public ResponseEntity<BaseResponse<Void>> updateClub(
+		@PathVariable Long clubId,
+		@RequestBody UpdateClubRequestDto updateClubRequest
+	) {
+		clubService.updateClub(clubId, updateClubRequest);
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
+	}
+
+	@DeleteMapping("/{clubId}")
+	public ResponseEntity<BaseResponse<Void>> deleteClub(
+		@PathVariable Long clubId
+	) {
+		clubService.deleteClub(clubId);
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
+	}
+}
