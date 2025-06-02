@@ -1,0 +1,18 @@
+<templateSet group="Cluver">
+    <template name="cluvr"
+              value="/**\n * 설명: $summary$\n *\n * &lt;p&gt;$details$&lt;/p&gt;\n *\n$params$\n * @return $return$\n * @throws $throws$ $throwsDesc$\n *\n * @author $user$"
+              description="Cluver JavaDoc Template"
+              toReformat="true"
+              toShortenFQNames="true">
+        <variable name="summary" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="details" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="params" expression="methodParameters()" defaultValue="" alwaysStopAt="true"/>
+        <variable name="return" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="throws" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="throwsDesc" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="user" expression="user()" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="JAVA_DECLARATION" value="true"/>
+        </context>
+    </template>
+</templateSet>
