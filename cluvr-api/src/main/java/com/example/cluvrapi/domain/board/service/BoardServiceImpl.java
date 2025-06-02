@@ -70,4 +70,9 @@ public class BoardServiceImpl implements BoardService {
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
 		board.update(dto.getTitle(), dto.getContent(), dto.getClover());
 	}
+
+	@Override
+	public void deleteBoard(long boardId) {
+		boardRepository.deleteById(boardId);
+	}
 }

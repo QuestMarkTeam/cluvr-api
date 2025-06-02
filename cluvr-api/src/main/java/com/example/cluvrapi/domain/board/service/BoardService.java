@@ -16,5 +16,7 @@ public interface BoardService {
 	ReadBoardResponseDto readBoard(long boardId);
 
 	void updateBoard(UpdateBoardRequestDto dto, long boardId);
+
+	void deleteBoard(long boardId);
 }
 

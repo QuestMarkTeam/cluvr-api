@@ -3,6 +3,7 @@ package com.example.cluvrapi.domain.board.controller;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,5 +46,10 @@ public class BoardController {
 	@PatchMapping("/{boardId}")
 	public void updateBoard(@RequestBody UpdateBoardRequestDto dto, @PathVariable long boardId) {
 		boardService.updateBoard(dto, boardId);
+	}
+
+	@DeleteMapping("/{boardId}")
+	public void deleteBoard(@PathVariable long boardId) {
+		boardService.deleteBoard(boardId);
 	}
 }
