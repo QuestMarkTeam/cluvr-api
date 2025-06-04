@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 public class CreateNoticeRequestDto {
-	@Size(min = 2, max = 20, message = "제목은 2~20 글자 사이만 가능합니다.")
+	@Size(min = 2, max = 20, message = "제목은 2자 이상 20자 이하로 작성해주세요.")
 	private String title;
 	@Size(min = 2, max = 255, message = "설명은 2자 이상 255자 이하로 작성해주세요.")
 	private String content;
