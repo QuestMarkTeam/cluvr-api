@@ -3,6 +3,8 @@ package com.example.cluvrapi.domain.rank.repository;
 import static com.example.cluvrapi.domain.rank.entity.QRank.rank;
 import static com.example.cluvrapi.domain.rank.entity.QRankLog.rankLog;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -26,11 +28,11 @@ public class RankRepositoryQueryImpl implements RankRepositoryQuery {
 	}
 
 	@Override
-	public FindRankLogResponseDto findRankLogByUserId(Long userId) {
+	public List<FindRankLogResponseDto> findRankLogByUserId(Long userId) {
 		return jpaQueryFactory.select(
 				new QFindRankLogResponseDto(rankLog.user.id, rankLog.description, rankLog.amount, rankLog.createdAt,
 					rankLog.deletedAt))
 			.from(rankLog)
-			.where(rankLog.user.id.eq(userId)).fetchOne();
+			.where(rankLog.user.id.eq(userId)).fetch();
 	}
 }
