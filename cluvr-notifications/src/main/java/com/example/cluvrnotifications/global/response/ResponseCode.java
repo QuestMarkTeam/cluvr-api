@@ -28,15 +28,17 @@ public enum ResponseCode {
 	WITHDRAWN_USER_ACCESS(HttpStatus.FORBIDDEN, "탈퇴한 유저는 접근할 수 없습니다."),
 	TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
 	TOKEN_BLACKLISTED(HttpStatus.FORBIDDEN, "다시 로그인 해주세요."),
+	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 유저를 찾을 수 없습니다."),
 
 	/* 서버 */
 	UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류"),
 
 	/* noti */
-	NOTI_FETCH_SUCCESS(HttpStatus.OK, "알림 목록을 성공적으로 불러왔습니다."),
+	NOTI_FETCH_SUCCESS(HttpStatus.OK, "알림을 성공적으로 불러왔습니다."),
 	NOTI_READ_SUCCESS(HttpStatus.OK, "해당 알림을 읽음처리 하였습니다."),
 	NOTI_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
 	NOTI_DELETE_SUCCESS(HttpStatus.OK, "알림을 삭제하였습니다."),
+	NOTI_UPDATE_SUCCESS(HttpStatus.OK, "알림을 변경하였습니다."),
 
 	/* Club */
 	INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 입력값");
