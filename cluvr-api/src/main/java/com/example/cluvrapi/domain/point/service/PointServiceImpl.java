@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.point.service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.cluvrapi.domain.point.dto.request.UpdatePointRequestDto;
 import com.example.cluvrapi.domain.point.dto.response.FindPointLogResponseDto;
 import com.example.cluvrapi.domain.point.dto.response.UpdatePointResponseDto;
+import com.example.cluvrapi.domain.point.entity.PointType;
 import com.example.cluvrapi.domain.point.repository.PointLogRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
@@ -22,6 +25,7 @@ public class PointServiceImpl implements PointService {
 
 	private final UserRepository userRepository;
 	private final PointLogRepository pointLogRepository;
+	private final PointRedisService pointRedisService;
 
 	@Transactional
 	@Override
@@ -45,10 +49,27 @@ public class PointServiceImpl implements PointService {
 		return UpdatePointResponseDto.from(currentPoint - amount); // 남은 포인트 리턴
 	}
 
+	@Transactional
 	@Override
-	public void earnPoints(Long userId, UpdatePointRequestDto requestDto) {
+	public void earnPoints(Long userId, PointType pointType) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		user.updatePoint(requestDto.getAmount());
+
+		String redisKey = "point:" + pointType.name() + "count";
+
+		Duration ttl = getDurationUntilMidnight();
+		Long count = pointRedisService.setIfAbsent(redisKey, 1, ttl) ? 1L : pointRedisService.incrementValue(redisKey);
+
+		// 하루 제한 이하면 적립
+		if (pointType.getTodayLimit() >= count) {
+			user.updatePoint(pointType.getAmount());
+		}
+	}
+
+	// 현재시간
+	public Duration getDurationUntilMidnight() {
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime midnight = now.toLocalDate().plusDays(1).atStartOfDay(); // 내일 자정시간
+		return Duration.between(now, midnight); // 내일 자정까지 남은 시간 계산해서 리턴
 	}
 
 	@Transactional(readOnly = true)
