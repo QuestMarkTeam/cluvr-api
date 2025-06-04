@@ -18,7 +18,7 @@ import com.example.cluvrnotifications.common.annotation.Auth;
 import com.example.cluvrnotifications.common.dto.AuthUser;
 import com.example.cluvrnotifications.common.dto.PageResponseDto;
 import com.example.cluvrnotifications.domain.notification.dto.response.ReadNotificationResponseDto;
-import com.example.cluvrnotifications.domain.notification.dto.response.UpdateNotificationsSettingResponseDto;
+import com.example.cluvrnotifications.domain.notification.dto.response.ReadNotificationsSettingResponseDto;
 import com.example.cluvrnotifications.domain.notification.enums.NotificationType;
 import com.example.cluvrnotifications.domain.notification.service.NotificationService;
 import com.example.cluvrnotifications.global.response.BaseResponse;
@@ -64,20 +64,20 @@ public class NotificationController {
 	}
 
 	@PatchMapping("/settings")
-	public ResponseEntity<BaseResponse<UpdateNotificationsSettingResponseDto>> updateSettings(
+	public ResponseEntity<BaseResponse<Void>> updateSettings(
 		@Auth AuthUser authUser,
 		@RequestBody Map<NotificationType, Boolean> settings
 	) {
-		UpdateNotificationsSettingResponseDto response = notificationService.updateSettings(authUser.id(),
+		notificationService.updateSettings(authUser.id(),
 			settings);
-		return ResponseEntity.ok(BaseResponse.success(response, ResponseCode.NOTI_UPDATE_SUCCESS));
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NOTI_UPDATE_SUCCESS));
 	}
 
 	@GetMapping("/settings")
-	public ResponseEntity<BaseResponse<UpdateNotificationsSettingResponseDto>> getSettings(
+	public ResponseEntity<BaseResponse<ReadNotificationsSettingResponseDto>> getSettings(
 		@Auth AuthUser authUser
 	) {
-		UpdateNotificationsSettingResponseDto dto = notificationService.getSettings(authUser.id());
+		ReadNotificationsSettingResponseDto dto = notificationService.getSettings(authUser.id());
 		return ResponseEntity.ok(BaseResponse.success(dto, ResponseCode.NOTI_FETCH_SUCCESS));
 	}
 

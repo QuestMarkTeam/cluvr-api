@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrnotifications.common.dto.PageResponseDto;
 import com.example.cluvrnotifications.domain.notification.dto.response.ReadNotificationResponseDto;
-import com.example.cluvrnotifications.domain.notification.dto.response.UpdateNotificationsSettingResponseDto;
+import com.example.cluvrnotifications.domain.notification.dto.response.ReadNotificationsSettingResponseDto;
 import com.example.cluvrnotifications.domain.notification.entity.Notification;
 import com.example.cluvrnotifications.domain.notification.entity.NotificationSetting;
 import com.example.cluvrnotifications.domain.notification.enums.NotificationType;
@@ -39,7 +39,7 @@ public class NotificationService {
 	 * @param isRead 읽음 여부 필터 (null이면 전체)
 	 * @return 페이징된 알림 목록 DTO
 	 *
-	 * @author 정은세
+	 * @author escomputer
 	 */
 
 	public PageResponseDto<ReadNotificationResponseDto> getNotifications(Long userId, int page, int size,
@@ -58,7 +58,7 @@ public class NotificationService {
 	 * @param notificationId 알림 ID
 	 * @throws BusinessException 알림이 존재하지 않거나 권한이 없을 경우
 	 *
-	 * @author 정은세
+	 * @author escomputer
 	 */
 
 	public void markAsRead(Long userId, Long notificationId) {
@@ -78,7 +78,7 @@ public class NotificationService {
 	 * @param userId 사용자 ID
 	 * @param notificationId 알림 ID
 	 * @throws BusinessException 알림이 존재하지 않거나 권한이 없을 경우
-	 * @author 정은세
+	 * @author escomputer
 	 */
 
 	public void deleteNotification(Long userId, Long notificationId) {
@@ -95,11 +95,11 @@ public class NotificationService {
 	 * @param userId 사용자 ID
 	 * @param updates 알림 타입별 on/off 설정 맵
 	 * @return 변경된 알림 설정 정보 DTO
-	 * @author 정은세
+	 * @author escomputer
 	 */
 
 	@Transactional
-	public UpdateNotificationsSettingResponseDto updateSettings(Long userId,
+	public void updateSettings(Long userId,
 		Map<NotificationType, Boolean> updates) {
 
 		List<NotificationSetting> settingList = notificationRepository.findAllByUserId(userId);
@@ -112,7 +112,6 @@ public class NotificationService {
 			}
 		});
 
-		return UpdateNotificationsSettingResponseDto.from(settingList);
 	}
 
 	/**
@@ -121,13 +120,13 @@ public class NotificationService {
 	 * @param userId 사용자 ID
 	 * @return 알림 설정 상태 DTO
 	 *
-	 * @author 정은세
+	 * @author escomputer
 	 */
 
 	@Transactional(readOnly = true)
-	public UpdateNotificationsSettingResponseDto getSettings(Long userId) {
+	public ReadNotificationsSettingResponseDto getSettings(Long userId) {
 		List<NotificationSetting> settings = notificationRepository.findAllByUserId(userId);
-		return UpdateNotificationsSettingResponseDto.from(settings);
+		return ReadNotificationsSettingResponseDto.from(settings);
 	}
 
 	/**
@@ -138,7 +137,7 @@ public class NotificationService {
 	 * @return 알림 상세 정보 DTO
 	 * @throws BusinessException 알림이 존재하지 않거나 권한이 없을 경우
 	 *
-	 * @author 정은세
+	 * @author escomputer
 	 */
 
 	@Transactional(readOnly = true)
