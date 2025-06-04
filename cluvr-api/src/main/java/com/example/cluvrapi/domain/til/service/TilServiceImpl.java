@@ -3,7 +3,6 @@ package com.example.cluvrapi.domain.til.service;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.club.entity.Club;
@@ -18,7 +17,6 @@ import com.example.cluvrapi.domain.til.repository.TilRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 
-@Service
 @RequiredArgsConstructor
 public class TilServiceImpl implements TilService {
 
