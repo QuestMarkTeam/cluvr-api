@@ -55,6 +55,7 @@ dependencies {
     // 의존성 주입
     implementation project(":cluvr-batch")
     implementation project(":cluvr-chat")
+    implementation project(":cluvr-notifications")
 }
 
 tasks.named('test') {
