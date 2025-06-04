@@ -71,4 +71,5 @@ public class UserController {
 
 		return ResponseEntity.ok(BaseResponse.success("로그아웃 되어 액세스토큰이 즉시 무효화되었습니다.", ResponseCode.OK));
 	}
+	
 }
