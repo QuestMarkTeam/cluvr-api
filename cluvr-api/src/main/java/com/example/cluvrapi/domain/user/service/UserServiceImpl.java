@@ -15,6 +15,7 @@ import com.example.cluvrapi.domain.category.repository.CategoryRepository;
 import com.example.cluvrapi.domain.user.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserOtherResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.SignUpUserResponseDto;
 import com.example.cluvrapi.domain.user.entity.User;
@@ -97,6 +98,15 @@ public class UserServiceImpl implements UserService {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new NoSuchElementException("해당 사용자를 찾을 수 없습니다. id=" + userId));
 		return GetUserMeResponseDto.from(user);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public GetUserOtherResponseDto getOtherUserProfile(Long otherUserId) {
+		User user = userRepository.findById(otherUserId)
+			.orElseThrow(() -> new NoSuchElementException("해당 사용자를 찾을 수 없습니다. id=" + otherUserId));
+
+		return GetUserOtherResponseDto.from(user);
 	}
 }
 

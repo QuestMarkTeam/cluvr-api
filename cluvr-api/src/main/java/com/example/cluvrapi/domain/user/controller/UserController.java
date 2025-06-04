@@ -2,6 +2,7 @@ package com.example.cluvrapi.domain.user.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -12,6 +13,7 @@ import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.user.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserOtherResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.SignUpUserResponseDto;
 import com.example.cluvrapi.domain.user.entity.User;
@@ -80,6 +82,22 @@ public class UserController {
 	public ResponseEntity<BaseResponse<GetUserMeResponseDto>> getMyProfile(@Auth User user) {
 		GetUserMeResponseDto profileDto = userService.getMyProfile(user.getId());
 		return ResponseEntity.ok(BaseResponse.success(profileDto, ResponseCode.OK));
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<BaseResponse<GetUserOtherResponseDto>> getOtherUserProfile(
+		@Auth User currentUser,
+		@PathVariable("id") Long otherUserId) {
+
+		if (currentUser.getId().equals(otherUserId)) {
+			return ResponseEntity
+				.badRequest()
+				.body(BaseResponse.error(ResponseCode.VALID_FAIL, "본인 프로필 조회 시 /users/me 사용하세요"));
+		}
+
+		GetUserOtherResponseDto dto = userService.getOtherUserProfile(otherUserId);
+		return ResponseEntity
+			.ok(BaseResponse.success(dto, ResponseCode.OK));
 	}
 
 }
