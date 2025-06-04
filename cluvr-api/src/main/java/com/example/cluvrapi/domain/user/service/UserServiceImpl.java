@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.user.service;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,6 +14,7 @@ import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
 import com.example.cluvrapi.domain.category.repository.CategoryRepository;
 import com.example.cluvrapi.domain.user.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.request.SignUpUserRequestDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.SignUpUserResponseDto;
 import com.example.cluvrapi.domain.user.entity.User;
@@ -86,6 +89,14 @@ public class UserServiceImpl implements UserService {
 
 		// 4) DTO 변환 후 반환
 		return LoginUserResponseDto.from(user, accessToken, refreshToken);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public GetUserMeResponseDto getMyProfile(Long userId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new NoSuchElementException("해당 사용자를 찾을 수 없습니다. id=" + userId));
+		return GetUserMeResponseDto.from(user);
 	}
 }
 

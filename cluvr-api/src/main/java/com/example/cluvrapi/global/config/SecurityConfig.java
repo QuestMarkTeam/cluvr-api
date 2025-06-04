@@ -70,7 +70,7 @@ public class SecurityConfig {
 		http.userDetailsService(customUserDetailsService);
 
 		http.addFilterBefore(
-			new JwtAuthenticationFilter(jwtUtil, userRepository, refreshTokenService),
+			new JwtAuthenticationFilter(jwtUtil, customUserDetailsService, refreshTokenService),
 			org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
 		);
 

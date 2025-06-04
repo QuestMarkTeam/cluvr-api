@@ -1,16 +1,20 @@
 package com.example.cluvrapi.domain.user.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.user.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.request.SignUpUserRequestDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.SignUpUserResponseDto;
+import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.service.UserService;
 import com.example.cluvrapi.global.jwt.JwtUtil;
 import com.example.cluvrapi.global.jwt.RefreshTokenServiceImpl;
@@ -71,5 +75,11 @@ public class UserController {
 
 		return ResponseEntity.ok(BaseResponse.success("로그아웃 되어 액세스토큰이 즉시 무효화되었습니다.", ResponseCode.OK));
 	}
-	
+
+	@GetMapping("/me")
+	public ResponseEntity<BaseResponse<GetUserMeResponseDto>> getMyProfile(@Auth User user) {
+		GetUserMeResponseDto profileDto = userService.getMyProfile(user.getId());
+		return ResponseEntity.ok(BaseResponse.success(profileDto, ResponseCode.OK));
+	}
+
 }

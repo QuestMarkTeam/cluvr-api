@@ -26,4 +26,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 		User user = optionalUser.get();
 		return new CustomUserDetails(user);
 	}
+
+	public CustomUserDetails loadUserById(Long userId) {
+		Optional<User> optionalUser = userRepository.findById(userId);
+		if (optionalUser.isEmpty()) {
+			throw new UsernameNotFoundException("등록된 사용자가 없습니다. id=" + userId);
+		}
+		User user = optionalUser.get();
+		return new CustomUserDetails(user);
+	}
 }
