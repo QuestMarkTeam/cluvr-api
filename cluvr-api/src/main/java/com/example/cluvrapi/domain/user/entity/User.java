@@ -4,8 +4,8 @@ import java.time.LocalDate;
 
 import org.hibernate.annotations.SQLDelete;
 
+import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
-import com.example.cluvrapi.domain.user.entity.enums.CategoryDetail;
 import com.example.cluvrapi.domain.user.entity.enums.Gender;
 import com.example.cluvrapi.domain.user.entity.enums.UserRole;
 
@@ -68,9 +68,9 @@ public class User extends BaseTimeEntity {
 	 * 클럽 하위 카테고리 (varchar(11), NOT NULL, enum)
 	 * - EnumType.STRING 으로 저장
 	 */
-	@Column(name = "category_detail", nullable = false, length = 11)
+	@Column(name = "category_type", nullable = false, length = 11)
 	@Enumerated(EnumType.STRING)
-	private CategoryDetail categoryDetail;
+	private CategoryType categoryType;
 
 	/**
 	 * 암호화된 비밀번호 (varchar(60), NOT NULL)
@@ -92,7 +92,7 @@ public class User extends BaseTimeEntity {
 	private Boolean isDeleted = true;
 
 	public User(Long id, String name, LocalDate birthday, String email, String phoneNumber, UserRole userRole,
-		Gender gender, CategoryDetail categoryDetail, String password, Long point, String imageUrl, Boolean isDeleted) {
+		Gender gender, CategoryType categoryType, String password, Long point, String imageUrl, Boolean isDeleted) {
 		this.id = id;
 		this.name = name;
 		this.birthday = birthday;
@@ -100,7 +100,7 @@ public class User extends BaseTimeEntity {
 		this.phoneNumber = phoneNumber;
 		this.userRole = userRole;
 		this.gender = gender;
-		this.categoryDetail = categoryDetail;
+		this.categoryType = categoryType;
 		this.password = password;
 		this.point = point;
 		this.imageUrl = imageUrl;

@@ -2,7 +2,7 @@ package com.example.cluvrapi.domain.user.dto.request;
 
 import java.time.LocalDate;
 
-import com.example.cluvrapi.domain.user.entity.enums.CategoryDetail;
+import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.user.entity.enums.Gender;
 
 import jakarta.validation.constraints.Email;
@@ -36,7 +36,7 @@ public class SignUpUserRequestDto {
 	private final Gender gender;
 
 	@NotNull(message = "카테고리(세부)를 선택해야 합니다.")
-	private final CategoryDetail categoryDetail;
+	private final CategoryType categoryType;
 
 	private final String imageUrl;
 

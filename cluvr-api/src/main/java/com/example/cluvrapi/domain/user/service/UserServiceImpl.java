@@ -7,6 +7,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.cluvrapi.domain.category.entity.Category;
+import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
+import com.example.cluvrapi.domain.category.repository.CategoryRepository;
 import com.example.cluvrapi.domain.user.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.response.LoginUserResponseDto;
@@ -29,6 +32,7 @@ public class UserServiceImpl implements UserService {
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtil jwtUtil;
 	private final RefreshTokenServiceImpl refreshTokenService;
+	private final CategoryRepository categoryRepository;
 
 	@Override
 	@Transactional
@@ -46,7 +50,7 @@ public class UserServiceImpl implements UserService {
 			requestDto.getPhoneNumber(),               // phoneNumber
 			UserRole.USER,                             // 가입 시 기본 권한(예: USER)
 			requestDto.getGender(),                    // gender
-			requestDto.getCategoryDetail(),            // categoryDetail
+			requestDto.getCategoryType(),            // categoryDetail
 			encodedPassword,                           // 암호화된 password
 			0L,                                        // point 기본값
 			requestDto.getImageUrl(),                  // imageUrl (null 허용될 경우 DTO에서 null 가능)
@@ -55,6 +59,13 @@ public class UserServiceImpl implements UserService {
 
 		User savedUser = userRepository.save(newUser);
 
+		// 5) Category 엔티티 생성 및 저장 (유저용)
+		Category newCategory = new Category(savedUser.getId(),                // targetId = 유저 ID
+			requestDto.getCategoryType(),     // CategoryType (예: DEVELOPMENT, MUSIC_EDUCATION 등)
+			CategoryTargetType.USER           // targetType = USER
+		);
+		categoryRepository.save(newCategory);
+
 		return SignUpUserResponseDto.from(savedUser);
 	}
 
@@ -62,26 +73,16 @@ public class UserServiceImpl implements UserService {
 	public LoginUserResponseDto login(LoginUserRequestDto requestDto) {
 		// 1) 이메일·비밀번호 인증 시도
 		Authentication authentication = authenticationManager.authenticate(
-			new UsernamePasswordAuthenticationToken(
-				requestDto.getEmail(),
-				requestDto.getPassword()
-			)
-		);
+			new UsernamePasswordAuthenticationToken(requestDto.getEmail(), requestDto.getPassword()));
 
 		// 인증 성공 시 principal은 CustomUserDetails
 		User user = ((CustomUserDetails)authentication.getPrincipal()).getUser();
 
 		// 2) 액세스 토큰 생성
-		String accessToken = jwtUtil.generateAccessToken(
-			user.getId(),
-			user.getUserRole().name()
-		);
+		String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getUserRole().name());
 
 		// 3) 리프레시 토큰 생성 및 저장 (Redis 등)
-		String refreshToken = refreshTokenService.createRefreshToken(
-			user.getId(),
-			user.getUserRole().name()
-		);
+		String refreshToken = refreshTokenService.createRefreshToken(user.getId(), user.getUserRole().name());
 
 		// 4) DTO 변환 후 반환
 		return LoginUserResponseDto.from(user, accessToken, refreshToken);
