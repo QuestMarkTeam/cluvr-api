@@ -10,7 +10,7 @@ import com.example.cluvrapi.domain.user.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.SignUpUserResponseDto;
-import com.example.cluvrapi.domain.user.service.UserServiceImpl;
+import com.example.cluvrapi.domain.user.service.UserService;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
 
-	private final UserServiceImpl userService;
+	private final UserService userService;
 
 	@PostMapping("/signup")
 	public ResponseEntity<BaseResponse<SignUpUserResponseDto>> signUp(
