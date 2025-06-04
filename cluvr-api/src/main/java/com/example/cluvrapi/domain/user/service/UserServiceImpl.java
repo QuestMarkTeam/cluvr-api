@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.user.service;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,8 +19,6 @@ import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.jwt.JwtUtil;
 import com.example.cluvrapi.global.jwt.RefreshTokenServiceImpl;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
 			requestDto.getGender(),                    // gender
 			requestDto.getCategoryDetail(),            // categoryDetail
 			encodedPassword,                           // 암호화된 password
-			0L,                                        // point 기본값
+			0,                                        // point 기본값
 			requestDto.getImageUrl(),                  // imageUrl (null 허용될 경우 DTO에서 null 가능)
 			false                                      // isDeleted: 신규 가입이므로 false
 		);
