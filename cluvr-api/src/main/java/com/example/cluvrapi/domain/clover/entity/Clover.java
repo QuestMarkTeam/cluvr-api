@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.clover.entity;
 
+import com.example.cluvrapi.domain.user.entity.User;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -32,9 +34,8 @@ public class Clover {
 
 	private Integer score;
 
-	@OneToOne
-	@JoinColumn(name = "user_id", nullable = false)
-	private User user;
+	@Column(nullable = false)
+	private Long userId;
 
 	public Clover(Tier tier, Integer score, User user) {
 		this.tier = tier;
