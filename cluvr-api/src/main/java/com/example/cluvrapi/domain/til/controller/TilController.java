@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.til.controller;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +25,10 @@ import com.example.cluvrapi.global.response.ResponseCode;
 
 @RestController
 @RequestMapping("/clubs/{clubId}/til")
+@RequiredArgsConstructor
 public class TilController {
-	private TilService tilService;
+
+	private final TilService tilService;
 
 	@PostMapping
 	public ResponseEntity<BaseResponse<CreateTilResponseDto>> createTil(
