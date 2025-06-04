@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.rank.service;
 
+import java.util.List;
+
 import com.example.cluvrapi.domain.rank.dto.FindRankLogResponseDto;
 import com.example.cluvrapi.domain.rank.dto.request.CreateRankLogRequestDto;
 
@@ -9,10 +11,9 @@ public interface RankLogService {
 	 *
 	 * @param userId 유저 ID
 	 * @return 유저 등급 로그 조회 결과
-	 *
 	 * @author 나원준
 	 */
-	public FindRankLogResponseDto findRankLogByUserId(Long userId);
+	public List<FindRankLogResponseDto> findRankLogByUserId(Long userId);
 
 	/**
 	 * 설명: 등급 로그 저장

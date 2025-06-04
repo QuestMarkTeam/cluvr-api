@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.rank.service;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -53,7 +55,7 @@ public class RankServiceImpl implements RankService {
 
 	@Override
 	@Transactional(readOnly=true)
-	public FindRankLogResponseDto findRankLogByUserId(Long userId) {
+	public List<FindRankLogResponseDto> findRankLogByUserId(Long userId) {
 		return rankRepository.findRankLogByUserId(userId);
 	}
 

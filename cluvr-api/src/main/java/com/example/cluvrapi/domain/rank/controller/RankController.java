@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.rank.controller;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -25,7 +27,7 @@ public class RankController {
 	}
 
 	@GetMapping("/logs")
-	public ResponseEntity<BaseResponse<FindRankLogResponseDto>> findRankLogByUserId() {
+	public ResponseEntity<BaseResponse<List<FindRankLogResponseDto>>> findRankLogByUserId() {
 		return ResponseEntity.ok(BaseResponse.success(rankService.findRankLogByUserId(1L), ResponseCode.OK));
 	}
 
