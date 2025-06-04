@@ -1,6 +1,8 @@
 package com.example.cluvrapi.domain.user.entity;
 
-import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
+import java.time.LocalDate;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -9,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
+import com.example.cluvrapi.domain.user.entity.enums.CategoryDetail;
+import com.example.cluvrapi.domain.user.entity.enums.Gender;
+import com.example.cluvrapi.domain.user.entity.enums.UserRole;
 
 @Getter
 @Entity
