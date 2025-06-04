@@ -1,75 +1,74 @@
-package com.example.cluvrapi.global.jwt;//package com.example.cluvrapi.global.jwt;
-//
-//import io.jsonwebtoken.*;
-//import java.security.Key;
-//import java.util.Base64;
-//import java.util.Date;
-//import javax.crypto.spec.SecretKeySpec;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.stereotype.Component;
-//import org.springframework.util.StringUtils;
-//
-//@Component
-//public class JwtUtil {
-//
-//    private static final String BEARER = "Bearer ";
-//    private static final long ACCESS_EXP_MS  = 1000L * 60 * 60 * 2;      // 2시간
-//    private static final long REFRESH_EXP_MS = 1000L * 60 * 60 * 24 * 7; // 1주일
-//
-//    @Value("${jwt.secret.key}")
-//    private String secretKey;
-//
-//    private Key getSigningKey() {
-//        byte[] keyBytes = Base64.getDecoder().decode(secretKey);
-//        return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
-//    }
-//
-//    // 헤더에서 "Bearer " 제거
-//    public String resolveToken(String header) {
-//        if (StringUtils.hasText(header) && header.startsWith(BEARER)) {
-//            return header.substring(BEARER.length());
-//        }
-//        return null;
-//    }
-//
-//    // 서명·만료 검사
-//    public boolean validateToken(String token) {
-//        try {
-//            Jwts.parserBuilder()
-//                .setSigningKey(getSigningKey())
-//                .build()
-//                .parseClaimsJws(token);
-//            return true;
-//        } catch (JwtException | IllegalArgumentException e) {
-//            return false;
-//        }
-//    }
-//
-//    // subject(userId) 꺼내기
-//    public String getSubject(String token) {
-//        return Jwts.parserBuilder()
-//            .setSigningKey(getSigningKey())
-//            .build()
-//            .parseClaimsJws(token)
-//            .getBody()
-//            .getSubject();
-//    }
-//
-//    // AccessToken 발급
-//    public String generateAccessToken(String subject) {
-//        return BEARER + Jwts.builder()
-//            .setSubject(subject)
-//            .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXP_MS))
-//            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-//            .compact();
-//    }
-//
-//    // RefreshToken 발급
-//    public String generateRefreshToken(String subject) {
-//        return BEARER + Jwts.builder()
-//            .setSubject(subject)
-//            .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXP_MS))
-//            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-//            .compact();
-//    }
-//}
+package com.example.cluvrapi.global.jwt;
+
+import java.security.Key;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+
+@Component
+public class JwtUtil {
+
+	public final long ACCESS_TOKEN_EXPIRATION_MS = 1000L * 60 * 60 * 2;
+	public final long REFRESH_TOKEN_EXPIRATION_MS = 1000L * 60 * 60 * 24 * 7;
+	@Value("${jwt.secret.key}")
+	private String secretKey;
+
+	public String generateAccessToken(Long userId, String role) {
+		return generateToken(userId, role, ACCESS_TOKEN_EXPIRATION_MS);
+	}
+
+	public String generateRefreshToken(Long userId, String role) {
+		return generateToken(userId, role, REFRESH_TOKEN_EXPIRATION_MS);
+	}
+
+	private String generateToken(Long userId, String role, long expirationMillis) {
+
+		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+		Key key = Keys.hmacShaKeyFor(keyBytes);
+
+		Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
+		claims.put("role", role);
+
+		Date now = new Date();
+		Date expiryDate = new Date(now.getTime() + expirationMillis);
+
+		return Jwts.builder()
+			.setClaims(claims)
+			.setIssuedAt(now)
+			.setExpiration(expiryDate)
+			.signWith(key, SignatureAlgorithm.HS256)
+			.compact();
+	}
+
+	public Long getUserIdFromToken(String token) {
+		return Long.valueOf(parseToken(token).getSubject());
+	}
+
+	public String getUserRoleFromToken(String token) {
+		return parseToken(token).get("role", String.class);
+	}
+
+	public boolean validateToken(String token) {
+		try {
+			parseToken(token);
+			return true;
+		} catch (JwtException | IllegalArgumentException e) {
+			return false;
+		}
+	}
+
+	private Claims parseToken(String token) {
+		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+		Key key = Keys.hmacShaKeyFor(keyBytes);
+
+		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+	}
+}

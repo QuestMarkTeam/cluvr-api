@@ -47,7 +47,7 @@ dependencies {
     implementation 'at.favre.lib:bcrypt:0.10.2'
 
     //security
-//    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
     // Redisson
     implementation 'org.redisson:redisson-spring-boot-starter:3.27.1'
