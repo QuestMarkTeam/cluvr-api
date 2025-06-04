@@ -1,0 +1,12 @@
+package com.example.chat.repository;
+
+import java.util.List;
+
+import com.example.chat.entity.ChatRoomUser;
+import com.example.common.repository.BaseRepository;
+
+public interface ChatRoomUserRepository extends BaseRepository<ChatRoomUser, Long> {
+	boolean existsByRoomIdAndUserId(Long roomId, Long userId);
+
+	List<ChatRoomUser> findByRoomId(Long roomId);
+}

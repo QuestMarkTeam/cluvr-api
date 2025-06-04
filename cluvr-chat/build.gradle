@@ -38,6 +38,15 @@ dependencies {
 
     // WebSocket + STOMP
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // MySQL
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'  // JPA 사용
+    runtimeOnly 'com.mysql:mysql-connector-j'  // MySQL JDBC 드라이버
+
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5' // jjwt-api 라이브러리 버전 지정
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5' // jjwt-impl 라이브러리 버전 지정 (런타임에만 필요)
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // jjwt-jackson 라이브러리 버전 지정 (Jackson과 연동할 때 필요)
 }
 
 tasks.named('test') {
