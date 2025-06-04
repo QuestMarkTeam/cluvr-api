@@ -10,9 +10,27 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.jwt.CustomUserDetailsService;
+import com.example.cluvrapi.global.jwt.JwtAuthenticationFilter;
+import com.example.cluvrapi.global.jwt.JwtUtil;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+	private final CustomUserDetailsService customUserDetailsService;
+	private final JwtUtil jwtUtil;
+	private final UserRepository userRepository;
+
+	public SecurityConfig(
+		CustomUserDetailsService customUserDetailsService,
+		JwtUtil jwtUtil,
+		UserRepository userRepository
+	) {
+		this.customUserDetailsService = customUserDetailsService;         // ← 추가
+		this.jwtUtil = jwtUtil;                                           // ← 추가
+		this.userRepository = userRepository;                             // ← 추가
+	}
 
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
@@ -44,8 +62,15 @@ public class SecurityConfig {
 			.authenticated());
 
 		http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		http.userDetailsService(customUserDetailsService);
+
+		http.addFilterBefore(
+			new JwtAuthenticationFilter(jwtUtil, userRepository),
+			org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+		);
 
 		return http.build();
 
 	}
+
 }
