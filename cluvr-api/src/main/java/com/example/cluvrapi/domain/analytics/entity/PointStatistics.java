@@ -29,12 +29,11 @@ public class PointStatistics {
 	@Column(nullable = false)
 	private Integer point;
 
-	@OneToOne
-	@JoinColumn(name = "user_id", nullable = false)
-	private User user;
+	@Column(nullable = false)
+	private Long userId;
 
-	public PointStatistics(Integer point, User user) {
+	public PointStatistics(Integer point, Long userId) {
 		this.point = point;
-		this.user = user;
+		this.userId = userId;
 	}
 }
