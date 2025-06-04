@@ -26,6 +26,7 @@ public class RankServiceImpl implements RankService {
 	private final RankLogRepository rankLogRepository;
 
 	@Override
+	@Transactional(readOnly=true)
 	public FindRankResponseDto findRankByUserId(Long userId) {
 		return rankRepository.findScoreByUserId(userId);
 	}
@@ -51,6 +52,7 @@ public class RankServiceImpl implements RankService {
 	}
 
 	@Override
+	@Transactional(readOnly=true)
 	public FindRankLogResponseDto findRankLogByUserId(Long userId) {
 		return rankRepository.findRankLogByUserId(userId);
 	}
