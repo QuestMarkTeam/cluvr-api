@@ -1,14 +1,16 @@
 package com.example.cluvrapi.global.config;
 
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configurable
+@Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
@@ -16,6 +18,13 @@ public class SecurityConfig {
 	public BCryptPasswordEncoder passwordEncoder() {
 
 		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public AuthenticationManager authenticationManager(
+		AuthenticationConfiguration configuration
+	) throws Exception {
+		return configuration.getAuthenticationManager();
 	}
 
 	@Bean
@@ -27,7 +36,7 @@ public class SecurityConfig {
 
 		http.httpBasic((auth) -> auth.disable());
 
-		http.authorizeHttpRequests((auth) -> auth.requestMatchers("/login", "/", "/signin")
+		http.authorizeHttpRequests((auth) -> auth.requestMatchers("/users/signup", "/users/login", "/")
 			.permitAll()
 			.requestMatchers("/admin")
 			.hasRole("ADMIN")

@@ -7,6 +7,7 @@ import com.example.cluvrapi.domain.user.entity.enums.Gender;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -31,10 +32,10 @@ public class SignUpUserRequestDto {
 	@Pattern(regexp = "^\\d{10,11}$", message = "전화번호는 숫자 10~11자리여야 합니다.")
 	private final String phoneNumber;
 
-	@NotBlank(message = "성별을 선택해야 합니다.")
+	@NotNull(message = "성별을 선택해야 합니다.")
 	private final Gender gender;
 
-	@NotBlank(message = "카테고리(세부)를 선택해야 합니다.")
+	@NotNull(message = "카테고리(세부)를 선택해야 합니다.")
 	private final CategoryDetail categoryDetail;
 
 	private final String imageUrl;
