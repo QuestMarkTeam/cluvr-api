@@ -1,9 +1,13 @@
 package com.example.cluvrapi.domain.point.service;
 
+import com.example.cluvrapi.domain.point.dto.request.UpdatePointRequestDto;
+import com.example.cluvrapi.domain.point.dto.response.UpdatePointResponseDto;
 
 public interface PointService extends PointLogService {
 	/**
+	 * 설명: 포인트 충전 메소드
 	 *
+	 * 결제 시스템 고려 중
 	 *
 	 * @param userId 유저 식별자
 	 * @param requestDto 포인트 충전 dto : amount 담고 있음
