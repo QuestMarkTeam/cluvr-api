@@ -23,6 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
+	private final RefreshTokenService refreshTokenService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -33,8 +34,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-
 		String token = header.substring(7);
+
+		if (refreshTokenService.isAccessTokenBlacklisted(token)) {
+			// 이미 블랙리스트에 있으면 인증 없이 바로 통과(=차단)
+			filterChain.doFilter(request, response);
+			return;
+		}
+
 		if (!jwtUtil.validateToken(token)) {
 			filterChain.doFilter(request, response);
 			return;
