@@ -15,6 +15,7 @@ import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 
 @Service
@@ -27,7 +28,8 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	@Transactional
 	public long createBoard(CreateBoardRequestDto dto) {
-		return boardRepository.save(dto.fromDto()).getId();
+		User user = userRepository.findByIdOrElseThrow(1L);
+		return boardRepository.save(dto.fromDto(user)).getId();
 	}
 
 	@Override
