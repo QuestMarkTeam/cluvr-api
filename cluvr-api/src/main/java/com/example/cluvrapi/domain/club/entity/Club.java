@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 
 import com.example.cluvrapi.domain.club.enums.ClubType;
+import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
 import com.example.cluvrapi.domain.user.entity.User;
 
@@ -61,12 +62,16 @@ public class Club extends BaseTimeEntity {
 	@Column(nullable = false)
 	private Boolean isDeleted = false;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private JoinType joinType;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
 	public Club(String name, ClubType clubType, int maxMemberCount, int minScoreRequirement,
-		String greeting, String description, String posterUrl, Boolean isPublic, User user) {
+		String greeting, String description, String posterUrl, Boolean isPublic, JoinType joinType, User user) {
 		this.name = name;
 		this.clubType = clubType;
 		this.maxMemberCount = maxMemberCount;
@@ -75,6 +80,7 @@ public class Club extends BaseTimeEntity {
 		this.description = description;
 		this.posterUrl = posterUrl;
 		this.isPublic = isPublic;
+		this.joinType = joinType;
 		this.user = user;
 	}
 
@@ -88,5 +94,9 @@ public class Club extends BaseTimeEntity {
 
 	public void updateDescription(String description) {
 		this.description = description;
+	}
+
+	public void changeJoinTypeToSimpleRequest() {
+		this.joinType = JoinType.SIMPLE_REQUEST;
 	}
 }

@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.club.controller;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -36,7 +38,7 @@ public class ClubController {
 	@PostMapping
 	public ResponseEntity<BaseResponse<CreateClubResponseDto>> createClub(
 		// @Auth AuthUser authUser,
-		@RequestBody CreateClubRequestDto createClubRequestDto
+		@Valid @RequestBody CreateClubRequestDto createClubRequestDto
 	) {
 		CreateClubResponseDto dto = clubService.createClub(1L, createClubRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(dto, ResponseCode.CREATED));
@@ -62,7 +64,7 @@ public class ClubController {
 	@PatchMapping("/{clubId}")
 	public ResponseEntity<BaseResponse<Void>> updateClub(
 		@PathVariable Long clubId,
-		@RequestBody UpdateClubRequestDto updateClubRequest
+		@Valid @RequestBody UpdateClubRequestDto updateClubRequest
 	) {
 		clubService.updateClub(clubId, updateClubRequest);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
