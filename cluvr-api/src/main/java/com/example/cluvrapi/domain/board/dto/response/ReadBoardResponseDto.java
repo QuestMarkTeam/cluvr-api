@@ -24,7 +24,7 @@ public class ReadBoardResponseDto {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
-	public static ReadBoardResponseDto toDto(Board board) {
+	public static ReadBoardResponseDto ofDto(Board board) {
 		return new ReadBoardResponseDto(
 			board.getId(),
 			board.getTitle(),
