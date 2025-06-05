@@ -6,4 +6,6 @@ import com.example.cluvrapi.domain.user.entity.User;
 
 public interface UserRepositoryCustom {
 	Optional<User> findByEmail(String email);
+
+	Optional<Long> findPointById(Long userId);
 }

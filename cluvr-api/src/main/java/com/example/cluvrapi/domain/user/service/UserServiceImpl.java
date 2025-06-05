@@ -1,6 +1,7 @@
 package com.example.cluvrapi.domain.user.service;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +17,7 @@ import com.example.cluvrapi.domain.user.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserOtherResponseDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserPointResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.SignUpUserResponseDto;
 import com.example.cluvrapi.domain.user.entity.User;
@@ -107,6 +109,19 @@ public class UserServiceImpl implements UserService {
 			.orElseThrow(() -> new NoSuchElementException("해당 사용자를 찾을 수 없습니다. id=" + otherUserId));
 
 		return GetUserOtherResponseDto.from(user);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public GetUserPointResponseDto getUserPoint(Long userId) {
+		Optional<Long> optPoint = userRepository.findPointById(userId);
+
+		if (optPoint.isEmpty()) {
+			throw new IllegalArgumentException("해당 ID의 사용자를 찾을 수 없습니다. id=" + userId);
+		}
+
+		Long point = optPoint.get();
+		return new GetUserPointResponseDto(point);
 	}
 }
 
