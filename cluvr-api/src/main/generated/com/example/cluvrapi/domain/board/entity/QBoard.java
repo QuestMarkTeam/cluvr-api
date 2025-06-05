@@ -37,6 +37,8 @@ public class QBoard extends EntityPathBase<Board> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final BooleanPath isDeleted = createBoolean("isDeleted");
+
     public final BooleanPath isSelected = createBoolean("isSelected");
 
     //inherited

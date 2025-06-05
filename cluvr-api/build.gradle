@@ -5,6 +5,22 @@ plugins {
 //    id 'java-library' <- 안되면 이거 ㄱㄱ
 }
 
+// Q클래스 파일 경로 설정
+def generated = "$buildDir/generated/querydsl"
+
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(generated))
+}
+
+sourceSets {
+    main.java.srcDirs += [generated]
+}
+
+// clean 시 generated 파일 제거
+clean {
+    delete file('$buildDir/generated/querydsl')
+}
+
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
@@ -19,7 +35,6 @@ repositories {
 }
 
 dependencies {
-
     // Core dependencies
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-validation'

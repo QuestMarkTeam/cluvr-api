@@ -58,6 +58,9 @@ public class Board extends BaseTimeEntity {
 	@Column(nullable = false)
 	private int clover;
 
+	@Column(nullable = false)
+	private boolean isDeleted;
+
 	public Board(User user, BoardType boardType, CategoryType category, String title, String content, int clover) {
 		this.user = user;
 		this.boardType = boardType;
@@ -67,11 +70,16 @@ public class Board extends BaseTimeEntity {
 		this.view = 0;
 		this.isSelected = false;
 		this.clover = clover;
+		this.isDeleted = false;
 	}
 
 	public void update(String title, String content, int clover) {
 		this.title = title;
 		this.content = content;
 		this.clover = clover;
+	}
+
+	public void delete() {
+		this.isDeleted = true;
 	}
 }

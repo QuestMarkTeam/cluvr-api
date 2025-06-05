@@ -1,6 +1,6 @@
 package com.example.cluvrapi.domain.board.service;
 
-import org.springframework.data.domain.Page;
+import java.util.List;
 
 import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.request.UpdateBoardRequestDto;
@@ -9,14 +9,53 @@ import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 
 public interface BoardService {
+	/**
+	 *
+	 * 설명: 게시글 생성 서비스
+	 *
+	 * @param dto - 생성하는 게시글의 정보
+	 * @return 생성된 게시글의 id
+	 *
+	 * @author yong
+	 */
 	long createBoard(CreateBoardRequestDto dto);
 
-	Page<ReadBoardsResponseDto> readBoards(CategoryType category, int pageNumber, int pageSize);
+	/**
+	 * 설명: 특정 카테고리에 해당하는 게시글 목록을 페이징 처리하여 조회
+	 *
+	 * @param category 게시글 카테고리
+	 * @param pageNumber 페이지 번호 (1부터 시작)
+	 * @param pageSize 페이지당 게시글 수
+	 * @return 조회된 게시글 목록
+	 * @author yong
+	 */
+	List<ReadBoardsResponseDto> readBoards(CategoryType category, int pageNumber, int pageSize);
 
+	/**
+	 * 설명: 특정 게시글 상세 조회
+	 *
+	 * @param boardId 조회할 게시글 ID
+	 * @return 게시글 상세 정보 DTO
+	 * @author yong
+	 */
 	ReadBoardResponseDto readBoard(long boardId);
 
-	void updateBoard(UpdateBoardRequestDto dto, long boardId);
+	/**
+	 * 설명: 특정 게시글을 수정
+	 *
+	 * @param userId 수정 요청을 보낸 사용자 ID
+	 * @param dto 수정할 게시글 정보
+	 * @param boardId 수정 대상 게시글 ID
+	 * @author yong
+	 */
+	void updateBoard(long userId, UpdateBoardRequestDto dto, long boardId);
 
+	/**
+	 * 설명: 특정 게시글 삭제
+	 *
+	 * @param boardId 삭제할 게시글 ID
+	 * @author yong
+	 */
 	void deleteBoard(long boardId);
 }
 

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 
 @AllArgsConstructor
@@ -17,9 +18,24 @@ public class ReadBoardResponseDto {
 	private boolean isSelected;
 	private int clover;
 	private int view;
-	// private String userName;
+	private String userName;
 	// private int like;
 	// private int dislike;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+
+	public static ReadBoardResponseDto toDto(Board board) {
+		return new ReadBoardResponseDto(
+			board.getId(),
+			board.getTitle(),
+			board.getContent(),
+			board.getCategory(),
+			board.isSelected(),
+			board.getClover(),
+			board.getView(),
+			board.getUser().getName(),
+			board.getCreatedAt(),
+			board.getModifiedAt()
+		);
+	}
 }

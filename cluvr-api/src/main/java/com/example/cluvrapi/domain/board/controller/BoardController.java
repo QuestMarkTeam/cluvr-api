@@ -1,10 +1,11 @@
 package com.example.cluvrapi.domain.board.controller;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,7 +41,7 @@ public class BoardController {
 	}
 
 	@GetMapping
-	public ResponseEntity<BaseResponse<Page<ReadBoardsResponseDto>>> readBoards(@RequestParam CategoryType category,
+	public ResponseEntity<BaseResponse<List<ReadBoardsResponseDto>>> readBoards(@RequestParam CategoryType category,
 		@RequestParam int pageNumber,
 		@RequestParam int pageSize) {
 		return ResponseEntity.ok(
@@ -56,7 +57,8 @@ public class BoardController {
 	@PatchMapping("/{boardId}")
 	public ResponseEntity<BaseResponse<Void>> updateBoard(@Valid @RequestBody UpdateBoardRequestDto dto,
 		@PathVariable long boardId) {
-		boardService.updateBoard(dto, boardId);
+		long userId = 1;
+		boardService.updateBoard(userId, dto, boardId);
 		return ResponseEntity.ok(
 			BaseResponse.success(ResponseCode.OK)
 		);
