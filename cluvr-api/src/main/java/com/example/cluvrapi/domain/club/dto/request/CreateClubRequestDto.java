@@ -7,6 +7,7 @@ import lombok.Getter;
 
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.club.enums.ClubType;
+import com.example.cluvrapi.domain.club.enums.JoinType;
 
 @Getter
 public class CreateClubRequestDto {
@@ -36,4 +37,7 @@ public class CreateClubRequestDto {
 
 	@NotBlank(message = "공개여부는 지정된 양식만 가능합니다.")
 	private Boolean isPublic;
+
+	@Size(min = 2, max = 100, message = "지정된 카테고리만 등록 가능합니다.")
+	private JoinType joinType;
 }
