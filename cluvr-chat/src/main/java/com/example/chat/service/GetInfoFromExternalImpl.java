@@ -1,5 +1,6 @@
 package com.example.chat.service;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import com.example.global.response.response.BaseResponse;
 
 import lombok.RequiredArgsConstructor;
 
+@Profile("!test")
 @Component
 @RequiredArgsConstructor
 public class GetInfoFromExternalImpl implements GetInfoFromExternal {

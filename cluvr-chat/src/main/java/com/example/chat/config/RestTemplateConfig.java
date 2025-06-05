@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
  * 1. 다른 서버에 api 요청할 때(권한, 데이터 확인, 사용자 정보 불러오기 등) 사용
  * 2. 채팅 서버 DB에 없는 정보가 필요할 때(ex : userName, profileUrl등)
  *
- * @author 박선영
+ * @author Tcimel
  */
 
 @Configuration

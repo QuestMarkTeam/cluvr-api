@@ -3,6 +3,11 @@ package com.example.chat.dto.response;
 import com.example.chat.entity.ChatRoom;
 import com.example.chat.enums.RoomType;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor
 public class ChatRoomResponseDto {
 	private Long id;
 	private Long clubId;

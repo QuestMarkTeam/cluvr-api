@@ -9,4 +9,10 @@ public interface ChatRoomUserRepository extends BaseRepository<ChatRoomUser, Lon
 	boolean existsByRoomIdAndUserId(Long roomId, Long userId);
 
 	List<ChatRoomUser> findByRoomId(Long roomId);
+
+	ChatRoomUser findByRoomIdAndUserId(Long roomId, Long userId);
+
+	void deleteByRoomIdAndUserId(Long roomId, Long userId);
+
+	List<ChatRoomUser> findByUserId(Long userId);
 }

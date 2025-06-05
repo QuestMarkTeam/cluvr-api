@@ -1,8 +1,8 @@
 package com.example.chat.enums;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
-@Getter
+@JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum RoomType {
-    MANAGER, MEMBER
+	MANAGER, MEMBER
 }

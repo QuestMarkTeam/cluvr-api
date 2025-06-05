@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.example.chat.dto.request.ChatMessageRequestDto;
 import com.example.chat.dto.request.ChatRoomRequestDto;
 import com.example.chat.dto.request.CreateChatRoomRequestDto;
+import com.example.chat.dto.request.JoinRequestDto;
 import com.example.chat.dto.response.ChatRoomResponseDto;
 import com.example.chat.entity.ChatLog;
 import com.example.chat.entity.ChatRoomUser;
@@ -24,7 +25,9 @@ import com.example.global.response.response.BaseResponse;
 import com.example.global.response.response.ResponseCode;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
@@ -32,12 +35,12 @@ public class ChatController {
 	private final SimpMessagingTemplate messagingTemplate;
 	private final ChatService chatService;
 
-	@PostMapping("club/{clubId}/chat/room/join")
+	@PostMapping("club/{clubId}/chat/join")
 	public ResponseEntity<BaseResponse<?>> joinChatRoom(
 		@PathVariable Long clubId,
-		@RequestBody Long userId
+		@RequestBody JoinRequestDto request
 	) {
-		chatService.join(clubId, userId);
+		chatService.join(clubId, request);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
 	}
 
@@ -49,9 +52,7 @@ public class ChatController {
 
 	@MessageMapping("/message") // /pub/chat/message
 	public void sendMessage(@Payload ChatMessageRequestDto request) {
-		String roomId = "/sub/chat/room/" + request.getRoomId();
-		chatService.saveMessage(request); // 채팅 로그 몽고디비에 저장
-		messagingTemplate.convertAndSend(roomId, request); // 브로드 캐스트
+		chatService.broadcastMessage(request); // 채팅 로그 몽고디비에 저장
 	}
 
 	/**
@@ -62,7 +63,7 @@ public class ChatController {
 	 * @param clubId
 	 * @param roomId
 	 * @return roomId에 해당하는 채팅 메세지
-	 * @author {박선영}
+	 * @author Tcimel
 	 */
 
 	@GetMapping("/club/{clubId}/chat/{roomId}")
@@ -83,12 +84,13 @@ public class ChatController {
 	 * @param CreateChatRoomRequestDto {설명: 채팅방 생성에 필요한 dto}
 	 * @return {생성 완료 시 ResponseCode.CREATED 반환}
 	 * @throws {생성 권한이 없을 경우 권한이 없다는 안내 메세지 반환}
-	 * @author {박선영}
+	 * @author Tcimel
 	 */
 
 	@PostMapping("/chat/create")
 	public ResponseEntity<BaseResponse<?>> createChatRoom(
 		@RequestBody CreateChatRoomRequestDto request) {
+		log.info("방 생성 요청: {}", request);
 		if (request.getRole() == ClubRole.MEMBER) {
 			return ResponseEntity.ok(BaseResponse.error(ResponseCode.ACCESS_DENIED, "권한이 없습니다. 관리자에게 문의하세요."));
 		}
@@ -114,7 +116,7 @@ public class ChatController {
 	 * @param clubId              {설명: 채팅방 정보를 조회할 clubId 정보}
 	 * @param ChatRoomResponseDto {설명: 유저 Role에 해당하는 채팅방 리스트를 불러와야 하기 때문에, requestbody로 userId와 user의 role정보 전달 필요}
 	 * @return {clubId와 user의 role에 따른 채팅방 리스트 반환}
-	 * @author {박선영}
+	 * @author Tcimel
 	 */
 
 	@PostMapping("/club/{clubId}/chat/list")
@@ -122,6 +124,8 @@ public class ChatController {
 		@PathVariable Long clubId,
 		@RequestBody ChatRoomRequestDto request
 	) {
+		log.info("🥕🥕🥕 clubId = {}", clubId);
+		log.info("🥕🥕🥕 request = {}", request);
 		List<ChatRoomResponseDto> chatRooms = chatService.findChatRoomByClubAndRole(clubId, request);
 		return ResponseEntity.ok(BaseResponse.success(chatRooms, ResponseCode.OK));
 	}
