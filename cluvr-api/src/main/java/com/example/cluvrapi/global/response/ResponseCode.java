@@ -36,7 +36,7 @@ public enum ResponseCode {
 	INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
 
 	/* POINT */
-	POINT_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "포인트가 부족합니다.");
+	POINT_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
 
 	private final HttpStatus status;
 	private final String defaultMessage;
