@@ -1,4 +1,4 @@
-package com.example.cluvrapi.domain.joinRequest.entity;
+package com.example.cluvrapi.domain.join.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,12 +18,16 @@ import lombok.NoArgsConstructor;
 
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.enums.JoinType;
-import com.example.cluvrapi.domain.joinRequest.enums.JoinStatus;
+import com.example.cluvrapi.domain.join.enums.JoinStatus;
 import com.example.cluvrapi.domain.user.entity.User;
+
+/**
+ * 신청의 본체, 메타 정보를 담고 있다.
+ */
 
 @Entity
 @Getter
-@Table(name = "joinRequests")
+@Table(name = "join_requests")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class JoinRequest {
 
@@ -47,19 +51,10 @@ public class JoinRequest {
 	@Column(nullable = false)
 	private JoinType joinType;
 
-	@Column(columnDefinition = "TEXT")
-	private String submissionText;
-
-	@Column(columnDefinition = "TEXT")
-	private String problemAnswer;
-
-	public JoinRequest(User user, Club club, JoinStatus joinStatus, JoinType joinType,
-		String submissionText, String problemAnswer) {
+	public JoinRequest(User user, Club club, JoinStatus joinStatus, JoinType joinType) {
 		this.user = user;
 		this.club = club;
 		this.joinStatus = joinStatus;
 		this.joinType = joinType;
-		this.submissionText = submissionText;
-		this.problemAnswer = problemAnswer;
 	}
 }
