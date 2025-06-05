@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.reply.service;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
+import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
 import com.example.cluvrapi.domain.user.entity.User;
@@ -36,5 +39,8 @@ public class ReplyServiceImpl implements ReplyService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public
+	public List<ReadReplyResponseDto> readReplies(long boardId, Long parentId, int pageNumber,
+		int pageSize) {
+		return replyRepository.findAllRepliesByParent(boardId, parentId, pageNumber, pageSize);
+	}
 }
