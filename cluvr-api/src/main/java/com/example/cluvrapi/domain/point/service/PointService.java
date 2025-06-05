@@ -2,6 +2,7 @@ package com.example.cluvrapi.domain.point.service;
 
 import com.example.cluvrapi.domain.point.dto.request.UpdatePointRequestDto;
 import com.example.cluvrapi.domain.point.dto.response.UpdatePointResponseDto;
+import com.example.cluvrapi.domain.point.entity.PointType;
 
 public interface PointService extends PointLogService {
 	/**
@@ -38,10 +39,10 @@ public interface PointService extends PointLogService {
 	 * <p>{추가적인 설명이 필요하다면 여기에 작성합니다.}
 	 *
 	 * @param userId 유저 식별자
-	 * @param requestDto 포인트 적립 dto : amount 담고 있음
+	 * @param pointType 포인트 적립 amount
 	 *
 	 * @author 나원준
 	 */
 
-	void earnPoints(Long userId, UpdatePointRequestDto requestDto);
+	void earnPoints(Long userId, PointType pointType);
 }
