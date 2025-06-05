@@ -49,4 +49,8 @@ public class Reply extends BaseTimeEntity {
 		this.board = board;
 		this.parent = parent;
 	}
+
+	public void update(String content) {
+		this.content = content;
+	}
 }

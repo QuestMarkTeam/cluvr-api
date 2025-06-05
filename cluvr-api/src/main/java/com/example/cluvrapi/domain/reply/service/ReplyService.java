@@ -3,6 +3,7 @@ package com.example.cluvrapi.domain.reply.service;
 import java.util.List;
 
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
+import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 
 public interface ReplyService {
@@ -36,4 +37,19 @@ public interface ReplyService {
 	 * @author yong
 	 */
 	List<ReadReplyResponseDto> readReplies(long boardId, Long parentId, int pageNumber, int pageSize);
+
+	/**
+	 *
+	 * 설명: {메서드에 대한 간략한 설명을 작성합니다.}
+	 *
+	 * <p>
+	 *
+	 * @param email
+	 * @param password
+	 * @return
+	 * @throws ExceptionType {예외가 발생하는 경우 설명}
+	 *
+	 * @author yong
+	 */
+	void updateReply(long userId, long boardId, long replyId, UpdateReplyRequestDto dto);
 }

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
+import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
@@ -42,5 +43,16 @@ public class ReplyServiceImpl implements ReplyService {
 	public List<ReadReplyResponseDto> readReplies(long boardId, Long parentId, int pageNumber,
 		int pageSize) {
 		return replyRepository.findAllRepliesByParent(boardId, parentId, pageNumber, pageSize);
+	}
+
+	@Transactional
+	@Override
+	public void updateReply(long userId, long boardId, long replyId, UpdateReplyRequestDto dto) {
+		Reply reply = replyRepository.findByIdOrElseThrow(replyId);
+
+		if (userId != reply.getUser().getId()) {
+			throw new RuntimeException("끼에엑");
+		}
+		reply.update(dto.getContent());
 	}
 }
