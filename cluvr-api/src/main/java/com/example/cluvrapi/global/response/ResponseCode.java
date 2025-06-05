@@ -32,11 +32,11 @@ public enum ResponseCode {
 	/* 서버 */
 	UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류"),
 
+	/* 데이터 검증 */
+	INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
+
 	/* POINT */
 	POINT_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
-
-	/* Club */
-	INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 입력값");
 
 	private final HttpStatus status;
 	private final String defaultMessage;
