@@ -1,5 +1,6 @@
 package com.example.cluvrapi.domain.analytics.entity;
 
+import com.example.cluvrapi.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,6 +21,7 @@ import com.example.cluvrapi.domain.user.entity.User;
 @Table(name = "point_statistics")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PointStatistics {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
