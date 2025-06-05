@@ -46,4 +46,6 @@ public interface SubmissionFormRepositoryCustom {
 	 */
 
 	PageResponseDto<InfoSubmissionFormResponseDto> findAllSubmissionFormById(Long clubId, Pageable pageable);
+
+	Long findSubmissionFormIdByClubId(Long clubId);
 }
