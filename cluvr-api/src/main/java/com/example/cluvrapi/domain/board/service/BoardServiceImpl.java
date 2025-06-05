@@ -41,7 +41,7 @@ public class BoardServiceImpl implements BoardService {
 	@Transactional(readOnly = true)
 	public ReadBoardResponseDto readBoard(long boardId) {
 		Board board = boardRepository.findBoardById(boardId);
-		return ReadBoardResponseDto.toDto(board);
+		return ReadBoardResponseDto.ofDto(board);
 	}
 
 	@Transactional
