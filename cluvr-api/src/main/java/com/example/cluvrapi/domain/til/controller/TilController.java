@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.til.controller;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -33,7 +35,7 @@ public class TilController {
 	@PostMapping
 	public ResponseEntity<BaseResponse<CreateTilResponseDto>> createTil(
 		@PathVariable Long clubId,
-		@RequestBody CreateTilRequestDto createTilRequestDto
+		@Valid @RequestBody CreateTilRequestDto createTilRequestDto
 	) {
 		CreateTilResponseDto createTilResponseDto = tilService.createTil(1L, clubId, createTilRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(createTilResponseDto, ResponseCode.CREATED));
@@ -59,7 +61,7 @@ public class TilController {
 	@PatchMapping("/{tilId}")
 	public ResponseEntity<BaseResponse<Void>> updateTil(
 		@PathVariable Long tilId,
-		@RequestBody UpdateTilRequestDto updateTilRequestDto
+		@Valid @RequestBody UpdateTilRequestDto updateTilRequestDto
 	) {
 		tilService.updateTil(tilId, updateTilRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
