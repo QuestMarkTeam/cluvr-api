@@ -40,16 +40,24 @@ public interface ReplyService {
 
 	/**
 	 *
-	 * 설명: {메서드에 대한 간략한 설명을 작성합니다.}
+	 * 설명: 작성했던 댓글 수정
 	 *
-	 * <p>
-	 *
-	 * @param email
-	 * @param password
-	 * @return
-	 * @throws ExceptionType {예외가 발생하는 경우 설명}
-	 *
+	 * @param userId - 업데이트 전 생성자가 맞는지 확인
+	 * @param boardId - 필요한가?
+	 * @param replyId - 업데이트 하려는 댓글 id
+	 * @param dto - 업데이트하고 싶은 데이터
 	 * @author yong
 	 */
 	void updateReply(long userId, long boardId, long replyId, UpdateReplyRequestDto dto);
+
+	/**
+	 *
+	 * 설명: 삭제할 댓글(소프트 딜리트)
+	 *
+	 * @param userId - 업데이트 전 생성자가 맞는지 확인
+	 * @param boardId - 필요한가?
+	 * @param replyId - 삭제하려는 댓글 id
+	 * @author yong
+	 */
+	void deleteReply(long userId, long boardId, long replyId);
 }

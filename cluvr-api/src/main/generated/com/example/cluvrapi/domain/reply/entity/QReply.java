@@ -33,6 +33,10 @@ public class QReply extends EntityPathBase<Reply> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final BooleanPath isDeleted = createBoolean("isDeleted");
+
+    public final BooleanPath isSelected = createBoolean("isSelected");
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 

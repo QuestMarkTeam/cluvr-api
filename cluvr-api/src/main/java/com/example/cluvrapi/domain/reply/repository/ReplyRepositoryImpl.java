@@ -26,23 +26,17 @@ public class ReplyRepositoryImpl implements ReplyRepositoryCustom {
 		QReply reply = QReply.reply;
 		BooleanBuilder builder = new BooleanBuilder();
 
-		if (parentId == null) {
-			builder.and(reply.parent.isNull());
-		} else {
-			builder.and(reply.parent.id.eq(parentId));
-		}
+		builder.and(reply.board.id.eq(boardId));
+		builder.and(reply.parent.id.eq(parentId));
+		builder.and(reply.isDeleted.eq(false));
 
-		builder.and(reply.board.id.eq(boardId)); // 해당 게시글의 댓글만 조회
-
-		List<ReadReplyResponseDto> replies = queryFactory
-			.select(new QReadReplyResponseDto(reply.content, reply.user.name, reply.createdAt))
+		return queryFactory
+			.select(new QReadReplyResponseDto(reply.id, reply.content, reply.user.name, reply.createdAt))
 			.from(reply)
 			.where(builder)
 			.orderBy(reply.createdAt.desc())
 			.offset((long)(pageNumber - 1) * pageSize)
 			.limit(pageSize)
 			.fetch();
-
-		return replies;
 	}
 }

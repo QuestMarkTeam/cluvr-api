@@ -13,8 +13,8 @@ public class QReadReplyResponseDto extends ConstructorExpression<ReadReplyRespon
 
     private static final long serialVersionUID = 804674885L;
 
-    public QReadReplyResponseDto(com.querydsl.core.types.Expression<String> content, com.querydsl.core.types.Expression<String> userName, com.querydsl.core.types.Expression<java.time.LocalDateTime> createdAt) {
-        super(ReadReplyResponseDto.class, new Class<?>[]{String.class, String.class, java.time.LocalDateTime.class}, content, userName, createdAt);
+    public QReadReplyResponseDto(com.querydsl.core.types.Expression<Long> id, com.querydsl.core.types.Expression<String> content, com.querydsl.core.types.Expression<String> userName, com.querydsl.core.types.Expression<java.time.LocalDateTime> createdAt) {
+        super(ReadReplyResponseDto.class, new Class<?>[]{long.class, String.class, String.class, java.time.LocalDateTime.class}, id, content, userName, createdAt);
     }
 
 }

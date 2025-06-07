@@ -16,6 +16,8 @@ import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.exception.AuthenticationException;
+import com.example.cluvrapi.global.response.ResponseCode;
 
 @Service
 @RequiredArgsConstructor
@@ -49,10 +51,20 @@ public class ReplyServiceImpl implements ReplyService {
 	@Override
 	public void updateReply(long userId, long boardId, long replyId, UpdateReplyRequestDto dto) {
 		Reply reply = replyRepository.findByIdOrElseThrow(replyId);
-
-		if (userId != reply.getUser().getId()) {
-			throw new RuntimeException("끼에엑");
-		}
+		isValid(userId, reply.getUser());
 		reply.update(dto.getContent());
+	}
+
+	@Override
+	public void deleteReply(long userId, long boardId, long replyId) {
+		Reply reply = replyRepository.findByIdOrElseThrow(replyId);
+		isValid(userId, reply.getUser());
+		reply.delete();
+	}
+
+	private void isValid(long userId, User replyUser) throws AuthenticationException {
+		if (userId != replyUser.getId()) {
+			throw new AuthenticationException(ResponseCode.AUTH_ANNOTATION_USER_MISMATCH);
+		}
 	}
 }
