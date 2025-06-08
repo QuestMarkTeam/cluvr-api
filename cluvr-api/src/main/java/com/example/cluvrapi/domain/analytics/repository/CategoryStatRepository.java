@@ -1,4 +1,7 @@
 package com.example.cluvrapi.domain.analytics.repository;
 
-public interface CategoryStatRepository {
+import com.example.cluvrapi.domain.analytics.entity.CategoryStat;
+import com.example.cluvrapi.domain.common.repository.BaseRepository;
+
+public interface CategoryStatRepository extends BaseRepository<CategoryStat, Long> {
 }

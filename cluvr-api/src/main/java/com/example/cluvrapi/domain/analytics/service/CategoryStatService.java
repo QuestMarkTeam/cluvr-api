@@ -1,4 +1,5 @@
 package com.example.cluvrapi.domain.analytics.service;
 
-public interface CategoryStatService {
+public interface CategoryStatService extends BusinessStatService {
+
 }
