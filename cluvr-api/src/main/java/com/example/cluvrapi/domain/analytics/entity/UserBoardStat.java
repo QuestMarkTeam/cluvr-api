@@ -1,39 +1,37 @@
 package com.example.cluvrapi.domain.analytics.entity;
 
-import com.example.cluvrapi.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import com.example.cluvrapi.domain.user.entity.User;
-
 @Entity
 @Getter
-@Table(name = "point_statistics")
+@Table(name = "user_stat")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PointStatistics {
-
+public class UserBoardStat {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(nullable = false)
-	private Integer point;
+	private Integer score;
 
 	@Column(nullable = false)
 	private Long userId;
 
-	public PointStatistics(Integer point, Long userId) {
-		this.point = point;
+	@Column(nullable = false)
+	private Long categoryId;
+
+	public UserBoardStat(Integer score, Long categoryId, Long userId) {
+		this.score = score;
+		this.categoryId = categoryId;
 		this.userId = userId;
 	}
 }
