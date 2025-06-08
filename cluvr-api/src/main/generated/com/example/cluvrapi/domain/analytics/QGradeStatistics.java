@@ -12,7 +12,7 @@ import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.PathInits;
 
 /**
- * QGradeStatistics is a Querydsl query type for UserBoardStat
+ * QGradeStatistics is a Querydsl query type for UserBoardStatService
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QGradeStatistics extends EntityPathBase<GradeStatistics> {
