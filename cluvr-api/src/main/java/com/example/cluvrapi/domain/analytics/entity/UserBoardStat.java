@@ -13,9 +13,11 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "user_stat")
+@Table(name = "point_stat")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserBoardStat {
+public class PointStat {
+
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
