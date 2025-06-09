@@ -8,13 +8,19 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.example.cluvrapi.domain.point.enums.PointType;
 import com.example.cluvrapi.domain.point.service.PointService;
 import com.example.cluvrapi.global.annotation.EarnPoint;
 import com.example.cluvrapi.global.jwt.CustomUserDetails;
+import com.example.cluvrapi.global.listener.dto.PointLogDto;
+import com.example.cluvrapi.global.listener.dto.UserEventDto;
+import com.example.cluvrapi.global.listener.enums.RedisKey;
+import com.example.cluvrapi.global.listener.enums.UserEventType;
 
 @Aspect
 @RequiredArgsConstructor
@@ -22,6 +28,7 @@ import com.example.cluvrapi.global.jwt.CustomUserDetails;
 public class PointAspect {
 
 	private final PointService pointService; // 내부에서 트랜잭션 공유 가능하도록
+	private final ApplicationEventPublisher publisher; // 이벤트 발행
 
 	@Around("@annotation(com.example.cluvrapi.global.annotation.EarnPoint)")
 	public Object afterSuccess(ProceedingJoinPoint pjp) throws Throwable {
@@ -32,6 +39,7 @@ public class PointAspect {
 		MethodSignature signature = (MethodSignature)pjp.getSignature();
 		Method method = signature.getMethod();
 		EarnPoint earnPoint = method.getAnnotation(EarnPoint.class);
+		PointType pointType = earnPoint.value();
 
 		// 시큐리티에 인증된 유저 정보
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -40,7 +48,20 @@ public class PointAspect {
 			Object principal = auth.getPrincipal();
 			if (principal instanceof CustomUserDetails userDetails) {
 				Long userId = userDetails.getUser().getId();
-				pointService.earnPoints(userId, earnPoint.value());
+				pointService.earnPoints(userId, pointType);
+				publisher.publishEvent(new UserEventDto<>(
+						userId,
+						RedisKey.GEM_LOG,
+						UserEventType.POINT,
+						PointLogDto.of(
+							userId,
+							pointType.getAmount(),
+							pointType.getDescription(),
+							pointType.name(),
+							pointType.getFlowType()
+						)
+					)
+				);
 			}
 		}
 		return result;

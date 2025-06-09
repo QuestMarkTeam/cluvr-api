@@ -2,7 +2,7 @@ package com.example.cluvrapi.domain.point.service;
 
 import com.example.cluvrapi.domain.point.dto.request.UpdatePointRequestDto;
 import com.example.cluvrapi.domain.point.dto.response.UpdatePointResponseDto;
-import com.example.cluvrapi.domain.point.entity.PointType;
+import com.example.cluvrapi.domain.point.enums.PointType;
 
 public interface PointService extends PointLogService {
 	/**

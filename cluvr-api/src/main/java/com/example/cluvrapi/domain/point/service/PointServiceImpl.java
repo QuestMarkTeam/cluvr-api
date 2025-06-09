@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.cluvrapi.domain.point.dto.request.UpdatePointRequestDto;
 import com.example.cluvrapi.domain.point.dto.response.FindPointLogResponseDto;
 import com.example.cluvrapi.domain.point.dto.response.UpdatePointResponseDto;
-import com.example.cluvrapi.domain.point.entity.PointType;
+import com.example.cluvrapi.domain.point.enums.PointType;
 import com.example.cluvrapi.domain.point.repository.PointLogRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;

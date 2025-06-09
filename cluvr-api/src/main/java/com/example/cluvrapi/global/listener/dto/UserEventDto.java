@@ -2,20 +2,24 @@ package com.example.cluvrapi.global.listener.dto;
 
 import lombok.Getter;
 
+import com.example.cluvrapi.global.listener.enums.RedisKey;
 import com.example.cluvrapi.global.listener.enums.UserEventType;
 
 @Getter
 public class UserEventDto<T> {
 
-	private Long userId;
+	private final Long userId;
 
-	private UserEventType type;
+	private final UserEventType type;
 
-	private T dto;
+	private final RedisKey redisKey;
 
-	public UserEventDto(Long userId, UserEventType type, T dto) {
+	private final T dto;
+
+	public UserEventDto(Long userId, RedisKey redisKey, UserEventType type, T dto) {
 		this.userId = userId;
 		this.type = type;
 		this.dto = dto;
+		this.redisKey = redisKey;
 	}
 }

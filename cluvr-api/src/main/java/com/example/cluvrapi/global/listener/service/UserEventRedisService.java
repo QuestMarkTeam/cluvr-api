@@ -6,7 +6,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.example.cluvrapi.global.exception.BusinessException;
-import com.example.cluvrapi.global.listener.enums.RedisKey;
 import com.example.cluvrapi.global.response.ResponseCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,11 +29,23 @@ public class UserEventRedisService {
 		}
 	}
 
-	public void incrementHashValue(String mainKey) {
-		redisTemplate.opsForHash().increment(mainKey, RedisKey.TOTAL_ANSWER, 1);
-		redisTemplate.opsForHash().increment(mainKey, RedisKey.TOTAL_SELECTED, 1);
-		redisTemplate.opsForHash().increment(mainKey, RedisKey.TOTAL_SCORE, 1);
-		redisTemplate.opsForHash().increment(mainKey, RedisKey.TOTAL_QUESTION, 1);
-	}
+	// public void incrementHashValue(String mainKey) {
+	// 	// 레디스에 올라간 데이터가 없다면 초기값 세팅
+	// 	if (Boolean.FALSE.equals(redisTemplate.hasKey(mainKey))) {
+	// 		Map<String, Integer> initialMap = new HashMap<>();
+	// 		initialMap.put(RedisKey.TOTAL_ANSWER.getKey(), 0);
+	// 		initialMap.put(RedisKey.TOTAL_SELECTED.getKey(), 0);
+	// 		initialMap.put(RedisKey.TOTAL_SCORE.getKey(), 0);
+	// 		initialMap.put(RedisKey.TOTAL_QUESTION.getKey(), 0);
+	//
+	// 		redisTemplate.opsForHash().putAll(mainKey, initialMap);
+	// 		redisTemplate.expire(mainKey, Duration.ofDays(7)); // TTL 설정 (선택)
+	// 	}
+	// 	redisTemplate.opsForHash().increment(mainKey, RedisKey.TOTAL_ANSWER, 1);
+	// 	redisTemplate.opsForHash().increment(mainKey, RedisKey.TOTAL_SELECTED, 1);
+	// 	redisTemplate.opsForHash().increment(mainKey, RedisKey.TOTAL_SCORE, 1);
+	// 	redisTemplate.opsForHash().increment(mainKey, RedisKey.TOTAL_QUESTION, 1);
+	// 	redisTemplate.opsForHash().increment(mainKey, RedisKey.TOTAL_GEM, 1);
+	// }
 }
 
