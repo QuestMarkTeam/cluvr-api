@@ -9,7 +9,7 @@ public interface BusinessStatService {
 	 *
 	 *
 	 * @param redisKey {설명: 첫 번째 매개변수 설명}
-	 * @return {반환값에 대한 설명}
+	 * @return {redis 에서 가져온 데이터를 insertStat 로 리턴해줌}
 	 *
 	 * @author {작성자 이름}
 	 */
@@ -26,6 +26,7 @@ public interface BusinessStatService {
 	public void deleteStat(Long id);
 
 	/**
+	 * 설명: aggregate메소드에서 반환해준 리스트 매개변수로 받음
 	 *
 	 * @param insertDtoList {설명: 벌크 인설트로 넣어줄 데이터 리스트 {설명: 첫 번째 매개변수 설명}}
 	 *

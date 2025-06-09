@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserBoardStatServiceImpl implements UserBoardStatService {
+
 	@Override
 	public <T> List<T> aggregate(String redisKey, Class<T> clazz) {
 		return List.of();
