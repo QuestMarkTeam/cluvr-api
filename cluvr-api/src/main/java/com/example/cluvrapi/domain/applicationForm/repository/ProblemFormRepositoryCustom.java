@@ -46,4 +46,6 @@ public interface ProblemFormRepositoryCustom {
 	 */
 
 	PageResponseDto<InfoProblemFormResponseDto> findByProblemFormAllById(Long clubId, Pageable pageable);
+
+	Optional<Long> findActiveProblemFormIdByClubId(Long clubId);
 }
