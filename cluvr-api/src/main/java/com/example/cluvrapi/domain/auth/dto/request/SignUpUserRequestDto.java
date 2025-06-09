@@ -1,4 +1,4 @@
-package com.example.cluvrapi.domain.user.dto.request;
+package com.example.cluvrapi.domain.auth.dto.request;
 
 import java.time.LocalDate;
 

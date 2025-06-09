@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.jwt.CustomUserDetailsService;
@@ -53,29 +54,28 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws
 		Exception {
 
-		http.csrf((auth) -> auth.disable());
-
-		http.formLogin((auth) -> auth.disable());
-
-		http.httpBasic((auth) -> auth.disable());
-
-		http.authorizeHttpRequests((auth) -> auth.requestMatchers("/users/signup", "/users/login", "/")
-			.permitAll()
-			.requestMatchers("/admin")
-			.hasRole("ADMIN")
-			.anyRequest()
-			.authenticated());
-
-		http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-		http.userDetailsService(customUserDetailsService);
-
-		http.addFilterBefore(
-			new JwtAuthenticationFilter(jwtUtil, customUserDetailsService, refreshTokenService),
-			org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
-		);
+		http
+			.csrf(csrf -> csrf.disable())
+			.formLogin(form -> form.disable())
+			.httpBasic(basic -> basic.disable())
+			.sessionManagement(sm ->
+				sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			)
+			.userDetailsService(customUserDetailsService)
+			.authorizeHttpRequests(auth -> auth
+				// 회원가입·로그인만 공개
+				.requestMatchers("/auth/signup", "/auth/login").permitAll()
+				// /admin/** 은 ADMIN 권한 필요
+				.requestMatchers("/admin/**").hasRole("ADMIN")
+				// 그 외 모든 요청은 인증된 사용자여야 함
+				.anyRequest().authenticated()
+			)
+			.addFilterBefore(
+				new JwtAuthenticationFilter(jwtUtil, customUserDetailsService, refreshTokenService),
+				UsernamePasswordAuthenticationFilter.class
+			);
 
 		return http.build();
-
 	}
 
 }

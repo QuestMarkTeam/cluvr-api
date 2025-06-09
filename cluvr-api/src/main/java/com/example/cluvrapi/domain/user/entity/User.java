@@ -106,4 +106,20 @@ public class User extends BaseTimeEntity {
 		this.imageUrl = imageUrl;
 		this.isDeleted = isDeleted;
 	}
+
+	public void changeEmail(String email) {
+		this.email = email;
+	}
+
+	public void changePhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public void changeCategoryType(CategoryType categoryType) {
+		this.categoryType = categoryType;
+	}
+
+	public void changeImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
 }

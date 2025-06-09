@@ -11,7 +11,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.cluvrapi.domain.common.annotation.Auth;
-import com.example.cluvrapi.domain.user.entity.User;
+import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -20,17 +20,16 @@ public class AuthenticationArgumentResolver implements HandlerMethodArgumentReso
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		boolean hasAuthAnno = parameter.hasParameterAnnotation(Auth.class);
-		boolean isUserType = User.class.isAssignableFrom(parameter.getParameterType());
-		boolean isCustomDetails = CustomUserDetails.class.isAssignableFrom(parameter.getParameterType());
-		return hasAuthAnno && (isUserType || isCustomDetails);
+		return parameter.hasParameterAnnotation(Auth.class)
+			&& AuthUser.class.isAssignableFrom(parameter.getParameterType());
 	}
 
 	@Override
-	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-		NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+	public Object resolveArgument(MethodParameter parameter,
+		ModelAndViewContainer mavContainer,
+		NativeWebRequest webRequest,
+		WebDataBinderFactory binderFactory) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
 		if (authentication == null || !authentication.isAuthenticated()) {
 			throw new ResponseStatusException(
 				ResponseCode.AUTH_REQUIRED.getStatus(),
@@ -39,7 +38,6 @@ public class AuthenticationArgumentResolver implements HandlerMethodArgumentReso
 		}
 
 		Object principal = authentication.getPrincipal();
-
 		if (!(principal instanceof CustomUserDetails)) {
 			throw new ResponseStatusException(
 				ResponseCode.TOKEN_INVALID.getStatus(),
@@ -48,18 +46,9 @@ public class AuthenticationArgumentResolver implements HandlerMethodArgumentReso
 		}
 
 		CustomUserDetails userDetails = (CustomUserDetails)principal;
-
-		if (User.class.isAssignableFrom(parameter.getParameterType())) {
-			return userDetails.getUser();
-		}
-
-		if (CustomUserDetails.class.isAssignableFrom(parameter.getParameterType())) {
-			return userDetails;
-		}
-		
-		throw new ResponseStatusException(
-			ResponseCode.AUTH_ANNOTATION_USER_MISMATCH.getStatus(),
-			ResponseCode.AUTH_ANNOTATION_USER_MISMATCH.getDefaultMessage()
+		return new AuthUser(
+			userDetails.getUser().getId(),
+			userDetails.getUser().getEmail()
 		);
 	}
 }

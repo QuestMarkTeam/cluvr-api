@@ -2,27 +2,23 @@ package com.example.cluvrapi.domain.user.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.cluvrapi.domain.auth.service.AuthService;
 import com.example.cluvrapi.domain.common.annotation.Auth;
-import com.example.cluvrapi.domain.user.dto.request.LoginUserRequestDto;
-import com.example.cluvrapi.domain.user.dto.request.SignUpUserRequestDto;
+import com.example.cluvrapi.domain.common.dto.AuthUser;
+import com.example.cluvrapi.domain.user.dto.request.UpdateUserRequestDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserOtherResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserPointResponseDto;
-import com.example.cluvrapi.domain.user.dto.response.LoginUserResponseDto;
-import com.example.cluvrapi.domain.user.dto.response.SignUpUserResponseDto;
-import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.service.UserService;
 import com.example.cluvrapi.global.jwt.CustomUserDetails;
-import com.example.cluvrapi.global.jwt.JwtUtil;
-import com.example.cluvrapi.global.jwt.RefreshTokenServiceImpl;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -35,57 +31,19 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
 	private final UserService userService;
-	private final RefreshTokenServiceImpl refreshTokenService;
-	private final JwtUtil jwtUtil;
-
-	@PostMapping("/signup")
-	public ResponseEntity<BaseResponse<SignUpUserResponseDto>> signUp(
-		@Valid @RequestBody SignUpUserRequestDto signUpUserRequestDto) {
-		SignUpUserResponseDto responseDto = userService.signUp(signUpUserRequestDto);
-		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.CREATED));
-	}
-
-	@PostMapping("/login")
-	public ResponseEntity<BaseResponse<LoginUserResponseDto>> login(
-		@Valid @RequestBody LoginUserRequestDto loginUserRequestDto) {
-		LoginUserResponseDto responseDto = userService.login(loginUserRequestDto);
-		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.OK));
-	}
-
-	@PostMapping("/logout")
-	public ResponseEntity<BaseResponse<String>> logout(@RequestHeader("Authorization") String authorizationHeader) {
-		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-			return ResponseEntity.badRequest()
-				.body(BaseResponse.error(ResponseCode.TOKEN_INVALID, "유효한 Access Token이 헤더에 없습니다."));
-		}
-
-		String accessToken = authorizationHeader.substring(7);
-
-		if (!jwtUtil.validateToken(accessToken)) {
-			return ResponseEntity.status(401)
-				.body(BaseResponse.error(ResponseCode.TOKEN_INVALID, "유효하지 않은 Access Token입니다."));
-		}
-
-		long expireMillis = jwtUtil.getExpirationMillis(accessToken);
-
-		long remainingMillis = expireMillis - System.currentTimeMillis();
-
-		refreshTokenService.blacklistAccessToken(accessToken, remainingMillis);
-
-		return ResponseEntity.ok(BaseResponse.success("로그아웃 되어 액세스토큰이 즉시 무효화되었습니다.", ResponseCode.OK));
-	}
+	private final AuthService authService;
 
 	@GetMapping("/me")
-	public ResponseEntity<BaseResponse<GetUserMeResponseDto>> getMyProfile(@Auth User user) {
-		GetUserMeResponseDto profileDto = userService.getMyProfile(user.getId());
+	public ResponseEntity<BaseResponse<GetUserMeResponseDto>> getMyProfile(@Auth AuthUser authUser) {
+		GetUserMeResponseDto profileDto = userService.getMyProfile(authUser.id());
 		return ResponseEntity.ok(BaseResponse.success(profileDto, ResponseCode.OK));
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<BaseResponse<GetUserOtherResponseDto>> getOtherUserProfile(@Auth User currentUser,
+	public ResponseEntity<BaseResponse<GetUserOtherResponseDto>> getOtherUserProfile(@Auth AuthUser currentUser,
 		@PathVariable("id") Long otherUserId) {
 
-		if (currentUser.getId().equals(otherUserId)) {
+		if (currentUser.id().equals(otherUserId)) {
 			return ResponseEntity.badRequest()
 				.body(BaseResponse.error(ResponseCode.VALID_FAIL, "본인 프로필 조회 시 /users/me 사용하세요"));
 		}
@@ -102,4 +60,23 @@ public class UserController {
 		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.OK));
 
 	}
+
+	@PutMapping("/me")
+	public ResponseEntity<BaseResponse<GetUserMeResponseDto>> updateMyProfile(
+		@Auth AuthUser currentUser,
+		@Valid @RequestBody UpdateUserRequestDto updateDto
+	) {
+		GetUserMeResponseDto updatedDto = userService.updateMyProfile(currentUser.id(), updateDto);
+		return ResponseEntity
+			.ok(BaseResponse.success(updatedDto, ResponseCode.OK));
+	}
+
+	@DeleteMapping("/me")
+	public ResponseEntity<BaseResponse<Void>> deleteMyProfile(@Auth AuthUser authUser) {
+		// 로그인된 유저의 ID로만 탈퇴 처리
+		userService.deleteMyProfile(authUser.id());
+		return ResponseEntity
+			.ok(BaseResponse.success(null, ResponseCode.OK));
+	}
+
 }
