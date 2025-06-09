@@ -1,6 +1,9 @@
 package com.example.cluvrapi.domain.club.dto.request;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import lombok.Getter;
@@ -14,16 +17,18 @@ public class CreateClubRequestDto {
 	@Size(min = 2, max = 20, message = "클럽 이름은 2~20 글자 사이만 가능합니다.")
 	private String name;
 
-	@Size(min = 2, max = 100, message = "지정된 카테고리만 등록 가능합니다.")
+	@NotNull(message = "클럽 타입은 필수값입니다.")
 	private ClubType clubType;
 
-	@Size(min = 2, max = 100, message = "지정된 카테고리만 등록 가능합니다.")
+	@NotNull(message = "카테고리 타입은 필수값입니다.")
 	private CategoryType categoryDetail;
 
-	@Size(min = 0, max = 10000, message = "점수 제한은 0점 이상 10,000점 이하로 가능합니다.")
+	@Min(value = 0, message = "점수 제한은 0점 이상이어야 합니다.")
+	@Max(value = 10000, message = "점수 제한은 10,000점 이하여야 합니다.")
 	private int minScoreRequirement;
 
-	@Size(min = 2, max = 10, message = "인원수는 2명 이상 10명 이하로 가능합니다.")
+	@Min(value = 2, message = "인원수는 2명 이상이어야 합니다.")
+	@Max(value = 10, message = "인원수는 10명 이하여야 합니다.")
 	private int maxMemberCount;
 
 	@Size(min = 2, max = 100, message = "소개말은 2자 이상 100자 이하로 작성해주세요.")
@@ -35,9 +40,9 @@ public class CreateClubRequestDto {
 	@NotBlank(message = "이미지는 필수값입니다.")
 	private String posterUrl;
 
-	@NotBlank(message = "공개여부는 지정된 양식만 가능합니다.")
+	@NotNull(message = "공개여부는 반드시 true 또는 false 여야 합니다.")
 	private Boolean isPublic;
 
-	@Size(min = 2, max = 100, message = "지정된 카테고리만 등록 가능합니다.")
+	@NotNull(message = "가입 방식은 필수값입니다.")
 	private JoinType joinType;
 }
