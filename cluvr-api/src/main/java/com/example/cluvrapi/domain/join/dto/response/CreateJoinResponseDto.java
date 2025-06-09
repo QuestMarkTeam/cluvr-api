@@ -2,6 +2,10 @@ package com.example.cluvrapi.domain.join.dto.response;
 
 import lombok.Getter;
 
+/**
+ * 생성할 Join Request 정보
+ */
+
 @Getter
 public class CreateJoinResponseDto {
 	private Long joinRequestId;
