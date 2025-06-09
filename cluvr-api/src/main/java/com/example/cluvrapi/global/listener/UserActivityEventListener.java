@@ -8,6 +8,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.listener.dto.UserEventDto;
+import com.example.cluvrapi.global.listener.enums.UserEventType;
 import com.example.cluvrapi.global.listener.service.UserEventRedisService;
 
 @Component
@@ -37,7 +38,4 @@ public class UserActivityEventListener {
 	// 	redisService.incrementHashValue(key);
 	// }
 
-	// public void addGem() {
-	// 	redisService.incrementHashValue("key");
-	// }
 }
