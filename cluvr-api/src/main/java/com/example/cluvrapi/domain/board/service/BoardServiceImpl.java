@@ -1,10 +1,9 @@
 package com.example.cluvrapi.domain.board.service;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +14,7 @@ import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 
 @Service
@@ -27,52 +27,35 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	@Transactional
 	public long createBoard(CreateBoardRequestDto dto) {
-		return boardRepository.save(dto.fromDto()).getId();
+		User user = userRepository.findByIdOrElseThrow(1L);
+		return boardRepository.save(dto.fromDto(user)).getId();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<ReadBoardsResponseDto> readBoards(CategoryType category, int pageNumber, int pageSize) {
-		Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
-
-		Page<Board> boards = boardRepository.findAllByCategory(pageable, category);
-
-		return boards.map(board -> new ReadBoardsResponseDto(
-			board.getId(),
-			board.getTitle(),
-			board.getContent(),
-			board.getView(),
-			board.getCreatedAt(),
-			board.getModifiedAt()
-		));
+	public List<ReadBoardsResponseDto> readBoards(CategoryType category, int pageNumber, int pageSize) {
+		return boardRepository.findAllBoardsByCategory(category, pageNumber, pageSize);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public ReadBoardResponseDto readBoard(long boardId) {
-		Board board = boardRepository.findByIdOrElseThrow(boardId);
-		return new ReadBoardResponseDto(
-			board.getId(),
-			board.getTitle(),
-			board.getContent(),
-			board.getCategory(),
-			board.isSelected(),
-			board.getClover(),
-			board.getView(),
-			board.getCreatedAt(),
-			board.getModifiedAt()
-		);
+		Board board = boardRepository.findBoardById(boardId);
+		return ReadBoardResponseDto.ofDto(board);
 	}
 
 	@Transactional
 	@Override
-	public void updateBoard(UpdateBoardRequestDto dto, long boardId) {
+	public void updateBoard(long userId, UpdateBoardRequestDto dto, long boardId) {
+		User user = userRepository.findByIdOrElseThrow(userId);
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
 		board.update(dto.getTitle(), dto.getContent(), dto.getClover());
 	}
 
+	@Transactional
 	@Override
 	public void deleteBoard(long boardId) {
-		boardRepository.deleteById(boardId);
+		Board board = boardRepository.findByIdOrElseThrow(boardId);
+		board.delete();
 	}
 }
