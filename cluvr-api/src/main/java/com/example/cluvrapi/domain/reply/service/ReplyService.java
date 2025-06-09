@@ -2,6 +2,7 @@ package com.example.cluvrapi.domain.reply.service;
 
 import org.springframework.data.domain.Pageable;
 
+import com.example.cluvrapi.domain.board.enums.ReactionType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
@@ -60,4 +61,30 @@ public interface ReplyService {
 	 * @author yong
 	 */
 	void deleteReply(long userId, long boardId, long replyId);
+
+	/**
+	 *
+	 * 설명: 좋아요 혹은 싫어요 선택
+	 *
+	 * @param userId - Auth 유저
+	 * @param boardId - 댓글 게시글
+	 * @param replyId - 댓글
+	 * @param reaction - 반응 타입(좋아요 혹은 싫어요)
+	 *
+	 * @author yong
+	 */
+	void selectReaction(long userId, long boardId, long replyId, ReactionType reaction);
+
+	/**
+	 *
+	 * 설명: 좋아요 혹은 싫어요 선택 취소
+	 *
+	 * @param userId - Auth 유저
+	 * @param boardId - 댓글 게시글
+	 * @param replyId - 댓글
+	 * @param reaction - 반응 타입(좋아요 혹은 싫어요)
+	 *
+	 * @author yong
+	 */
+	void cancelReaction(long userId, long boardId, long replyId, ReactionType reaction);
 }
