@@ -1,4 +1,4 @@
-package com.example.cluvrapi.domain.user.dto.response;
+package com.example.cluvrapi.domain.auth.dto.response;
 
 import com.example.cluvrapi.domain.user.entity.User;
 

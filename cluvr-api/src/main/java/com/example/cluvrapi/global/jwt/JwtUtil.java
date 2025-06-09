@@ -71,4 +71,10 @@ public class JwtUtil {
 
 		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
 	}
+
+	public long getExpirationMillis(String token) {
+		Claims claims = parseToken(token);
+		Date expiration = claims.getExpiration();
+		return expiration.getTime();
+	}
 }

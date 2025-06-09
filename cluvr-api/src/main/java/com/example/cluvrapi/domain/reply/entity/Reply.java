@@ -32,6 +32,7 @@ public class Reply extends BaseTimeEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")
 	private Reply parent;
@@ -43,20 +44,13 @@ public class Reply extends BaseTimeEntity {
 	@Column(nullable = false)
 	private String content;
 
-	@Column(nullable = false, name = "is_deleted")
-	private boolean isDeleted;
-
-	@Column(nullable = false, name = "is_selected")
-	private boolean isSelected;
 
 	public Reply(User user, String content, Board board, Reply parent) {
 		this.user = user;
 		this.content = content;
 		this.board = board;
 		this.parent = parent;
-		this.isDeleted = false;
-		this.isSelected = false;
-	}
+
 
 	public void update(String content) {
 		this.content = content;
@@ -64,5 +58,6 @@ public class Reply extends BaseTimeEntity {
 
 	public void delete() {
 		this.isDeleted = true;
+
 	}
 }

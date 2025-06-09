@@ -1,10 +1,10 @@
 package com.example.cluvrapi.global.response;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-
-import org.springframework.http.HttpStatus;
 
 @Getter
 @ToString
@@ -28,6 +28,7 @@ public enum ResponseCode {
 	WITHDRAWN_USER_ACCESS(HttpStatus.FORBIDDEN, "탈퇴한 유저는 접근할 수 없습니다."),
 	TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
 	TOKEN_BLACKLISTED(HttpStatus.FORBIDDEN, "다시 로그인 해주세요."),
+	AUTH_REQUIRED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 
 	/* 서버 */
 	UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류"),
