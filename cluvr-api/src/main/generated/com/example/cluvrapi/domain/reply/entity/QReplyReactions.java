@@ -26,7 +26,7 @@ public class QReplyReactions extends EntityPathBase<ReplyReactions> {
 
     public final QReply reply;
 
-    public final StringPath type = createString("type");
+    public final EnumPath<com.example.cluvrapi.domain.board.enums.ReactionType> type = createEnum("type", com.example.cluvrapi.domain.board.enums.ReactionType.class);
 
     public final com.example.cluvrapi.domain.user.entity.QUser user;
 

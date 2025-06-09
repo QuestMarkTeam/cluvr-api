@@ -22,13 +22,13 @@ public class QBoardReaction extends EntityPathBase<BoardReaction> {
 
     public static final QBoardReaction boardReaction = new QBoardReaction("boardReaction");
 
-    public final QBoard boardId;
+    public final QBoard board;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final EnumPath<com.example.cluvrapi.domain.board.enums.ReactionType> type = createEnum("type", com.example.cluvrapi.domain.board.enums.ReactionType.class);
 
-    public final com.example.cluvrapi.domain.user.entity.QUser userId;
+    public final com.example.cluvrapi.domain.user.entity.QUser user;
 
     public QBoardReaction(String variable) {
         this(BoardReaction.class, forVariable(variable), INITS);
@@ -48,8 +48,8 @@ public class QBoardReaction extends EntityPathBase<BoardReaction> {
 
     public QBoardReaction(Class<? extends BoardReaction> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.boardId = inits.isInitialized("boardId") ? new QBoard(forProperty("boardId"), inits.get("boardId")) : null;
-        this.userId = inits.isInitialized("userId") ? new com.example.cluvrapi.domain.user.entity.QUser(forProperty("userId")) : null;
+        this.board = inits.isInitialized("board") ? new QBoard(forProperty("board"), inits.get("board")) : null;
+        this.user = inits.isInitialized("user") ? new com.example.cluvrapi.domain.user.entity.QUser(forProperty("user")) : null;
     }
 
 }

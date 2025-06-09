@@ -15,10 +15,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import com.example.cluvrapi.domain.board.enums.ReactionType;
 import com.example.cluvrapi.domain.user.entity.User;
 
 @Entity
-//erd에 unique 걸려있길래 달아놨어여~~~~!!! 아닌거면 지워주세옇ㅎ
 @Table(name = "reply_reactions", uniqueConstraints = {
 	@UniqueConstraint(columnNames = {"user_id", "reply_id"})
 })
@@ -38,11 +38,10 @@ public class ReplyReactions {
 	@JoinColumn(name = "reply_id", nullable = false)
 	private Reply reply;
 
-	//enum으로 하실지 아닐지 몰라서 일단은 그냥 string으로 해뒀습니다!
 	@Column(nullable = false)
-	private String type;
+	private ReactionType type;
 
-	public ReplyReactions(User user, Reply reply, String type) {
+	public ReplyReactions(User user, Reply reply, ReactionType type) {
 		this.user = user;
 		this.reply = reply;
 		this.type = type;

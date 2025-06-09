@@ -30,6 +30,7 @@ import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 import com.example.cluvrapi.domain.reply.service.ReplyService;
+import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -68,7 +69,7 @@ public class ReplyController {
 	 * 댓글 내용 수정
 	 */
 	@PatchMapping("/{replyId}")
-	public ResponseEntity<BaseResponse<List<Void>>> updateReply(@Auth AuthUser user, @PathVariable long boardId,
+	public ResponseEntity<BaseResponse<Void>> updateReply(@Auth AuthUser user, @PathVariable long boardId,
 		@PathVariable long replyId,
 		@RequestBody UpdateReplyRequestDto dto) {
 		long id = 3;
@@ -80,7 +81,7 @@ public class ReplyController {
 	 * 댓글 내용 삭제 상태로 변경
 	 */
 	@DeleteMapping("/{replyId}")
-	public ResponseEntity<BaseResponse<List<Void>>> deleteReply(@Auth AuthUser user, @PathVariable long boardId,
+	public ResponseEntity<BaseResponse<Void>> deleteReply(@Auth User user, @PathVariable long boardId,
 		@PathVariable long replyId) {
 		long id = 3;
 		replyService.deleteReply(id, boardId, replyId);

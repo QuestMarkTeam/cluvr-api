@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.reply.service;
 
+
+import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.board.entity.Board;
+import com.example.cluvrapi.domain.board.enums.ReactionType;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
@@ -17,10 +20,13 @@ import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 import com.example.cluvrapi.domain.reply.entity.Reply;
+import com.example.cluvrapi.domain.reply.entity.ReplyReactions;
+import com.example.cluvrapi.domain.reply.repository.ReplyReactionRepository;
 import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.AuthenticationException;
+import com.example.cluvrapi.global.exception.SelfReactionNotAllowedException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
 @Service
@@ -29,6 +35,8 @@ public class ReplyServiceImpl implements ReplyService {
 	private final ReplyRepository replyRepository;
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
+	private final ReplyReactionRepository reactionRepository;
+	private final ReplyReactionRepository replyReactionRepository;
 
 	@Transactional
 	@Override
@@ -66,6 +74,28 @@ public class ReplyServiceImpl implements ReplyService {
 	}
 
 	@Override
+	public void selectReaction(long userId, long boardId, long replyId, ReactionType reaction) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		Reply reply = replyRepository.findByIdOrElseThrow(replyId);
+
+		if (user == reply.getUser()) {
+			throw new SelfReactionNotAllowedException(ResponseCode.SELF_REACTION_NOT_ALLOWED);
+		}
+
+		ReplyReactions replyReaction = new ReplyReactions(user, reply, reaction);
+		reactionRepository.save(replyReaction);
+	}
+
+	@Override
+	public void cancelReaction(long userId, long boardId, long replyId, ReactionType reaction) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		Reply reply = replyRepository.findByIdOrElseThrow(replyId);
+
+		if (user == reply.getUser()) {
+			throw new SelfReactionNotAllowedException(ResponseCode.SELF_REACTION_NOT_ALLOWED);
+		}
+
+		replyReactionRepository.deleteByUserAndReply(user, reply);
 	public PageResponseDto<ReadMyReplyResponseDto> readRepliesWithUser(long userId, Pageable pageable) {
 		return replyRepository.findRepliesByUser(userId, pageable);
 	}

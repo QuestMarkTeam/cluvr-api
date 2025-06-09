@@ -30,20 +30,20 @@ public class BoardReaction {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false)
-	private User userId;
+	@JoinColumn(name = "user", nullable = false)
+	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "board_id", nullable = false)
-	private Board boardId;
+	@JoinColumn(name = "board", nullable = false)
+	private Board board;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private ReactionType type;
 
-	public BoardReaction(User userId, Board boardId, ReactionType type) {
-		this.userId = userId;
-		this.boardId = boardId;
+	public BoardReaction(User user, Board board, ReactionType type) {
+		this.user = user;
+		this.board = board;
 		this.type = type;
 	}
 }
