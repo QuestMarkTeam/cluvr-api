@@ -1,7 +1,8 @@
 package com.example.cluvrapi.domain.reply.service;
 
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
@@ -30,13 +31,12 @@ public interface ReplyService {
 	 *
 	 * @param boardId - 댓글이 소속되어 있는 게시글 id
 	 * @param parentId - null: 댓글 / null 아닐 시: 대댓글
-	 * @param pageNumber - 페이지 번호
-	 * @param pageSize - 가져올 댓글 갯수
+	 * @param pageable - 페이지 정보
 	 * @return 페이지 수 만큼 댓글을 조회합니다.
 	 *
 	 * @author yong
 	 */
-	List<ReadReplyResponseDto> readReplies(long boardId, Long parentId, int pageNumber, int pageSize);
+	PageResponseDto<ReadReplyResponseDto> readReplies(long boardId, Long parentId, Pageable pageable);
 
 	/**
 	 *

@@ -6,6 +6,8 @@ import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
@@ -50,11 +53,12 @@ public class ReplyController {
 	 * parent_id는 상위 댓글 / 최상단 댓글일 시 null
 	 */
 	@GetMapping
-	public ResponseEntity<BaseResponse<List<ReadReplyResponseDto>>> readRepliesWithParent(@PathVariable long boardId,
-		@RequestParam(required = false) Long parentId, @RequestParam(defaultValue = "1") int pageNumber,
-		@RequestParam(defaultValue = "10") int pageSize) {
+	public ResponseEntity<BaseResponse<PageResponseDto<ReadReplyResponseDto>>> readRepliesWithParent(
+		@PathVariable long boardId,
+		@RequestParam(required = false) Long parentId,
+		@PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
 		return ResponseEntity.ok(
-			BaseResponse.success(replyService.readReplies(boardId, parentId, pageNumber, pageSize), ResponseCode.OK));
+			BaseResponse.success(replyService.readReplies(boardId, parentId, pageable), ResponseCode.OK));
 	}
 
 	/**

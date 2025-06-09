@@ -1,14 +1,14 @@
 package com.example.cluvrapi.domain.reply.service;
 
-import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
@@ -42,9 +42,8 @@ public class ReplyServiceImpl implements ReplyService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<ReadReplyResponseDto> readReplies(long boardId, Long parentId, int pageNumber,
-		int pageSize) {
-		return replyRepository.findAllRepliesByParent(boardId, parentId, pageNumber, pageSize);
+	public PageResponseDto<ReadReplyResponseDto> readReplies(long boardId, Long parentId, Pageable pageable) {
+		return replyRepository.findAllRepliesByParent(boardId, parentId, pageable);
 	}
 
 	@Transactional

@@ -1,10 +1,10 @@
 package com.example.cluvrapi.domain.reply.repository;
 
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 
 public interface ReplyRepositoryCustom {
-	List<ReadReplyResponseDto> findAllRepliesByParent(long boardId, Long parentId, int pageNumber,
-		int pageSize);
+	PageResponseDto<ReadReplyResponseDto> findAllRepliesByParent(long boardId, Long parentId, Pageable pageable);
 }
