@@ -17,7 +17,7 @@ import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
 @RestController
-@RequestMapping()
+@RequestMapping("/boards/{boardId}")
 @RequiredArgsConstructor
 public class BoardReactonController {
 	private final BoardService boardService;
