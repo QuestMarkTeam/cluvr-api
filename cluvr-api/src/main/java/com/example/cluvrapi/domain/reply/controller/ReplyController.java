@@ -25,6 +25,7 @@ import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
+import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 import com.example.cluvrapi.domain.reply.service.ReplyService;
 import com.example.cluvrapi.global.response.BaseResponse;
@@ -82,5 +83,18 @@ public class ReplyController {
 		long id = 3;
 		replyService.deleteReply(id, boardId, replyId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
+	}
+
+	/**
+	 * 유저 자신이 작성했던 댓글 조회
+	 * 추후 url을 고칠 필요가 있음
+	 */
+	@GetMapping("/me")
+	public ResponseEntity<BaseResponse<PageResponseDto<ReadMyReplyResponseDto>>> readBoardsWithUser(
+		@Auth AuthUser user, @PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
+
+		long id = 1;
+		return ResponseEntity.ok(
+			BaseResponse.success(replyService.readRepliesWithUser(id, pageable), ResponseCode.OK));
 	}
 }

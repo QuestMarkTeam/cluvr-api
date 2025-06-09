@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
+import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 
 public interface ReplyService {
@@ -60,4 +61,6 @@ public interface ReplyService {
 	 * @author yong
 	 */
 	void deleteReply(long userId, long boardId, long replyId);
+
+	PageResponseDto<ReadMyReplyResponseDto> readRepliesWithUser(long id, Pageable pageable);
 }

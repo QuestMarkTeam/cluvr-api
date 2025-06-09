@@ -11,6 +11,7 @@ import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
+import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
@@ -59,6 +60,11 @@ public class ReplyServiceImpl implements ReplyService {
 		Reply reply = replyRepository.findByIdOrElseThrow(replyId);
 		isValid(userId, reply.getUser());
 		reply.delete();
+	}
+
+	@Override
+	public PageResponseDto<ReadMyReplyResponseDto> readRepliesWithUser(long userId, Pageable pageable) {
+		return replyRepository.findRepliesByUser(userId, pageable);
 	}
 
 	private void isValid(long userId, User replyUser) throws AuthenticationException {
