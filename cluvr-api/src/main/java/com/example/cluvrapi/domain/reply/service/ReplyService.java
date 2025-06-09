@@ -1,7 +1,10 @@
 package com.example.cluvrapi.domain.reply.service;
 
+import java.util.Map;
+
 import org.springframework.data.domain.Pageable;
 
+import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
@@ -62,5 +65,7 @@ public interface ReplyService {
 	 */
 	void deleteReply(long userId, long boardId, long replyId);
 
-	PageResponseDto<ReadMyReplyResponseDto> readRepliesWithUser(long id, Pageable pageable);
+	PageResponseDto<ReadMyReplyResponseDto> readRepliesWithUser(long userId, Pageable pageable);
+
+	Map<CategoryType, Long> readReplyCountPerCategoryByUser(long userId);
 }

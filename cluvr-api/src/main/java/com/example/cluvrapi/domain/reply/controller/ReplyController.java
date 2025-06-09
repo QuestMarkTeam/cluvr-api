@@ -1,6 +1,7 @@
 package com.example.cluvrapi.domain.reply.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.validation.Valid;
 
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
@@ -90,11 +92,20 @@ public class ReplyController {
 	 * 추후 url을 고칠 필요가 있음
 	 */
 	@GetMapping("/me")
-	public ResponseEntity<BaseResponse<PageResponseDto<ReadMyReplyResponseDto>>> readBoardsWithUser(
+	public ResponseEntity<BaseResponse<PageResponseDto<ReadMyReplyResponseDto>>> readRepliesWithUser(
 		@Auth AuthUser user, @PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
 
 		long id = 1;
 		return ResponseEntity.ok(
 			BaseResponse.success(replyService.readRepliesWithUser(id, pageable), ResponseCode.OK));
+	}
+
+	@GetMapping("/me/count-by-category")
+	public ResponseEntity<BaseResponse<Map<CategoryType, Long>>> readReplyCountPerCategoryByUser(
+		@Auth AuthUser user) {
+
+		long id = 3;
+		return ResponseEntity.ok(
+			BaseResponse.success(replyService.readReplyCountPerCategoryByUser(id), ResponseCode.OK));
 	}
 }
