@@ -2,6 +2,7 @@ package com.example.cluvrapi.domain.join.service;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,8 +11,13 @@ import com.example.cluvrapi.domain.applicationForm.repository.SubmissionFormRepo
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestDto;
+import com.example.cluvrapi.domain.join.dto.request.UpdateJoinRequestDto;
 import com.example.cluvrapi.domain.join.dto.response.CreateJoinResponseDto;
+import com.example.cluvrapi.domain.join.dto.response.InfoJoinRequestResponseDto;
+import com.example.cluvrapi.domain.join.dto.response.MyClubJoinResponseDto;
+import com.example.cluvrapi.domain.join.dto.response.MyJoinRequestResponseDto;
 import com.example.cluvrapi.domain.join.entity.JoinRequest;
 import com.example.cluvrapi.domain.join.entity.JoinRequestAnswer;
 import com.example.cluvrapi.domain.join.enums.FormFieldType;
@@ -22,6 +28,10 @@ import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
+
+/**
+ * 가입 요청(Join Request)에 대한 서비스 인터페이스 구현체입니다.
+ */
 
 @Service
 @RequiredArgsConstructor
@@ -51,12 +61,7 @@ public class JoinServiceImpl implements JoinService {
 		JoinStatus initJoinStatus = determineJoinStatus(joinRequestDto.getJoinType());
 
 		// 4) Join Request Entity 생성 및 저장
-		JoinRequest joinRequest = new JoinRequest(
-			findUser,
-			findClub,
-			initJoinStatus,
-			joinRequestDto.getJoinType()
-		);
+		JoinRequest joinRequest = new JoinRequest(findUser, findClub, initJoinStatus, joinRequestDto.getJoinType());
 
 		joinRequestRepository.save(joinRequest);
 
@@ -71,6 +76,51 @@ public class JoinServiceImpl implements JoinService {
 		return CreateJoinResponseDto.from(joinRequest.getId());
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public PageResponseDto<MyClubJoinResponseDto> findJoinRequestByClubId(Long clubId, Pageable pageable) {
+		return joinRequestRepository.findJoinRequestByClubId(clubId, pageable);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PageResponseDto<MyJoinRequestResponseDto> findMyJoinRequests(Long userId, Pageable pageable) {
+		return joinRequestRepository.findMyJoinRequests(userId, pageable);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public InfoJoinRequestResponseDto findJoinRequestById(Long clubId, Long joinRequestId) {
+		return joinRequestRepository.findJoinRequestById(clubId, joinRequestId);
+	}
+
+	@Override
+	@Transactional
+	public void updateJoinRequestAnswer(Long clubId, Long joinRequestId, UpdateJoinRequestDto updateJoinRequestDto) {
+		JoinRequestAnswer findJoinRequestAnswer = joinRequestRepository.findJoinRequestAnswerByIdAndClubId(clubId,
+				joinRequestId)
+			.orElseThrow(
+				() -> new BusinessException(ResponseCode.NOT_FOUND)
+			);
+
+		findJoinRequestAnswer.updateAnswer(updateJoinRequestDto.getAnswer());
+	}
+
+	@Override
+	@Transactional
+	public void cancelJoinRequest(Long clubId, Long joinRequestId) {
+		// 1) Request 찾기
+		JoinRequest findJoinRequest = joinRequestRepository.joinRequestByIdAndClubId(clubId, joinRequestId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND));
+
+		// 2) Join Status 를 Cancel 로 수정
+		findJoinRequest.updateJoinStatus();
+
+		// 3) JoinRequest Answer 이 존재한다면, 삭제
+		joinRequestRepository.findJoinRequestAnswerByIdAndClubId(clubId, joinRequestId)
+			.ifPresent(joinRequestAnswerRepository::delete);
+	}
+
 	/**
 	 * 설명: Join request 가 유효한 신청인지 확인하는 검증 메서드
 	 *
@@ -83,13 +133,16 @@ public class JoinServiceImpl implements JoinService {
 	 */
 	private void validateJoinRequest(Long clubId, Long userId) {
 		// 1. 중복 신청 조회
-		boolean alreadyRequested = joinRequestRepository.existsJoinByClubIdAndUserId();
+		boolean alreadyRequested = joinRequestRepository.existsJoinByClubIdAndUserId(clubId, userId);
 		if (alreadyRequested != false) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입 신청한 클럽입니다.");
 		}
 
 		// 2. 이미 가입된 유저인지 조회
-		// 추후 수정 예정
+		// 추후 추가 예정
+
+		// 3. 클럽원 다 찼는지 확인
+		// 추후 추가 예정
 	}
 
 	/**
@@ -123,6 +176,8 @@ public class JoinServiceImpl implements JoinService {
 	 */
 	private void processSimpleRequest() {
 		// 추후 필요한 로직 추가할 예정 - 현재까지는 어떠한 작업도 필요없다.
+		// 신청만하고. -> 클럽장이 승인
+		// 조회 -> 신청양식 없이 조회.
 	}
 
 	/**
@@ -145,12 +200,8 @@ public class JoinServiceImpl implements JoinService {
 		Long submissionFormId = submissionFormRepository.findSubmissionFormIdByClubId(clubId);
 
 		// 2) Entity 생성
-		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(
-			joinRequest,
-			submissionFormId,
-			FormFieldType.SUBMISSION,
-			answers
-		);
+		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(joinRequest, submissionFormId,
+			FormFieldType.SUBMISSION, answers);
 
 		// 3) 저장
 		joinRequestAnswerRepository.save(joinRequestAnswer);
@@ -174,17 +225,12 @@ public class JoinServiceImpl implements JoinService {
 		}
 
 		// 1) Form id 값 추출 - Active 한 Id 값을 가져온다.
-		Long problemFormId = problemFormRepository.findActiveProblemFormIdByClubId(clubId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 요청입니다.")
-		);
+		Long problemFormId = problemFormRepository.findActiveProblemFormIdByClubId(clubId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 요청입니다."));
 
 		// 2) Entity 생성
-		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(
-			joinRequest,
-			problemFormId,
-			FormFieldType.PROBLEM,
-			answers
-		);
+		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(joinRequest, problemFormId, FormFieldType.PROBLEM,
+			answers);
 
 		// 3. 저장
 		joinRequestAnswerRepository.save(joinRequestAnswer);
