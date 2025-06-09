@@ -1,6 +1,8 @@
 package com.example.cluvrapi.domain.reply.repository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
 
@@ -8,8 +10,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import com.example.cluvrapi.domain.board.entity.QBoard;
+import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.reply.dto.response.QReadMyReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.QReadReplyResponseDto;
+import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 import com.example.cluvrapi.domain.reply.entity.QReply;
 import com.example.cluvrapi.domain.user.entity.QUser;
@@ -56,5 +62,46 @@ public class ReplyRepositoryImpl implements ReplyRepositoryCustom {
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, total));
+	}
+
+	@Override
+	public PageResponseDto<ReadMyReplyResponseDto> findRepliesByUser(long userId, Pageable pageable) {
+		QReply reply = QReply.reply;
+
+		List<ReadMyReplyResponseDto> dtos = queryFactory
+			.select(new QReadMyReplyResponseDto(reply.id, reply.content, reply.createdAt))
+			.from(reply)
+			.where(reply.user.id.eq(userId))
+			.orderBy(reply.createdAt.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+
+		Long total = queryFactory
+			.select(reply.count())
+			.from(reply)
+			.where(reply.user.id.eq(userId))
+			.fetchOne();
+
+		return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, total));
+	}
+
+	@Override
+	public Map<CategoryType, Long> countRepliesPerCategoryByUser(long userId) {
+		QReply reply = QReply.reply;
+		QBoard board = QBoard.board;
+
+		return queryFactory
+			.select(board.category, reply.id.count())
+			.from(reply)
+			.join(reply.board, board)
+			.where(reply.user.id.eq(userId))
+			.groupBy(board.category)
+			.fetch()
+			.stream()
+			.collect(Collectors.toMap(
+				tuple -> tuple.get(board.category),
+				tuple -> tuple.get(reply.id.count())
+			));
 	}
 }

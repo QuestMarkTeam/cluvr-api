@@ -2,11 +2,15 @@ package com.example.cluvrapi.domain.board.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+
 import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.request.UpdateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
+import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 
 public interface BoardService {
 	/**
@@ -57,5 +61,17 @@ public interface BoardService {
 	 * @author yong
 	 */
 	void deleteBoard(long boardId);
+
+	/**
+	 *
+	 * 설명: 자신이 작성했던 게시글 목록 확인
+	 *
+	 * @param userId - 본인
+	 * @param pageable - 페이징
+	 * @return
+	 *
+	 * @author yong
+	 */
+	PageResponseDto<ReadMyBoardsResponseDto> readBoardsWithUser(long userId, Pageable pageable);
 }
 
