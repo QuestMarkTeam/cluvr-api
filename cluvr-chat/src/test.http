@@ -20,7 +20,7 @@ POST http://localhost:8082/club/1/chat/list
 Content-Type: application/json
 
 {
-  "userId": 1001,
+  "userId": 1003,
   "role": "LEADER"
 }
 
@@ -32,5 +32,5 @@ POST localhost:8082/club/1/chat/join
 Content-Type: application/json
 
 {
-  "userId": 1001
+  "userId": 1003
 }

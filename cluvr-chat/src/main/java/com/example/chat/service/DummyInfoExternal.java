@@ -8,6 +8,6 @@ import com.example.chat.dto.response.UserInfoResponseDto;
 public class DummyInfoExternal implements GetInfoFromExternal {
 	@Override
 	public UserInfoResponseDto getUserInfo(Long userId) {
-		return new UserInfoResponseDto(userId, "테스트 유저" + userId, "MEMBER", "http://example.com/profile.png");
+		return new UserInfoResponseDto(userId, "테스트 유저" + userId, "LEADER", "http://example.com/profile.png");
 	}
 }

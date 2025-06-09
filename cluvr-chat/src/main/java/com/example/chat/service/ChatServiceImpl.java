@@ -47,6 +47,17 @@ public class ChatServiceImpl implements ChatService {
 		chatRoomRepository.save(room);
 	}
 
+	/**
+	 * 설명: 채팅방 리스트 조회
+	 * <p>
+	 * 클럽 Id와 유저의 클럽내에서의 Role 기반으로 채팅방 리스트를 가져옴
+	 * 외부 API 요청(도메인쪽으로)하여 Role 정보를 불러와서 갱신 해주고 불러옴
+	 *
+	 * @param clubId  : 채팅방 리스트가 속한 클럽 Id
+	 * @param request : 유저 Id와 유저의 클럽내에서의 role 정보
+	 * @return 채팅방 리스트 반환
+	 * @author Tcimel
+	 */
 	@Override
 	public List<ChatRoomResponseDto> findChatRoomByClubAndRole(Long clubId, ChatRoomRequestDto request) {
 		// 역할 조회
