@@ -7,4 +7,9 @@ public interface RefreshTokenService {
 	boolean validateRefreshToken(String token);
 
 	void deleteRefreshToken(Long userId);
+
+	void blacklistAccessToken(String accessToken, long remainingMillis);
+
+	boolean isAccessTokenBlacklisted(String accessToken);
+
 }

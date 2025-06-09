@@ -1,16 +1,24 @@
 package com.example.cluvrapi.domain.user.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.cluvrapi.domain.user.dto.request.LoginUserRequestDto;
-import com.example.cluvrapi.domain.user.dto.request.SignUpUserRequestDto;
-import com.example.cluvrapi.domain.user.dto.response.LoginUserResponseDto;
-import com.example.cluvrapi.domain.user.dto.response.SignUpUserResponseDto;
+import com.example.cluvrapi.domain.auth.service.AuthService;
+import com.example.cluvrapi.domain.common.annotation.Auth;
+import com.example.cluvrapi.domain.common.dto.AuthUser;
+import com.example.cluvrapi.domain.user.dto.request.UpdateUserRequestDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserOtherResponseDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserPointResponseDto;
 import com.example.cluvrapi.domain.user.service.UserService;
+import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -23,21 +31,52 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
 	private final UserService userService;
+	private final AuthService authService;
 
-	@PostMapping("/signup")
-	public ResponseEntity<BaseResponse<SignUpUserResponseDto>> signUp(
-		@Valid @RequestBody SignUpUserRequestDto signUpUserRequestDto
-	) {
-		SignUpUserResponseDto responseDto = userService.signUp(signUpUserRequestDto);
-		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.CREATED));
+	@GetMapping("/me")
+	public ResponseEntity<BaseResponse<GetUserMeResponseDto>> getMyProfile(@Auth AuthUser authUser) {
+		GetUserMeResponseDto profileDto = userService.getMyProfile(authUser.id());
+		return ResponseEntity.ok(BaseResponse.success(profileDto, ResponseCode.OK));
 	}
 
-	@PostMapping("/login")
-	public ResponseEntity<BaseResponse<LoginUserResponseDto>> login(
-		@Valid @RequestBody LoginUserRequestDto loginUserRequestDto
-	) {
-		LoginUserResponseDto responseDto = userService.login(loginUserRequestDto);
+	@GetMapping("/{id}")
+	public ResponseEntity<BaseResponse<GetUserOtherResponseDto>> getOtherUserProfile(@Auth AuthUser currentUser,
+		@PathVariable("id") Long otherUserId) {
+
+		if (currentUser.id().equals(otherUserId)) {
+			return ResponseEntity.badRequest()
+				.body(BaseResponse.error(ResponseCode.VALID_FAIL, "본인 프로필 조회 시 /users/me 사용하세요"));
+		}
+
+		GetUserOtherResponseDto dto = userService.getOtherUserProfile(otherUserId);
+		return ResponseEntity.ok(BaseResponse.success(dto, ResponseCode.OK));
+	}
+
+	@GetMapping("/me/point")
+	public ResponseEntity<BaseResponse<GetUserPointResponseDto>> getMyPoint(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+		Long userId = customUserDetails.getId();
+		GetUserPointResponseDto responseDto = userService.getUserPoint(userId);
 		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.OK));
+
+	}
+
+	@PutMapping("/me")
+	public ResponseEntity<BaseResponse<GetUserMeResponseDto>> updateMyProfile(
+		@Auth AuthUser currentUser,
+		@Valid @RequestBody UpdateUserRequestDto updateDto
+	) {
+		GetUserMeResponseDto updatedDto = userService.updateMyProfile(currentUser.id(), updateDto);
+		return ResponseEntity
+			.ok(BaseResponse.success(updatedDto, ResponseCode.OK));
+	}
+
+	@DeleteMapping("/me")
+	public ResponseEntity<BaseResponse<Void>> deleteMyProfile(@Auth AuthUser authUser) {
+		// 로그인된 유저의 ID로만 탈퇴 처리
+		userService.deleteMyProfile(authUser.id());
+		return ResponseEntity
+			.ok(BaseResponse.success(null, ResponseCode.OK));
 	}
 
 }

@@ -58,4 +58,13 @@ public class SubmissionFormRepositoryImpl implements SubmissionFormRepositoryCus
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));
 	}
+
+	@Override
+	public Long findSubmissionFormIdByClubId(Long clubId) {
+		Long formId = jpaQueryFactory.select(submissionForm.id)
+			.from(submissionForm)
+			.where(submissionForm.club.id.eq(clubId).and(submissionForm.isDeleted.eq(false)))
+			.fetchFirst();
+		return formId;
+	}
 }

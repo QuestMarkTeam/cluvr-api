@@ -1,5 +1,6 @@
 package com.example.cluvrapi.global.jwt;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 	private static final String REDIS_KEY_PREFIX = "refreshToken:";
+	private static final String REDIS_BLACKLIST_PREFIX = "blacklist:";
 	private final JwtUtil jwtUtil;
 	private final StringRedisTemplate redisTemplate;
 
@@ -44,5 +46,26 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 	public void deleteRefreshToken(Long userId) {
 		String redisKey = REDIS_KEY_PREFIX + userId;
 		redisTemplate.delete(redisKey);
+	}
+
+	@Override
+	public void blacklistAccessToken(String accessToken, long remainingMillis) {
+		String blacklistKey = REDIS_BLACKLIST_PREFIX + accessToken;
+
+		long ttlSeconds = remainingMillis / 1000;
+		if (ttlSeconds <= 0) {
+			return;
+		}
+
+		redisTemplate
+			.opsForValue()
+			.set(blacklistKey, "", Duration.ofSeconds(ttlSeconds));
+	}
+
+	@Override
+	public boolean isAccessTokenBlacklisted(String accessToken) {
+		String blacklistKey = REDIS_BLACKLIST_PREFIX + accessToken;
+		Boolean hasKey = redisTemplate.hasKey(blacklistKey);
+		return Boolean.TRUE.equals(hasKey);
 	}
 }

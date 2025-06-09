@@ -4,6 +4,7 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,12 +12,14 @@ import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.request.UpdateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
+import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.entity.BoardReaction;
 import com.example.cluvrapi.domain.board.enums.ReactionType;
 import com.example.cluvrapi.domain.board.repository.BoardReactionRepository;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.SelfReactionNotAllowedException;
@@ -88,5 +91,11 @@ public class BoardServiceImpl implements BoardService {
 		}
 
 		boardReactionRepository.deleteByUserAndBoard(user, board);
+  }
+  
+  @Override
+	@Transactional(readOnly = true)
+	public PageResponseDto<ReadMyBoardsResponseDto> readBoardsWithUser(long userId, Pageable pageable) {
+		return boardRepository.findBoardsByUser(userId, pageable);
 	}
 }

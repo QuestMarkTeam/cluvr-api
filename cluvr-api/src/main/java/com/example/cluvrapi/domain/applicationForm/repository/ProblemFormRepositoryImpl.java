@@ -66,4 +66,18 @@ public class ProblemFormRepositoryImpl implements ProblemFormRepositoryCustom {
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));
 	}
+
+	@Override
+	public Optional<Long> findActiveProblemFormIdByClubId(Long clubId) {
+		return Optional.ofNullable(
+			jpaQueryFactory.select(problemForm.id)
+				.from(problemForm)
+				.where(
+					problemForm.club.id.eq(clubId)
+						.and(problemForm.isDeleted.eq(false))
+						.and(problemForm.isActive.eq(true))
+				)
+				.fetchOne()
+		);
+	}
 }

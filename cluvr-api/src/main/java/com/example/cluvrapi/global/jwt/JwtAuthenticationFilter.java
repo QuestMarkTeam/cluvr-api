@@ -4,13 +4,9 @@ import java.io.IOException;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.example.cluvrapi.domain.user.entity.User;
-import com.example.cluvrapi.domain.user.repository.UserRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,7 +18,8 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtUtil jwtUtil;
-	private final UserRepository userRepository;
+	private final CustomUserDetailsService customUserDetailsService;
+	private final RefreshTokenService refreshTokenService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -33,20 +30,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-
 		String token = header.substring(7);
+
+		if (refreshTokenService.isAccessTokenBlacklisted(token)) {
+			// 이미 블랙리스트에 있으면 인증 없이 바로 통과(=차단)
+			filterChain.doFilter(request, response);
+			return;
+		}
+
 		if (!jwtUtil.validateToken(token)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 
 		Long userId = jwtUtil.getUserIdFromToken(token);
-		String role = jwtUtil.getUserRoleFromToken(token);
 
-		User user = userRepository.findById(userId).orElse(null);
-		if (user != null) {
-			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null,
-				java.util.List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+		CustomUserDetails userDetails = customUserDetailsService.loadUserById(userId);
+		if (userDetails != null) {
+			UsernamePasswordAuthenticationToken authentication =
+				new UsernamePasswordAuthenticationToken(
+					userDetails,
+					null,
+					userDetails.getAuthorities()
+				);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 		}
 
