@@ -2,9 +2,13 @@ package com.example.cluvrapi.domain.board.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
+import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 
 public interface BoardRepositoryCustom {
 	/**
@@ -30,4 +34,6 @@ public interface BoardRepositoryCustom {
 	 * @author yong
 	 */
 	List<ReadBoardsResponseDto> findAllBoardsByCategory(CategoryType category, int pageNumber, int pageSize);
+
+	PageResponseDto<ReadMyBoardsResponseDto> findBoardsByUser(long userId, Pageable pageable);
 }
