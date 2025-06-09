@@ -6,6 +6,7 @@ import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.request.UpdateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
+import com.example.cluvrapi.domain.board.enums.ReactionType;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 
 public interface BoardService {
@@ -57,5 +58,31 @@ public interface BoardService {
 	 * @author yong
 	 */
 	void deleteBoard(long boardId);
+
+	/**
+	 *
+	 * 설명: 좋아요 혹은 싫어요 선택
+	 *
+	 * @param userId - Auth 유저
+	 * @param boardId - 댓글 게시글
+	 * @param replyId - 댓글
+	 * @param reaction - 반응 타입(좋아요 혹은 싫어요)
+	 *
+	 * @author yong
+	 */
+	void selectReaction(long userId, long boardId, long replyId, ReactionType reaction);
+
+	/**
+	 *
+	 * 설명: 좋아요 혹은 싫어요 선택 취소
+	 *
+	 * @param userId - Auth 유저
+	 * @param boardId - 댓글 게시글
+	 * @param replyId - 댓글
+	 * @param reaction - 반응 타입(좋아요 혹은 싫어요)
+	 *
+	 * @author yong
+	 */
+	void cancelReaction(long userId, long boardId, long replyId, ReactionType reaction);
 }
 
