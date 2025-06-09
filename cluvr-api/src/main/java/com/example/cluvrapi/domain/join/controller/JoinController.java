@@ -54,7 +54,7 @@ public class JoinController {
 		@PathVariable Long clubId,
 		@Valid @RequestBody CreateJoinRequestDto joinRequestDto
 	) {
-		CreateJoinResponseDto joinResponseDto = joinService.createJoin(authUser.id(), clubId, joinRequestDto);
+		CreateJoinResponseDto joinResponseDto = joinService.createJoin(1L, clubId, joinRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(joinResponseDto, ResponseCode.CREATED));
 	}
 
@@ -90,7 +90,7 @@ public class JoinController {
 		@Auth AuthUser authUser,
 		@PageableDefault Pageable pageable
 	) {
-		PageResponseDto<MyJoinRequestResponseDto> joinResponseDto = joinService.findMyJoinRequests(authUser.id(),
+		PageResponseDto<MyJoinRequestResponseDto> joinResponseDto = joinService.findMyJoinRequests(1L,
 			pageable);
 		return ResponseEntity.ok(BaseResponse.success(joinResponseDto, ResponseCode.OK));
 	}
