@@ -43,6 +43,7 @@ public class ClubServiceImpl implements ClubService {
 			createClubRequestDto.getDescription(),
 			createClubRequestDto.getPosterUrl(),
 			createClubRequestDto.getIsPublic(),
+			createClubRequestDto.getJoinType(),
 			findUser
 		);
 

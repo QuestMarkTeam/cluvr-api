@@ -51,6 +51,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
+
 	public SecurityFilterChain filterChain(HttpSecurity http) throws
 		Exception {
 
@@ -74,6 +75,7 @@ public class SecurityConfig {
 				new JwtAuthenticationFilter(jwtUtil, customUserDetailsService, refreshTokenService),
 				UsernamePasswordAuthenticationFilter.class
 			);
+
 
 		return http.build();
 	}

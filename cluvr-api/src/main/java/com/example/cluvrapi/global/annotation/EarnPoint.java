@@ -1,0 +1,14 @@
+package com.example.cluvrapi.global.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import com.example.cluvrapi.domain.point.entity.PointType;
+
+@Target(value = ElementType.METHOD)
+@Retention(value = RetentionPolicy.RUNTIME)
+public @interface EarnPoint {
+	PointType value();
+}

@@ -1,0 +1,67 @@
+package com.example.cluvrnotifications.domain.user.entity;
+
+import static com.querydsl.core.types.PathMetadataFactory.*;
+
+import com.querydsl.core.types.dsl.*;
+
+import com.querydsl.core.types.PathMetadata;
+import javax.annotation.processing.Generated;
+import com.querydsl.core.types.Path;
+
+
+/**
+ * QUser is a Querydsl query type for User
+ */
+@Generated("com.querydsl.codegen.DefaultEntitySerializer")
+public class QUser extends EntityPathBase<User> {
+
+    private static final long serialVersionUID = 1581318912L;
+
+    public static final QUser user = new QUser("user");
+
+    public final com.example.cluvrnotifications.common.entity.QBaseTimeEntity _super = new com.example.cluvrnotifications.common.entity.QBaseTimeEntity(this);
+
+    public final DatePath<java.time.LocalDate> birthday = createDate("birthday", java.time.LocalDate.class);
+
+    public final EnumPath<com.example.cluvrnotifications.domain.user.entity.enums.CategoryDetail> categoryDetail = createEnum("categoryDetail", com.example.cluvrnotifications.domain.user.entity.enums.CategoryDetail.class);
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
+
+    public final StringPath email = createString("email");
+
+    public final EnumPath<com.example.cluvrnotifications.domain.user.entity.enums.Gender> gender = createEnum("gender", com.example.cluvrnotifications.domain.user.entity.enums.Gender.class);
+
+    public final NumberPath<Long> id = createNumber("id", Long.class);
+
+    public final StringPath imageUrl = createString("imageUrl");
+
+    public final BooleanPath isDeleted = createBoolean("isDeleted");
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
+
+    public final StringPath name = createString("name");
+
+    public final StringPath password = createString("password");
+
+    public final StringPath phoneNumber = createString("phoneNumber");
+
+    public final NumberPath<Long> point = createNumber("point", Long.class);
+
+    public final EnumPath<com.example.cluvrnotifications.domain.user.entity.enums.UserRole> userRole = createEnum("userRole", com.example.cluvrnotifications.domain.user.entity.enums.UserRole.class);
+
+    public QUser(String variable) {
+        super(User.class, forVariable(variable));
+    }
+
+    public QUser(Path<? extends User> path) {
+        super(path.getType(), path.getMetadata());
+    }
+
+    public QUser(PathMetadata metadata) {
+        super(User.class, metadata);
+    }
+
+}
+

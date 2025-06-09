@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.notice.controller;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -61,7 +63,7 @@ public class NoticeController {
 	@PatchMapping("/{noticeId}")
 	public ResponseEntity<BaseResponse<Void>> updateNotice(
 		@PathVariable Long noticeId,
-		@RequestBody UpdateNoticeRequestDto updateNoticeRequestDto
+		@Valid @RequestBody UpdateNoticeRequestDto updateNoticeRequestDto
 	) {
 		noticeService.updateNotice(noticeId, updateNoticeRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
