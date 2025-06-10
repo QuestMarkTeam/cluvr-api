@@ -3,14 +3,14 @@ package com.example.cluvrapi.domain.analytics.dto;
 import lombok.Getter;
 
 @Getter
-public class PointStatRedisDto {
+public class GemStatRedisDto {
 
-	private Integer point;
+	private Integer gem;
 
 	private Long userId;
 
-	public PointStatRedisDto(Integer point, Long userId) {
-		this.point = point;
+	public GemStatRedisDto(Integer gem, Long userId) {
+		this.gem = gem;
 		this.userId = userId;
 	}
 }
