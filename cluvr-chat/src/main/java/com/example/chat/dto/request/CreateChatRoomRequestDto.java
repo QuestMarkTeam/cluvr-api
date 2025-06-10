@@ -6,8 +6,12 @@ import com.example.chat.enums.RoomType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter // Jackson 역직렬화를 위한 생성자나 setter 메서드가 필요
+@NoArgsConstructor
 public class CreateChatRoomRequestDto {
 	@NotNull
 	private Long clubId; // 클럽 ID (도메인 서버가 전달)

@@ -47,7 +47,8 @@ dependencies {
     implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
 
-    // jwt
+    // jwt JJWT 버전 보안 이슈 미해결
+    //0.11.5 → 0.12.x 업그레이드 권고가 반영되지 않았습니다. 기존 리뷰와 동일한 내용입니다.
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5' // jjwt-api 라이브러리 버전 지정
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5' // jjwt-impl 라이브러리 버전 지정 (런타임에만 필요)
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // jjwt-jackson 라이브러리 버전 지정 (Jackson과 연동할 때 필요)

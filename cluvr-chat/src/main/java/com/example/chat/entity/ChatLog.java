@@ -8,10 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.example.chat.enums.MessageType;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +20,7 @@ createdAt: 1: 그 다음 createdAt 필드도 오름차순 정렬 기준으로 �
 @Getter
 @Document("chat_log")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@CompoundIndex(def = "{'roomId: 1, 'createdAt': 1}")
+@CompoundIndex(def = "{'roomId': 1, 'createdAt': 1}")
 public class ChatLog {
 	@Id
 	private String id; // MongoDB에서 id는 String 값
@@ -34,10 +31,8 @@ public class ChatLog {
 	private Long userId;
 	private String nickname;
 
-	@Lob
 	private String message;
 
-	@Enumerated(EnumType.STRING)
 	private MessageType type; // ENTER, TALK, LEAVE
 
 	private LocalDateTime createdAt;

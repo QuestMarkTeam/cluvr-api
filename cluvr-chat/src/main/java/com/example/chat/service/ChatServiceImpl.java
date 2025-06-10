@@ -38,6 +38,11 @@ public class ChatServiceImpl implements ChatService {
 	private final SimpMessagingTemplate messagingTemplate;
 	private final DummyInfoExternal dummyInfoExternal; // 무시해라 레빗아... 더미다
 
+	/**
+	 * Creates and persists a new chat room using the provided request data.
+	 *
+	 * @param request contains club ID, room name, creator user ID, image URL, and room type for the new chat room
+	 */
 	// CreateChatRoomRequestDto에 메서드 만들어서 이 코드 넣으면 서비스 코드 길이 더 줄어들 것 같아요.
 	@Override
 	public void createChatRoom(CreateChatRoomRequestDto request) {
@@ -62,6 +67,7 @@ public class ChatServiceImpl implements ChatService {
 	 * @author Tcimel
 	 */
 	@Override
+	@Transactional
 	public List<ChatRoomResponseDto> findChatRoomByClubAndRole(Long clubId, ChatRoomRequestDto request) {
 		// 역할 조회
 		UserInfoResponseDto userInfo = dummyInfoExternal.getUserInfo(request.getUserId());
@@ -87,12 +93,22 @@ public class ChatServiceImpl implements ChatService {
 			.collect(Collectors.toList());
 	}
 
+	/**
+	 * Broadcasts a chat message to all subscribers of the specified chat room and saves the message to persistent storage.
+	 * <p>
+	 * The message is only broadcast if the user is a member of the chat room. The sender's nickname is set before broadcasting.
+	 *
+	 * @param request the chat message request containing room ID, user ID, message content, and type
+	 */
 	@Override
 	@Transactional
 	public void broadcastMessage(ChatMessageRequestDto request) {
 		if (!userRepository.existsByRoomIdAndUserId(request.getRoomId(), request.getUserId()))
 			return;
 
+		/*저장 실패 후 이미 브로커로 전송된 메시지를 되돌릴 방법이 없습니다.
+		트랜잭션 또는 try-catch 후 롤백 전략, 혹은 먼저 저장 후 전송하는 방식을 고려하세요.
+		권한 미충족 시 return; 으로 무음 처리 → 클라이언트는 성공으로 오인할 수 있습니다. 명시적 에러 응답·에러 메시지 전송이 필요합니다.*/
 		ChatRoomUser user = userRepository.findByRoomIdAndUserId(request.getRoomId(), request.getUserId())
 			.orElseThrow(() -> new ResponseStatusException(
 				HttpStatus.BAD_REQUEST, "잘못된 요청입니다."));
@@ -103,6 +119,11 @@ public class ChatServiceImpl implements ChatService {
 		saveMessage(request);
 	}
 
+	/**
+	 * Persists a chat message to the chat log repository.
+	 *
+	 * @param request the chat message data to be saved
+	 */
 	@Override
 	public void saveMessage(ChatMessageRequestDto request) {
 		ChatLog message = new ChatLog(
@@ -116,12 +137,26 @@ public class ChatServiceImpl implements ChatService {
 		chatLogRepository.save(message);
 	}
 
+	/**
+	 * Retrieves all chat messages for the specified chat room, ordered by creation time in ascending order.
+	 *
+	 * @param roomId the ID of the chat room
+	 * @return a list of chat logs for the room, sorted by creation time
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<ChatLog> getMessages(Long roomId) {
 		return chatLogRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
 	}
 
+	/**
+	 * Adds a user to all accessible chat rooms in a club based on their role, creating membership records and broadcasting entry messages.
+	 * <p>
+	 * For each chat room the user is eligible to join and not already a member of, creates a new `ChatRoomUser` entry and sends an "ENTER" message to the room. After joining, refreshes the user's chat room list.
+	 *
+	 * @param clubId  the ID of the club whose chat rooms are being joined
+	 * @param request contains the user ID of the joining user
+	 */
 	@Override
 	@Transactional
 	public void join(Long clubId, JoinRequestDto request) {
@@ -167,6 +202,12 @@ public class ChatServiceImpl implements ChatService {
 		findChatRoomByClubAndRole(clubId, chatRoomRequest);
 	}
 
+	/**
+	 * Removes a user from all chat rooms in a club that they have access to based on their role, and broadcasts a leave message to each room.
+	 *
+	 * @param clubId the ID of the club from which the user is leaving chat rooms
+	 * @param userId the ID of the user leaving the chat rooms
+	 */
 	@Override
 	@Transactional
 	public void leave(Long clubId, Long userId) {

@@ -118,7 +118,7 @@
 
         // Helper function for connection & subscription
         function startNewConnection() {
-            socket = new SockJS("http://localhost:8082/cluvr-chat");
+            socket = new SockJS(`${API_BASE_URL}/cluvr-chat`);
             stompClient = Stomp.over(socket);
             stompClient.connect({}, () => {
                 joinChatRoom(clubId, userId).then(() => {
@@ -208,7 +208,7 @@
         const type = document.getElementById("roomType").value;
         const userId = parseInt(document.getElementById("userId").value);
 
-        fetch("http://localhost:8082/chat/create", {
+        fetch(`${API_BASE_URL}/chat/create`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({

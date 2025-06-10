@@ -8,6 +8,12 @@ import com.example.chat.dto.response.UserInfoResponseDto;
 @Component
 @ConditionalOnProperty(name = "app.user-dummy-external", havingValue = "true")
 public class DummyInfoExternal implements GetInfoFromExternal {
+	/**
+	 * Returns dummy user information for the specified user ID.
+	 *
+	 * @param userId the ID of the user to retrieve information for
+	 * @return a UserInfoResponseDto containing the user ID, a generated username, a fixed role, and a fixed profile image URL
+	 */
 	@Override
 	public UserInfoResponseDto getUserInfo(Long userId) {
 		String role = userId % 3 == 0 ? "LEADER" : (userId % 2 == 0 ? "MANAGER" : "MEMBER");
