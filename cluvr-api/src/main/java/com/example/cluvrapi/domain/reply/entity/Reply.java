@@ -52,12 +52,12 @@ public class Reply extends BaseTimeEntity {
 		this.parent = parent;
 
 
-	public void update(String content) {
-		this.content = content;
-	}
+		public void update(String content) {
+			this.content = content;
+		}
 
-	public void delete() {
-		this.isDeleted = true;
+		public void delete() {
+			this.isDeleted = true;
 
+		}
 	}
-}
