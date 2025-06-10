@@ -3,17 +3,17 @@ package com.example.cluvrapi.domain.user.service;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.user.dto.request.UpdateUserRequestDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserGemResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserOtherResponseDto;
-import com.example.cluvrapi.domain.user.dto.response.GetUserPointResponseDto;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -40,15 +40,15 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public GetUserPointResponseDto getUserPoint(Long userId) {
-		Optional<Long> optPoint = userRepository.findPointByIdNotDeleted(userId);
+	public GetUserGemResponseDto getUserGem(Long userId) {
+		Optional<Integer> optGem = userRepository.findGemByIdNotDeleted(userId);
 
-		if (optPoint.isEmpty()) {
+		if (optGem.isEmpty()) {
 			throw new IllegalArgumentException("해당 ID의 사용자를 찾을 수 없습니다. id=" + userId);
 		}
 
-		Long point = optPoint.get();
-		return new GetUserPointResponseDto(point);
+		Integer gem = optGem.get();
+		return new GetUserGemResponseDto(gem);
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package com.example.cluvrapi.domain.reply.service;
 
-
-import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
@@ -96,6 +94,8 @@ public class ReplyServiceImpl implements ReplyService {
 		}
 
 		replyReactionRepository.deleteByUserAndReply(user, reply);
+	}
+
 	public PageResponseDto<ReadMyReplyResponseDto> readRepliesWithUser(long userId, Pageable pageable) {
 		return replyRepository.findRepliesByUser(userId, pageable);
 	}

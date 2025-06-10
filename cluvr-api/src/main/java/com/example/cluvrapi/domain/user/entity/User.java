@@ -2,13 +2,6 @@ package com.example.cluvrapi.domain.user.entity;
 
 import java.time.LocalDate;
 
-import org.hibernate.annotations.SQLDelete;
-
-import com.example.cluvrapi.domain.category.enums.CategoryType;
-import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
-import com.example.cluvrapi.domain.user.entity.enums.Gender;
-import com.example.cluvrapi.domain.user.entity.enums.UserRole;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,9 +10,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import org.hibernate.annotations.SQLDelete;
+
+import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
+import com.example.cluvrapi.domain.user.entity.enums.Gender;
+import com.example.cluvrapi.domain.user.entity.enums.UserRole;
 
 @Getter
 @Entity
@@ -92,7 +93,6 @@ public class User extends BaseTimeEntity {
 	private Boolean isDeleted = true;
 
 	public User(Long id, String name, LocalDate birthday, String email, String phoneNumber, UserRole userRole,
-
 		Gender gender, CategoryType categoryType, String password, Integer gem, String imageUrl,
 		Boolean isDeleted) {
 		this.id = id;
@@ -126,7 +126,7 @@ public class User extends BaseTimeEntity {
 
 	}
 
-	public void updatePoint(Integer gem) {
+	public void updateGem(Integer gem) {
 		this.gem = gem;
 	}
 }
