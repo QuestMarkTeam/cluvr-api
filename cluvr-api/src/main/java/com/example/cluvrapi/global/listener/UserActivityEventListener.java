@@ -38,4 +38,7 @@ public class UserActivityEventListener {
 	// 	redisService.incrementHashValue(key);
 	// }
 
+	// public void addGem() {
+	// 	redisService.incrementHashValue("key");
+	// }
 }
