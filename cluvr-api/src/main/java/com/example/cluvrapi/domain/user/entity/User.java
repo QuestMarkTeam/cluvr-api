@@ -127,6 +127,6 @@ public class User extends BaseTimeEntity {
 	}
 
 	public void updatePoint(Integer gem) {
-		this.point = gem;
+		this.gem = gem;
 	}
 }
