@@ -16,10 +16,18 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		// 클라이언트가 연결할 엔드포인트 (SockJS 지원)
 		registry.addEndpoint("/cluvr-chat")
-			.setAllowedOriginPatterns("*")
+			.setAllowedOriginPatterns(getAllowedOrigins())
 			// 나중에 특정 url 요청만 접근하도록 할 때 이부분 변경 : setAllowedOriginPatterns("https://www.cluvr.com")
 			// 또는 .setAllowedOriginPatterns("https://cluvr.com", "http://localhost:3000")
 			.withSockJS();
+	}
+
+	private String[] getAllowedOrigins() {
+		String profile = System.getProperty("spring.profiles.active", "dev");
+		if ("prod".equals(profile)) {
+			return new String[] {"http://www.cluvr.com", "https://cluvr.com"};
+		}
+		return new String[] {"http://localhost:*", "http://127.0.0.1:*"};
 	}
 
 	// 메시지가 어디로 전송되고(subscribe), 어디에서 수신되고(send) 할지를 설정하는 메서드
