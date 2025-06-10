@@ -9,6 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
+import com.example.cluvrapi.domain.notification.enums.NotificationType;
+import com.example.cluvrapi.domain.notification.event.NotificationEvent;
+import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.til.dto.reqeust.CreateTilRequestDto;
 import com.example.cluvrapi.domain.til.dto.reqeust.UpdateTilRequestDto;
 import com.example.cluvrapi.domain.til.dto.response.CreateTilResponseDto;
@@ -25,6 +29,7 @@ public class TilServiceImpl implements TilService {
 	private final TilRepository tilRepository;
 	private final UserRepository userRepository;
 	private final ClubRepository clubRepository;
+	private final NotificationProducer notificationProducer;
 
 	@Override
 	@Transactional
@@ -43,6 +48,21 @@ public class TilServiceImpl implements TilService {
 
 		// 3) Til 저장
 		tilRepository.save(til);
+
+		User clubOwner = findClub.getUser(); // 클럽장 (Club에 user 필드가 있다고 가정)
+		if (!clubOwner.getId().equals(findUser.getId())) { // 자기 자신에게는 알림 안 보냄
+			String content = String.format("'%s'님이 클럽에 새로운 TIL을 작성했습니다.", findUser.getName());
+
+			NotificationEvent event = NotificationEvent.from(
+				clubOwner.getId(),                     // 수신자: 클럽장
+				NotificationType.TIL,                  // 알림 타입: TIL
+				content,
+				NotiTargetType.CLUB,                   // 대상 타입: CLUB
+				clubId                                 // 대상 ID: clubId
+			);
+
+			notificationProducer.send(event); // 알림 전송
+		}
 
 		return CreateTilResponseDto.from(til.getId());
 	}

@@ -86,6 +86,12 @@ dependencies {
     implementation project(":cluvr-batch")
     implementation project(":cluvr-chat")
     implementation project(":cluvr-notifications")
+
+    // RabbitMQ (Spring AMQP)
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    // JSON 직렬화 (RabbitMQ 메시지용)
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.named('test') {

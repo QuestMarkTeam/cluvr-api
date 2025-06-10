@@ -16,6 +16,10 @@ import com.example.cluvrapi.domain.clover.entity.Clover;
 import com.example.cluvrapi.domain.clover.entity.CloverLog;
 import com.example.cluvrapi.domain.clover.repository.CloverLogRepository;
 import com.example.cluvrapi.domain.clover.repository.CloverRepository;
+import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
+import com.example.cluvrapi.domain.notification.enums.NotificationType;
+import com.example.cluvrapi.domain.notification.event.NotificationEvent;
+import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 
@@ -26,6 +30,7 @@ public class CloverServiceImpl implements CloverService {
 	private final CloverRepository cloverRepository;
 	private final UserRepository userRepository;
 	private final CloverLogRepository cloverLogRepository;
+	private final NotificationProducer notificationProducer;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -53,6 +58,19 @@ public class CloverServiceImpl implements CloverService {
 	public void updateClover(Long cloverId, UpdateCloverRequestDto requestDto) {
 		Clover clover = cloverRepository.findByIdOrElseThrow(cloverId);
 		clover.updateScore(requestDto.getScore());
+
+		Long receiverId = requestDto.getUser().getId();  // 랭크 → 유저
+		String content = String.format("랭크 점수가 %d점으로 갱신되었습니다.", requestDto.getScore());
+
+		NotificationEvent event = NotificationEvent.from(
+			receiverId,
+			NotificationType.RANK,         // type
+			content,        // content
+			NotiTargetType.USER,         // targetType
+			receiverId          // targetId
+		);
+
+		notificationProducer.send(event);
 	}
 
 	@Override
