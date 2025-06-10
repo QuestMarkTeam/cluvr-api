@@ -10,22 +10,21 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.example.cluvrapi.domain.analytics.dto.CategoryStatRedisDto;
-import com.example.cluvrapi.domain.analytics.dto.PointStatRedisDto;
+import com.example.cluvrapi.domain.analytics.dto.GemStatRedisDto;
 
 @RequiredArgsConstructor
 @Repository
-public class PointStatJdbcRepository {
+public class GemStatJdbcRepository {
 	private final JdbcTemplate jdbcTemplate;
 
-	public void batchInsert(List<PointStatRedisDto> items) {
-		String sql = "INSERT INTO PointStat (point,user_id) VALUES (?, ?)";
+	public void batchInsert(List<GemStatRedisDto> items) {
+		String sql = "INSERT INTO GemStat (gem,user_id) VALUES (?, ?)";
 		// BatchPreparedStatementSetter 는 인덱스 기반
 		jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
 
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				PointStatRedisDto dto = items.get(i);
-				ps.setInt(1, dto.getPoint());
+				GemStatRedisDto dto = items.get(i);
+				ps.setInt(1, dto.getGem());
 				ps.setLong(2, dto.getUserId());
 			}
 
