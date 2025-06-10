@@ -20,7 +20,7 @@ public class UserActivityEventListener {
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handleUserActivity(UserEventDto<?> event) {
 		Long userId = event.getUserId();
-		String redisKey = event.getRedisKey().getKey();
+		String redisKey = event.getRedisKey().buildKey(userId);
 		double score = System.currentTimeMillis();
 
 		// 이벤트에 해당하는 유저의 활동 로그 저장
@@ -35,7 +35,7 @@ public class UserActivityEventListener {
 	// 	redisService.incrementHashValue(key);
 	// }
 
-	// public void addPoint() {
+	// public void addGem() {
 	// 	redisService.incrementHashValue("key");
 	// }
 }

@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum UserEventType {
-	CATEGORY, POINT, USER_BOARD;
+	CATEGORY, GEM, USER_BOARD;
 }

@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
+import org.springframework.http.HttpStatus;
+
 @Getter
 @ToString
 @AllArgsConstructor
@@ -35,12 +37,12 @@ public enum ResponseCode {
 
 	/* 데이터 검증 */
 	INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
-
-	/* POINT */
-	POINT_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
+	/* GEM */
+	GEM_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
 
 	/* Board, Reply */
-	SELF_REACTION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자신이 작성한 것에 좋아요/싫어요를 선택할 수 없습니다.");
+	SELF_REACTION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자신이 작성한 것에 좋아요/싫어요를 선택할 수 없습니다.")
+	;
 
 	private final HttpStatus status;
 	private final String defaultMessage;
