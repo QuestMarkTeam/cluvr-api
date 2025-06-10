@@ -14,6 +14,15 @@ public class ChatMessageRequestDto {
 	private String nickname;
 	private String message;
 
+	/**
+	 * Constructs a new ChatMessageRequestDto with the specified message type, room ID, user ID, nickname, and message content.
+	 *
+	 * @param type the type of the chat message
+	 * @param roomId the identifier of the chat room
+	 * @param userId the identifier of the user sending the message
+	 * @param nickname the nickname of the user
+	 * @param message the content of the chat message
+	 */
 	public ChatMessageRequestDto(MessageType type, Long roomId, Long userId, String nickname, String message) {
 		this.type = type;
 		this.roomId = roomId;
@@ -22,6 +31,16 @@ public class ChatMessageRequestDto {
 		this.message = message;
 	}
 
+	/****
+	 * Creates a new ChatMessageRequestDto instance with the specified message details.
+	 *
+	 * @param type the type of the message
+	 * @param roomId the ID of the chat room
+	 * @param userId the ID of the user sending the message
+	 * @param nickname the nickname of the user
+	 * @param message the content of the message
+	 * @return a new ChatMessageRequestDto containing the provided information
+	 */
 	public static ChatMessageRequestDto from(MessageType type, Long roomId, Long userId, String nickname,
 		String message) {
 		return new ChatMessageRequestDto(type, roomId, userId, nickname, message);

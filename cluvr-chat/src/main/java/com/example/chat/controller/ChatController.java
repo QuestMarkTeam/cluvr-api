@@ -35,6 +35,13 @@ public class ChatController {
 	private final SimpMessagingTemplate messagingTemplate;
 	private final ChatService chatService;
 
+	/****
+	 * Allows a user to join a chat room within a specified club.
+	 *
+	 * @param clubId the ID of the club containing the chat room
+	 * @param request the join request details
+	 * @return HTTP 200 response with a success code if the join operation is successful
+	 */
 	@PostMapping("club/{clubId}/chat/join")
 	public ResponseEntity<BaseResponse<?>> joinChatRoom(
 		@PathVariable Long clubId,
@@ -44,26 +51,34 @@ public class ChatController {
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
 	}
 
+	/**
+	 * Retrieves the list of users currently present in the specified chat room.
+	 *
+	 * @param roomId the ID of the chat room
+	 * @return a response containing the list of users in the chat room
+	 */
 	@GetMapping("/room/{roomId}/users")
 	public ResponseEntity<BaseResponse<List<ChatRoomUser>>> getUserInRoom(@PathVariable Long roomId) {
 		List<ChatRoomUser> users = chatService.getUserInRoom(roomId);
 		return ResponseEntity.ok(BaseResponse.success(users, ResponseCode.OK));
 	}
 
+	/**
+	 * Handles incoming chat messages sent via WebSocket and broadcasts them to chat participants.
+	 *
+	 * Receives a chat message payload, delegates broadcasting and persistence to the chat service, and does not return a response.
+	 */
 	@MessageMapping("/message") // /pub/chat/message
 	public void sendMessage(@Payload ChatMessageRequestDto request) {
 		chatService.broadcastMessage(request); // 채팅 로그 몽고디비에 저장
 	}
 
 	/**
-	 * 설명: {채팅 메세지 불러오는 메서드}
-	 * <p>
-	 * [고도화 할 때 입장한 후 부터의 메세지 캐싱 필요]
+	 * Retrieves chat messages for a specific chat room within a club.
 	 *
-	 * @param clubId
-	 * @param roomId
-	 * @return roomId에 해당하는 채팅 메세지
-	 * @author Tcimel
+	 * @param clubId the ID of the club containing the chat room
+	 * @param roomId the ID of the chat room whose messages are to be retrieved
+	 * @return a response containing the list of chat messages for the specified room
 	 */
 
 	@GetMapping("/club/{clubId}/chat/{roomId}")
@@ -76,15 +91,12 @@ public class ChatController {
 	}
 
 	/**
-	 * 설명: 채팅방 만들기
-	 * <p>
-	 * 생성할 때, 클럽 Id, 만든 user Id, 생성을 요청한 user의 클럽 role 필요
-	 * 유저는 클럽장, 매니저, MEMBER 역할이 있고 클럽장과 매니저 등급만 채팅방 생성 가능
+	 * Creates a new chat room if the requesting user has sufficient privileges.
 	 *
-	 * @param CreateChatRoomRequestDto {설명: 채팅방 생성에 필요한 dto}
-	 * @return {생성 완료 시 ResponseCode.CREATED 반환}
-	 * @throws {생성 권한이 없을 경우 권한이 없다는 안내 메세지 반환}
-	 * @author Tcimel
+	 * Only users with the role of club leader or manager are allowed to create chat rooms. If the user has the MEMBER role, an access denied error response is returned.
+	 *
+	 * @param request the chat room creation request containing club ID, user ID, and user role
+	 * @return a response indicating success with ResponseCode.CREATED, or an error if the user lacks permission
 	 */
 
 	@PostMapping("/chat/create")
@@ -99,24 +111,13 @@ public class ChatController {
 	}
 
 	/**
-	 * 설명: {채팅방 조회}
-	 * 채팅방 조회 시 클럽원 역할에 따라 불러오는 리스트가 다름.
-	 * 채팅방 타입은 MANAGER, MEMBER 타입이 있는데
-	 * 클럽장과 매니저 역할은 모든 채팅방 리스트가 보이고
-	 * 유저에게는 MANAGER 타입의 채팅방이 보이면 안됨.
-	 * <p>
-	 * [고도화 때 접근하는 IP 설정 필요]
-	 * 방법 1 : IP 화이트리스트 설정 (필터 설정하기)
-	 * 방법 2 : X-INTERNAL_KEY 설정 추가 해당 키값이 없거나 같지 않을 경우 돌려보내기
-	 * 방법 3 : Spring Security 사용
-	 * <p>
-	 * 조회인데 Post를 한 이유
-	 * 외부에서 직접 URL 조작을 막고 싶은 경우, Body 안에 정보를 넣고 POST로 전달하는 방식이 일반적이라고 함.
+	 * Retrieves a list of chat rooms for a club, filtered by the user's role.
 	 *
-	 * @param clubId              {설명: 채팅방 정보를 조회할 clubId 정보}
-	 * @param ChatRoomResponseDto {설명: 유저 Role에 해당하는 채팅방 리스트를 불러와야 하기 때문에, requestbody로 userId와 user의 role정보 전달 필요}
-	 * @return {clubId와 user의 role에 따른 채팅방 리스트 반환}
-	 * @author Tcimel
+	 * Only club owners and managers can view all chat rooms, while regular members are restricted from seeing manager-only chat rooms.
+	 *
+	 * @param clubId the ID of the club whose chat rooms are being requested
+	 * @param request contains user identification and role information for filtering chat rooms
+	 * @return a response containing the list of chat rooms accessible to the user based on their role
 	 */
 
 	@PostMapping("/club/{clubId}/chat/list")

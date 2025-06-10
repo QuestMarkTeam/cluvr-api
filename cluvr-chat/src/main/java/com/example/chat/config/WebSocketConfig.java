@@ -12,6 +12,11 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+	/**
+	 * Registers the STOMP WebSocket endpoint for client connections, enabling SockJS fallback and allowing all origins.
+	 *
+	 * Clients connect to the "/cluvr-chat" endpoint to establish a WebSocket or SockJS session.
+	 */
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		// 클라이언트가 연결할 엔드포인트 (SockJS 지원)
@@ -22,7 +27,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 			.withSockJS();
 	}
 
-	// 메시지가 어디로 전송되고(subscribe), 어디에서 수신되고(send) 할지를 설정하는 메서드
+	/****
+	 * Configures message broker options for routing WebSocket messages.
+	 *
+	 * Sets the application destination prefix for client-to-server messages to "/chat" and enables a simple in-memory broker for broadcasting server-to-client messages with the "/sub" prefix.
+	 */
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
 		// pub은 클라이언트 -> 서버 전송 prefix

@@ -3,5 +3,11 @@ package com.example.chat.service;
 import com.example.chat.dto.response.UserInfoResponseDto;
 
 public interface GetInfoFromExternal {
-	UserInfoResponseDto getUserInfo(Long userId);
+	/****
+ * Retrieves user information for the specified user ID from an external source.
+ *
+ * @param userId the unique identifier of the user whose information is to be retrieved
+ * @return a UserInfoResponseDto containing the user's information
+ */
+UserInfoResponseDto getUserInfo(Long userId);
 }

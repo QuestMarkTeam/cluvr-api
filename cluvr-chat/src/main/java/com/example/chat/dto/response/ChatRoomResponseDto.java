@@ -14,6 +14,14 @@ public class ChatRoomResponseDto {
 	private String name;
 	private RoomType type;
 
+	/**
+		 * Constructs a ChatRoomResponseDto with the specified id, clubId, name, and type.
+		 *
+		 * @param id the unique identifier of the chat room
+		 * @param clubId the identifier of the associated club
+		 * @param name the name of the chat room
+		 * @param type the type of the chat room
+		 */
 	public ChatRoomResponseDto(Long id, Long clubId, String name, RoomType type) {
 		this.id = id;
 		this.clubId = clubId;
@@ -21,6 +29,12 @@ public class ChatRoomResponseDto {
 		this.type = type;
 	}
 
+	/****
+	 * Creates a ChatRoomResponseDto from a ChatRoom entity.
+	 *
+	 * @param room the ChatRoom entity to convert
+	 * @return a ChatRoomResponseDto containing the room's id, clubId, name, and type
+	 */
 	public static ChatRoomResponseDto from(ChatRoom room) {
 		return new ChatRoomResponseDto(
 			room.getId(),

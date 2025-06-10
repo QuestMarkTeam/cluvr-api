@@ -36,6 +36,16 @@ public class ChatRoomUser {
 
 	private LocalDateTime joinedAt;
 
+	/**
+		 * Constructs a new ChatRoomUser with the specified club, room, user identifiers, nickname, club role, and join timestamp.
+		 *
+		 * @param clubId    the identifier of the associated club
+		 * @param roomId    the identifier of the chat room
+		 * @param userId    the identifier of the user
+		 * @param nickname  the user's nickname within the chat room
+		 * @param clubRole  the user's role in the club
+		 * @param joinedAt  the timestamp when the user joined the chat room
+		 */
 	public ChatRoomUser(Long clubId, Long roomId, Long userId, String nickname, ClubRole clubRole,
 		LocalDateTime joinedAt) {
 		this.clubId = clubId;

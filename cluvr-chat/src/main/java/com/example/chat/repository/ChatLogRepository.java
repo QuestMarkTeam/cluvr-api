@@ -7,5 +7,11 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import com.example.chat.entity.ChatLog;
 
 public interface ChatLogRepository extends MongoRepository<ChatLog, String> {
-	List<ChatLog> findByRoomIdOrderByCreatedAtAsc(Long roomId);
+	/****
+ * Retrieves all chat logs for the specified room, ordered by creation time in ascending order.
+ *
+ * @param roomId the identifier of the chat room
+ * @return a list of chat logs associated with the given room, sorted by creation time
+ */
+List<ChatLog> findByRoomIdOrderByCreatedAtAsc(Long roomId);
 }
