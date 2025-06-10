@@ -93,7 +93,8 @@ public class User extends BaseTimeEntity {
 	private Boolean isDeleted = true;
 
 	public User(Long id, String name, LocalDate birthday, String email, String phoneNumber, UserRole userRole,
-		Gender gender, CategoryType categoryType, String password, Integer gem, String imageUrl, Boolean isDeleted) {
+		Gender gender, CategoryType categoryType, String password, Integer gem, String imageUrl,
+		Boolean isDeleted) {
 		this.id = id;
 		this.name = name;
 		this.birthday = birthday;
@@ -122,6 +123,7 @@ public class User extends BaseTimeEntity {
 
 	public void changeImageUrl(String imageUrl) {
 		this.imageUrl = imageUrl;
+
 	}
 
 	public void updateGem(Integer gem) {

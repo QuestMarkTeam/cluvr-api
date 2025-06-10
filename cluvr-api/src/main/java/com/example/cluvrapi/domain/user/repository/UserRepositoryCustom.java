@@ -8,7 +8,7 @@ import com.example.cluvrapi.domain.user.entity.User;
 public interface UserRepositoryCustom {
 	Optional<User> findByEmailAndNotDeleted(String email);
 
-	Optional<Integer> findPointByIdNotDeleted(Long userId);
+	Optional<Integer> findGemByIdNotDeleted(Long userId);
 
 	Optional<User> findByIdNotDeleted(Long userId);
 

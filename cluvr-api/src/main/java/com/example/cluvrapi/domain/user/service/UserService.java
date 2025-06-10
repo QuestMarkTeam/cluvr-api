@@ -1,9 +1,9 @@
 package com.example.cluvrapi.domain.user.service;
 
 import com.example.cluvrapi.domain.user.dto.request.UpdateUserRequestDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserGemResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserOtherResponseDto;
-import com.example.cluvrapi.domain.user.dto.response.GetUserPointResponseDto;
 
 public interface UserService {
 
@@ -11,7 +11,7 @@ public interface UserService {
 
 	GetUserOtherResponseDto getOtherUserProfile(Long otherUserId);
 
-	GetUserPointResponseDto getUserPoint(Long userId);
+	GetUserGemResponseDto getUserGem(Long userId);
 
 	GetUserMeResponseDto updateMyProfile(Long userId, UpdateUserRequestDto updateDto);
 

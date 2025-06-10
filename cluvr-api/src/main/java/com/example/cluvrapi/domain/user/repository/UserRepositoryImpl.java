@@ -30,7 +30,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 	}
 
 	@Override
-	public Optional<Integer> findPointByIdNotDeleted(Long userId) {
+	public Optional<Integer> findGemByIdNotDeleted(Long userId) {
 		Integer gem = queryFactory
 			.select(user.gem)
 			.from(user)

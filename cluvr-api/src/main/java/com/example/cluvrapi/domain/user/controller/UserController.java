@@ -1,5 +1,9 @@
 package com.example.cluvrapi.domain.user.controller;
 
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,16 +18,13 @@ import com.example.cluvrapi.domain.auth.service.AuthService;
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.user.dto.request.UpdateUserRequestDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserGemResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserOtherResponseDto;
-import com.example.cluvrapi.domain.user.dto.response.GetUserPointResponseDto;
 import com.example.cluvrapi.domain.user.service.UserService;
 import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/users")
@@ -52,11 +53,11 @@ public class UserController {
 		return ResponseEntity.ok(BaseResponse.success(dto, ResponseCode.OK));
 	}
 
-	@GetMapping("/me/point")
-	public ResponseEntity<BaseResponse<GetUserPointResponseDto>> getMyPoint(
+	@GetMapping("/me/gem")
+	public ResponseEntity<BaseResponse<GetUserGemResponseDto>> getMyGem(
 		@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 		Long userId = customUserDetails.getId();
-		GetUserPointResponseDto responseDto = userService.getUserPoint(userId);
+		GetUserGemResponseDto responseDto = userService.getUserGem(userId);
 		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.OK));
 
 	}
