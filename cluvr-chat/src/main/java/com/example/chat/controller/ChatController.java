@@ -35,7 +35,6 @@ public class ChatController {
 	private final SimpMessagingTemplate messagingTemplate;
 	private final ChatService chatService;
 
-	// 채팅방 가입 
 	@PostMapping("/club/{clubId}/chat/join")
 	public ResponseEntity<BaseResponse<Void>> joinChatRoom(
 		@PathVariable Long clubId,
