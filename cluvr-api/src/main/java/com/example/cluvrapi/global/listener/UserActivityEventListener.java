@@ -25,10 +25,12 @@ public class UserActivityEventListener {
 
 		// 이벤트에 해당하는 유저의 활동 로그 저장
 		redisService.setZSetValue(redisKey, event.getDto(), score);
+		redisService.setExpireOfDay(redisKey, 31L);
 		// 포인트 , 게시글 , 카테고리별 활동 기록 카운트 용 레디스 ex) 게시글 작성 + 1
 		// handleUserActivityCount(userId);
 	}
 
+	// 유저 활동 로그 기록할 때 사용 예정
 	// public void handleUserActivityCount(Long userId) {
 	// 	String key = USER_ACTIVITY_COUNT.getKey() + userId;
 	// 	User user = userRepository.findByIdOrElseThrow(userId);

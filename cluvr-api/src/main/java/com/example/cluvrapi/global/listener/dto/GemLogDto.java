@@ -16,6 +16,7 @@ public class GemLogDto {
 	private String action;
 	private GemFlowType flowType;
 
+	// 30일간 기준으로 최신 gem 로그를 보여주기위해 레디스에 저장
 	public GemLogDto(Long userId, Integer amount, String description, LocalDateTime createdAt,
 		LocalDateTime deletedAt, String action, GemFlowType flowType) {
 		this.userId = userId;
