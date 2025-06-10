@@ -2,15 +2,16 @@ package com.example.chat.dto.request;
 
 import com.example.chat.enums.ClubRole;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Setter
 @Getter
 @NoArgsConstructor
 public class ChatRoomRequestDto {
+	@NotNull(message = "사용자 ID는 필수입니다")
 	private Long userId;
+	@NotNull(message = "역할 정보는 필수입니다")
 	private ClubRole role;
 
 	public ChatRoomRequestDto(Long userId, ClubRole role) {

@@ -35,8 +35,8 @@ public class ChatController {
 	private final SimpMessagingTemplate messagingTemplate;
 	private final ChatService chatService;
 
-	@PostMapping("club/{clubId}/chat/join")
-	public ResponseEntity<BaseResponse<?>> joinChatRoom(
+	@PostMapping("/club/{clubId}/chat/join")
+	public ResponseEntity<BaseResponse<Void>> joinChatRoom(
 		@PathVariable Long clubId,
 		@RequestBody JoinRequestDto request
 	) {
@@ -44,6 +44,7 @@ public class ChatController {
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
 	}
 
+	// 추후 개선 진행 : 컨트롤러 계층에서 DTO 로 변환해 최소·안전 정보만 반환.
 	@GetMapping("/room/{roomId}/users")
 	public ResponseEntity<BaseResponse<List<ChatRoomUser>>> getUserInRoom(@PathVariable Long roomId) {
 		List<ChatRoomUser> users = chatService.getUserInRoom(roomId);
@@ -88,10 +89,11 @@ public class ChatController {
 	 */
 
 	@PostMapping("/chat/create")
-	public ResponseEntity<BaseResponse<?>> createChatRoom(
+	public ResponseEntity<BaseResponse<Void>> createChatRoom(
 		@RequestBody CreateChatRoomRequestDto request) {
 		log.info("방 생성 요청: {}", request);
-		if (request.getRole() == ClubRole.MEMBER) {
+		if (request.getRole()
+			== ClubRole.MEMBER) { // 외부 API지만 같은 회사내 다른 서버 API를 호출하는거임. 나중에 지정한 경로에서만 접속 가능하도록 WebConfig, SocketConfig 변경 필요
 			return ResponseEntity.ok(BaseResponse.error(ResponseCode.ACCESS_DENIED, "권한이 없습니다. 관리자에게 문의하세요."));
 		}
 		chatService.createChatRoom(request);

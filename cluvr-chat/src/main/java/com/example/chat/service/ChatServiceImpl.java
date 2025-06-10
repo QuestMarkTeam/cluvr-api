@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.chat.dto.request.ChatMessageRequestDto;
 import com.example.chat.dto.request.ChatRoomRequestDto;
@@ -34,8 +36,9 @@ public class ChatServiceImpl implements ChatService {
 	private final ChatRoomUserRepository userRepository;
 	// private final GetInfoFromExternal getInfoFromExternal;
 	private final SimpMessagingTemplate messagingTemplate;
-	private final DummyInfoExternal dummyInfoExternal;
+	private final DummyInfoExternal dummyInfoExternal; // 무시해라 레빗아... 더미다
 
+	// CreateChatRoomRequestDto에 메서드 만들어서 이 코드 넣으면 서비스 코드 길이 더 줄어들 것 같아요.
 	@Override
 	public void createChatRoom(CreateChatRoomRequestDto request) {
 		ChatRoom room = new ChatRoom(
@@ -67,7 +70,7 @@ public class ChatServiceImpl implements ChatService {
 
 		for (ChatRoomUser u : users) {
 			if (u.getClubRole() != userRole) {
-				u.setClubRole(userRole);
+				u.updateClubRole(userRole);
 			}
 		}
 		userRepository.saveAll(users);
@@ -90,7 +93,9 @@ public class ChatServiceImpl implements ChatService {
 		if (!userRepository.existsByRoomIdAndUserId(request.getRoomId(), request.getUserId()))
 			return;
 
-		ChatRoomUser user = userRepository.findByRoomIdAndUserId(request.getRoomId(), request.getUserId());
+		ChatRoomUser user = userRepository.findByRoomIdAndUserId(request.getRoomId(), request.getUserId())
+			.orElseThrow(() -> new ResponseStatusException(
+				HttpStatus.BAD_REQUEST, "잘못된 요청입니다."));
 		request.setNickname(user.getNickname());
 
 		String roomId = "/sub/chat/room/" + request.getRoomId();
@@ -112,6 +117,7 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<ChatLog> getMessages(Long roomId) {
 		return chatLogRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
 	}

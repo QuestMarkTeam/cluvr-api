@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public class UserInfoResponseDto {
-	private Long userId;
-	private String nickname;
-	private String role;
-	private String imageUrl;
+	private final Long userId;
+	private final String nickname;
+	private final String role;
+	private final String imageUrl;
 
 	public UserInfoResponseDto(Long userId, String nickname, String role, String imageUrl) {
 		this.userId = userId;

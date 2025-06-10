@@ -1,6 +1,7 @@
 package com.example.chat.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.example.chat.entity.ChatRoomUser;
 import com.example.common.repository.BaseRepository;
@@ -10,7 +11,7 @@ public interface ChatRoomUserRepository extends BaseRepository<ChatRoomUser, Lon
 
 	List<ChatRoomUser> findByRoomId(Long roomId);
 
-	ChatRoomUser findByRoomIdAndUserId(Long roomId, Long userId);
+	Optional<ChatRoomUser> findByRoomIdAndUserId(Long roomId, Long userId);
 
 	void deleteByRoomIdAndUserId(Long roomId, Long userId);
 

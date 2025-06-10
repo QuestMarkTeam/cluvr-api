@@ -11,15 +11,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Setter
 @Getter
 @Entity
-@Table(name = "chat_room_user")
+@Table(name = "chat_room_user", uniqueConstraints = @UniqueConstraint(columnNames = {"roomId", "userId"}))
+// 동일한 채팅방에 같은 사용자가 중복으로 등록되는 것을 방지하기 위해 유니크 제약조건을 추가
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoomUser {
 	@Id
@@ -44,5 +44,9 @@ public class ChatRoomUser {
 		this.nickname = nickname;
 		this.clubRole = clubRole;
 		this.joinedAt = joinedAt;
+	}
+
+	public void updateClubRole(ClubRole role) {
+		this.clubRole = role;
 	}
 }

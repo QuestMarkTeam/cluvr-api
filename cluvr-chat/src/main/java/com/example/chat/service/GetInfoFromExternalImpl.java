@@ -1,5 +1,6 @@
 package com.example.chat.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -18,17 +19,34 @@ import lombok.RequiredArgsConstructor;
 public class GetInfoFromExternalImpl implements GetInfoFromExternal {
 	private final RestTemplate restTemplate;
 
-	// 유저별 가입한 클럽 리스트랑, 해당 클럽 리스트에서의 role정보
+	@Value("${external.club_api.base_url}")
+	private String baseUrl;
+
+	/**
+	 * 외부 API로부터 사용자 정보를 조회합니다.
+	 *
+	 * @param userId 조회할 사용자 ID
+	 * @return 사용자 정보 DTO
+	 */
 	@Override
 	public UserInfoResponseDto getUserInfo(Long userId) {
-		String url = "http://localhost:8080/api/users/" + userId;
-		ResponseEntity<BaseResponse<UserInfoResponseDto>> response = restTemplate.exchange(
-			url,
-			HttpMethod.GET,
-			null,
-			new ParameterizedTypeReference<>() {
+		String url = baseUrl + "/api/users/" + userId;
+		try {
+			ResponseEntity<BaseResponse<UserInfoResponseDto>> response = restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				null,
+				new ParameterizedTypeReference<>() {
+				}
+			);
+
+			if (response.getBody() == null || response.getBody().getData() == null) {
+				throw new IllegalStateException("사용자 정보를 찾을 수 없습니다.");
 			}
-		);
-		return response.getBody().getData();
+
+			return response.getBody().getData();
+		} catch (Exception e) {
+			throw new RuntimeException("외부 API 호출 실패: " + userId, e);
+		}
 	}
 }

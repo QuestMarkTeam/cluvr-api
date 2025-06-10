@@ -74,12 +74,16 @@
     let stompClient = null;
     let socket = null;
     let currentSubscription = null;
+    const API_BASE_URL = window.location.hostname == 'localhost' ? 'http://localhost:8082' : 'http://api.cluvr.com';
 
     function joinChatRoom(clubId, userId) {
-        return fetch(`http://localhost:8082/club/${clubId}/chat/room/join`, {
+        return fetch(`${API_BASE_URL}/club/${clubId}/chat/room/join`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(userId)
+        }).catch(error => {
+            console.error('채팅방 입장 실패: ', error);
+            alert('채팅방 입장에 실패했습니다.');
         });
     }
 
@@ -125,7 +129,7 @@
                         renderMessage(msgObj);
                     });
 
-                    fetch(`http://localhost:8082/club/${clubId}/chat/${roomId}`)
+                    fetch(`${API_BASE_URL}/club/${clubId}/chat/${roomId}`)
                         .then(res => res.json())
                         .then(data => {
                             const chatBox = document.getElementById("chatBox");
@@ -133,10 +137,19 @@
                             if (data.data && Array.isArray(data.data)) {
                                 data.data.forEach(renderMessage);
                             }
-                        });
+                        }).catch(error => {
+                        console.error('채팅방 입장 실패: ', error);
+                        alert('채팅방 입장에 실패했습니다.');
+                    });
                 });
             });
         }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     function renderMessage(message) {
@@ -145,10 +158,10 @@
 
         if (message.type === "ENTER" || message.type === "LEAVE") {
             msgDiv.className = "system";
-            msgDiv.textContent = message.message;
+            msgDiv.textContent = escapeHtml(message.message);
         } else {
             msgDiv.className = parseInt(message.userId) === parseInt(userId) ? "me" : "other";
-            msgDiv.textContent = `${message.nickname} : ${message.message}`;
+            msgDiv.textContent = `${escapeHtml(message.nickname)} : ${escapeHtml(message.message)}`;
         }
 
         chatBox.appendChild(msgDiv);
@@ -161,7 +174,7 @@
         // nickname = document.getElementById("nickname").value;
         // const role = document.getElementById("role").value;
 
-        fetch(`http://localhost:8082/club/${clubId}/chat/list`, {
+        fetch(`${API_BASE_URL}/club/${clubId}/chat/list`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({userId})
@@ -182,7 +195,10 @@
                         roomListDiv.appendChild(document.createElement("br"));
                     });
                 }
-            });
+            }).catch(error => {
+            console.error('채팅방 입장 실패: ', error);
+            alert('채팅방 입장에 실패했습니다.');
+        });
     }
 
     function createChatRoom() {

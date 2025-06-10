@@ -3,9 +3,7 @@ package com.example.chat.dto.request;
 import com.example.chat.enums.MessageType;
 
 import lombok.Getter;
-import lombok.Setter;
 
-@Setter
 @Getter
 public class ChatMessageRequestDto {
 	private MessageType type;
@@ -25,5 +23,9 @@ public class ChatMessageRequestDto {
 	public static ChatMessageRequestDto from(MessageType type, Long roomId, Long userId, String nickname,
 		String message) {
 		return new ChatMessageRequestDto(type, roomId, userId, nickname, message);
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 }

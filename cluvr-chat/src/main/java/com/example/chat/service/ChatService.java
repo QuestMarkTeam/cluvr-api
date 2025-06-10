@@ -21,7 +21,7 @@ public interface ChatService {
 
 	List<ChatLog> getMessages(Long roomId);
 
-	void join(Long clubId, JoinRequestDto userId);
+	void join(Long clubId, JoinRequestDto request);
 
 	void leave(Long clubId, Long userId);
 
