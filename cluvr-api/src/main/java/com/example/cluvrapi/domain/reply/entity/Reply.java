@@ -43,16 +43,26 @@ public class Reply extends BaseTimeEntity {
 	@Column(nullable = false)
 	private String content;
 
+	@Column(nullable = false, name = "is_deleted")
+	private boolean isDeleted;
+
+	@Column(nullable = false, name = "is_selected")
+	private boolean isSelected;
+
 	public Reply(User user, String content, Board board, Reply parent) {
 		this.user = user;
 		this.content = content;
 		this.board = board;
 		this.parent = parent;
-
+		this.isDeleted = false;
+		this.isSelected = false;
 	}
 
 	public void update(String content) {
 		this.content = content;
 	}
 
+	public void delete() {
+		this.isDeleted = true;
+	}
 }
