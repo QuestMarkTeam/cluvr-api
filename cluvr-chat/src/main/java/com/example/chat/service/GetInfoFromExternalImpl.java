@@ -18,7 +18,12 @@ import lombok.RequiredArgsConstructor;
 public class GetInfoFromExternalImpl implements GetInfoFromExternal {
 	private final RestTemplate restTemplate;
 
-	// 유저별 가입한 클럽 리스트랑, 해당 클럽 리스트에서의 role정보
+	/**
+	 * Retrieves user information, including the list of clubs the user has joined and their roles in each club, by querying an external API.
+	 *
+	 * @param userId the unique identifier of the user whose information is to be retrieved
+	 * @return a {@link UserInfoResponseDto} containing the user's club memberships and roles
+	 */
 	@Override
 	public UserInfoResponseDto getUserInfo(Long userId) {
 		String url = "http://localhost:8080/api/users/" + userId;

@@ -22,6 +22,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+	/****
+	 * Configures CORS mappings to allow cross-origin requests from http://localhost:63342.
+	 *
+	 * Applies CORS rules to all endpoints, permitting specified HTTP methods, all headers, and credentials from the given origin.
+	 */
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")

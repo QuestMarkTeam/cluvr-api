@@ -36,6 +36,11 @@ public class ChatServiceImpl implements ChatService {
 	private final SimpMessagingTemplate messagingTemplate;
 	private final DummyInfoExternal dummyInfoExternal;
 
+	/**
+	 * Creates and persists a new chat room using the provided request data.
+	 *
+	 * @param request contains club ID, room name, creator user ID, image URL, and room type for the new chat room
+	 */
 	@Override
 	public void createChatRoom(CreateChatRoomRequestDto request) {
 		ChatRoom room = new ChatRoom(
@@ -47,16 +52,15 @@ public class ChatServiceImpl implements ChatService {
 		chatRoomRepository.save(room);
 	}
 
-	/**
-	 * 설명: 채팅방 리스트 조회
-	 * <p>
-	 * 클럽 Id와 유저의 클럽내에서의 Role 기반으로 채팅방 리스트를 가져옴
-	 * 외부 API 요청(도메인쪽으로)하여 Role 정보를 불러와서 갱신 해주고 불러옴
+	/****
+	 * Retrieves a list of chat rooms in a club accessible to a user based on their role.
 	 *
-	 * @param clubId  : 채팅방 리스트가 속한 클럽 Id
-	 * @param request : 유저 Id와 유저의 클럽내에서의 role 정보
-	 * @return 채팅방 리스트 반환
-	 * @author Tcimel
+	 * Fetches the user's current role from an external service and updates their role in all chat room memberships if changed.
+	 * Returns all chat rooms for users with the MANAGER or LEADER role; otherwise, returns only MEMBER-type chat rooms.
+	 *
+	 * @param clubId the ID of the club whose chat rooms are being queried
+	 * @param request contains the user ID and their role information within the club
+	 * @return a list of chat room response DTOs accessible to the user
 	 */
 	@Override
 	public List<ChatRoomResponseDto> findChatRoomByClubAndRole(Long clubId, ChatRoomRequestDto request) {
@@ -84,6 +88,13 @@ public class ChatServiceImpl implements ChatService {
 			.collect(Collectors.toList());
 	}
 
+	/**
+	 * Broadcasts a chat message to all subscribers of the specified chat room and saves the message to persistent storage.
+	 *
+	 * The message is only broadcast if the user is a member of the chat room. The sender's nickname is set before broadcasting.
+	 *
+	 * @param request the chat message request containing room ID, user ID, message content, and type
+	 */
 	@Override
 	@Transactional
 	public void broadcastMessage(ChatMessageRequestDto request) {
@@ -98,6 +109,11 @@ public class ChatServiceImpl implements ChatService {
 		saveMessage(request);
 	}
 
+	/**
+	 * Persists a chat message to the chat log repository.
+	 *
+	 * @param request the chat message data to be saved
+	 */
 	@Override
 	public void saveMessage(ChatMessageRequestDto request) {
 		ChatLog message = new ChatLog(
@@ -111,11 +127,25 @@ public class ChatServiceImpl implements ChatService {
 		chatLogRepository.save(message);
 	}
 
+	/**
+	 * Retrieves all chat messages for the specified chat room, ordered by creation time in ascending order.
+	 *
+	 * @param roomId the ID of the chat room
+	 * @return a list of chat logs for the room, sorted by creation time
+	 */
 	@Override
 	public List<ChatLog> getMessages(Long roomId) {
 		return chatLogRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
 	}
 
+	/**
+	 * Adds a user to all accessible chat rooms in a club based on their role, creating membership records and broadcasting entry messages.
+	 *
+	 * For each chat room the user is eligible to join and not already a member of, creates a new `ChatRoomUser` entry and sends an "ENTER" message to the room. After joining, refreshes the user's chat room list.
+	 *
+	 * @param clubId the ID of the club whose chat rooms are being joined
+	 * @param request contains the user ID of the joining user
+	 */
 	@Override
 	@Transactional
 	public void join(Long clubId, JoinRequestDto request) {
@@ -161,6 +191,12 @@ public class ChatServiceImpl implements ChatService {
 		findChatRoomByClubAndRole(clubId, chatRoomRequest);
 	}
 
+	/**
+	 * Removes a user from all chat rooms in a club that they have access to based on their role, and broadcasts a leave message to each room.
+	 *
+	 * @param clubId the ID of the club from which the user is leaving chat rooms
+	 * @param userId the ID of the user leaving the chat rooms
+	 */
 	@Override
 	@Transactional
 	public void leave(Long clubId, Long userId) {
@@ -189,6 +225,12 @@ public class ChatServiceImpl implements ChatService {
 		}
 	}
 
+	/**
+	 * Retrieves the list of users currently present in the specified chat room.
+	 *
+	 * @param roomId the ID of the chat room
+	 * @return a list of ChatRoomUser entities representing users in the room
+	 */
 	@Override
 	public List<ChatRoomUser> getUserInRoom(Long roomId) {
 		return userRepository.findByRoomId(roomId);

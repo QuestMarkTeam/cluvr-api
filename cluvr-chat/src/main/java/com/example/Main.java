@@ -8,6 +8,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication
 public class Main {
 
+	/****
+	 * Launches the Spring Boot application.
+	 *
+	 * @param args command-line arguments passed to the application
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(Main.class, args);
 	}

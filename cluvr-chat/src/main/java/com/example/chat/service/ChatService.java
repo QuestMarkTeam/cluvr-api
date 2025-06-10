@@ -11,19 +11,65 @@ import com.example.chat.entity.ChatLog;
 import com.example.chat.entity.ChatRoomUser;
 
 public interface ChatService {
-	void createChatRoom(CreateChatRoomRequestDto request);
+	/****
+ * Creates a new chat room using the provided request data.
+ *
+ * @param request the details required to create the chat room
+ */
+void createChatRoom(CreateChatRoomRequestDto request);
 
-	List<ChatRoomResponseDto> findChatRoomByClubAndRole(Long clubId, ChatRoomRequestDto request);
+	/****
+ * Retrieves chat rooms for a given club filtered by user role criteria.
+ *
+ * @param clubId the unique identifier of the club
+ * @param request the criteria specifying user role and other filters
+ * @return a list of chat rooms matching the specified club and role criteria
+ */
+List<ChatRoomResponseDto> findChatRoomByClubAndRole(Long clubId, ChatRoomRequestDto request);
 
-	void broadcastMessage(ChatMessageRequestDto request);
+	/**
+ * Sends a chat message to all participants in the specified chat room.
+ *
+ * @param request the message details and target chat room information
+ */
+void broadcastMessage(ChatMessageRequestDto request);
 
-	void saveMessage(ChatMessageRequestDto request);
+	/****
+ * Persists a chat message to storage based on the provided request data.
+ *
+ * @param request the chat message details to be saved
+ */
+void saveMessage(ChatMessageRequestDto request);
 
-	List<ChatLog> getMessages(Long roomId);
+	/****
+ * Retrieves the list of chat messages for the specified chat room.
+ *
+ * @param roomId the unique identifier of the chat room
+ * @return a list of chat logs associated with the given room
+ */
+List<ChatLog> getMessages(Long roomId);
 
-	void join(Long clubId, JoinRequestDto userId);
+	/**
+ * Adds a user to the chat room associated with the specified club.
+ *
+ * @param clubId the identifier of the club whose chat room the user will join
+ * @param userId the user information required to join the chat room
+ */
+void join(Long clubId, JoinRequestDto userId);
 
-	void leave(Long clubId, Long userId);
+	/****
+ * Removes a user from the chat room associated with the specified club.
+ *
+ * @param clubId the identifier of the club whose chat room the user will leave
+ * @param userId the identifier of the user to be removed from the chat room
+ */
+void leave(Long clubId, Long userId);
 
-	List<ChatRoomUser> getUserInRoom(Long roomId);
+	/****
+ * Retrieves the list of users currently present in the specified chat room.
+ *
+ * @param roomId the unique identifier of the chat room
+ * @return a list of users in the chat room
+ */
+List<ChatRoomUser> getUserInRoom(Long roomId);
 }

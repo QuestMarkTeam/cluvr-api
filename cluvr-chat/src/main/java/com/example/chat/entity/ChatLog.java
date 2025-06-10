@@ -33,6 +33,16 @@ public class ChatLog {
 
 	private LocalDateTime createdAt;
 
+	/****
+	 * Constructs a new ChatLog entity with the specified chat room, user, nickname, message content, message type, and creation timestamp.
+	 *
+	 * @param roomId     the identifier of the chat room
+	 * @param userId     the identifier of the user who sent the message
+	 * @param nickname   the nickname of the user
+	 * @param message    the content of the chat message
+	 * @param type       the type of the message (e.g., ENTER, TALK, LEAVE)
+	 * @param createdAt  the timestamp when the message was created
+	 */
 	public ChatLog(Long roomId, Long userId, String nickname, String message, MessageType type,
 		LocalDateTime createdAt) {
 		this.roomId = roomId;

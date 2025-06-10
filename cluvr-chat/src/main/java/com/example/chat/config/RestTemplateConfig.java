@@ -15,6 +15,11 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class RestTemplateConfig {
+	/****
+	 * Creates and provides a RestTemplate bean for performing HTTP requests to external services.
+	 *
+	 * @return a new RestTemplate instance
+	 */
 	@Bean
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
