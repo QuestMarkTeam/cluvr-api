@@ -15,10 +15,10 @@ public class QFindRankResponseDto extends ConstructorExpression<FindRankResponse
 	private static final long serialVersionUID = -1892930009L;
 
 	public QFindRankResponseDto(com.querydsl.core.types.Expression<Integer> score,
-		com.querydsl.core.types.Expression<com.example.cluvrapi.domain.clover.eunms.Tier> tier,
+		com.querydsl.core.types.Expression<com.example.cluvrapi.domain.clover.enums.Tier> tier,
 		com.querydsl.core.types.Expression<Long> userId) {
 		super(FindRankResponseDto.class,
-			new Class<?>[] {int.class, com.example.cluvrapi.domain.clover.eunms.Tier.class, long.class}, score, tier,
+			new Class<?>[] {int.class, com.example.cluvrapi.domain.clover.enums.Tier.class, long.class}, score, tier,
 			userId);
 	}
 

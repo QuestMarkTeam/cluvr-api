@@ -6,7 +6,7 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
@@ -19,7 +19,7 @@ import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
-@Repository
+@Service
 @RequiredArgsConstructor
 public class GemServiceImpl implements GemService {
 

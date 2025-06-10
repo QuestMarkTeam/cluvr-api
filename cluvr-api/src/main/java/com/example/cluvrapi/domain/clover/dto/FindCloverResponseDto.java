@@ -2,7 +2,7 @@ package com.example.cluvrapi.domain.clover.dto;
 
 import lombok.Getter;
 
-import com.example.cluvrapi.domain.clover.eunms.Tier;
+import com.example.cluvrapi.domain.clover.enums.Tier;
 import com.querydsl.core.annotations.QueryProjection;
 
 @Getter

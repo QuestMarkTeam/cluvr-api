@@ -33,6 +33,7 @@ public class CloverServiceImpl implements CloverService {
 		return cloverRepository.findScoreByUserId(userId);
 	}
 
+	@Transactional
 	@Override
 	public void deleteClover(Long cloverId) {
 		Clover clover = cloverRepository.findByIdOrElseThrow(cloverId);
@@ -47,6 +48,7 @@ public class CloverServiceImpl implements CloverService {
 		cloverRepository.save(clover);
 	}
 
+	@Transactional
 	@Override
 	public void updateClover(Long cloverId, UpdateCloverRequestDto requestDto) {
 		Clover clover = cloverRepository.findByIdOrElseThrow(cloverId);

@@ -14,7 +14,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import com.example.cluvrapi.domain.clover.eunms.Tier;
+import com.example.cluvrapi.domain.clover.enums.Tier;
 import com.example.cluvrapi.domain.user.entity.User;
 
 @Entity

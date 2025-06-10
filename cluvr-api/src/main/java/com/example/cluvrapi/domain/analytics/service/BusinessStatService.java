@@ -11,7 +11,7 @@ public interface BusinessStatService {
 	 * @param redisKey {설명: 첫 번째 매개변수 설명}
 	 * @return {redis 에서 가져온 데이터를 insertStat 로 리턴해줌}
 	 *
-	 * @author {작성자 이름}
+	 * @author dnjs5024
 	 */
 
 	public <T> List<T> aggregate(String redisKey, Class<T> clazz);
@@ -20,7 +20,7 @@ public interface BusinessStatService {
 	 *
 	 * @param id 통계 식별자
 	 *
-	 * @author {작성자 이름}
+	 * @author dnjs5024
 	 */
 
 	public void deleteStat(Long id);

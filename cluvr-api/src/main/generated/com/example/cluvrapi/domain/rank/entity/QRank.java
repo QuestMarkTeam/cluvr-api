@@ -27,8 +27,8 @@ public class QRank extends EntityPathBase<Rank> {
 
 	public final NumberPath<Integer> score = createNumber("score", Integer.class);
 
-	public final EnumPath<com.example.cluvrapi.domain.clover.eunms.Tier> tier = createEnum("tier",
-		com.example.cluvrapi.domain.clover.eunms.Tier.class);
+	public final EnumPath<com.example.cluvrapi.domain.clover.enums.Tier> tier = createEnum("tier",
+		com.example.cluvrapi.domain.clover.enums.Tier.class);
 
 	public final com.example.cluvrapi.domain.user.entity.QUser user;
 
