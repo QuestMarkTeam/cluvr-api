@@ -5,10 +5,6 @@ import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,14 +41,14 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional(readOnly = true)
 	public GetUserPointResponseDto getUserPoint(Long userId) {
-		Optional<Long> optPoint = userRepository.findPointByIdNotDeleted(userId);
+		Optional<Integer> optGem = userRepository.findPointByIdNotDeleted(userId);
 
-		if (optPoint.isEmpty()) {
+		if (optGem.isEmpty()) {
 			throw new IllegalArgumentException("해당 ID의 사용자를 찾을 수 없습니다. id=" + userId);
 		}
 
-		Long point = optPoint.get();
-		return new GetUserPointResponseDto(point);
+		Integer gem = optGem.get();
+		return new GetUserPointResponseDto(gem);
 	}
 
 	@Override

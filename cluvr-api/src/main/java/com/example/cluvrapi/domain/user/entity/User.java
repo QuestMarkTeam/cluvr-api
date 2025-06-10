@@ -11,16 +11,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import org.hibernate.annotations.SQLDelete;
 
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
 import com.example.cluvrapi.domain.user.entity.enums.Gender;
 import com.example.cluvrapi.domain.user.entity.enums.UserRole;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
@@ -93,10 +93,7 @@ public class User extends BaseTimeEntity {
 	private Boolean isDeleted = true;
 
 	public User(Long id, String name, LocalDate birthday, String email, String phoneNumber, UserRole userRole,
-
-		Gender gender, com.example.cluvrnotifications.domain.user.entity.enums.CategoryDetail categoryDetail,
-		String password, Integer gem, String imageUrl,
-		Boolean isDeleted) {
+		Gender gender, CategoryType categoryType, String password, Integer gem, String imageUrl, Boolean isDeleted) {
 		this.id = id;
 		this.name = name;
 		this.birthday = birthday;

@@ -3,13 +3,13 @@ package com.example.cluvrapi.domain.user.dto.response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.entity.enums.Gender;
 import com.example.cluvrapi.domain.user.entity.enums.UserRole;
-
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
@@ -20,7 +20,7 @@ public class GetUserOtherResponseDto {
 	private Gender gender;
 	private CategoryType categoryType;
 	private UserRole userRole;
-	private Long point;
+	private Integer gem;
 	private String imageUrl;
 	private LocalDateTime createdAt;
 
@@ -31,7 +31,7 @@ public class GetUserOtherResponseDto {
 		Gender gender,
 		CategoryType categoryType,
 		UserRole userRole,
-		Long point,
+		Integer gem,
 		String imageUrl,
 		LocalDateTime createdAt
 	) {
@@ -41,7 +41,7 @@ public class GetUserOtherResponseDto {
 		this.gender = gender;
 		this.categoryType = categoryType;
 		this.userRole = userRole;
-		this.point = point;
+		this.gem = gem;
 		this.imageUrl = imageUrl;
 		this.createdAt = createdAt;
 	}
@@ -54,7 +54,7 @@ public class GetUserOtherResponseDto {
 			user.getGender(),
 			user.getCategoryType(),
 			user.getUserRole(),
-			user.getPoint(),
+			user.getGem(),
 			user.getImageUrl(),
 			user.getCreatedAt()
 		);

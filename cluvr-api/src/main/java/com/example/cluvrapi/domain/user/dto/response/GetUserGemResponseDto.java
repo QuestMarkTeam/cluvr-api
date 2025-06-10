@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class GetUserPointResponseDto {
-	private final Long point;
+	private final Integer gem;
 
-	public GetUserPointResponseDto(Long point) {
-		this.point = point;
+	public GetUserPointResponseDto(Integer gem) {
+		this.gem = gem;
 	}
 }

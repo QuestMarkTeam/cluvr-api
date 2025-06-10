@@ -1,16 +1,16 @@
 package com.example.cluvrapi.domain.user.repository;
 
-import static com.example.cluvrapi.domain.user.entity.QUser.*;
+import static com.example.cluvrapi.domain.user.entity.QUser.user;
 
 import java.util.List;
 import java.util.Optional;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Repository;
 
 import com.example.cluvrapi.domain.user.entity.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-
-import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
@@ -30,16 +30,16 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 	}
 
 	@Override
-	public Optional<Long> findPointByIdNotDeleted(Long userId) {
-		Long point = queryFactory
-			.select(user.point)
+	public Optional<Integer> findPointByIdNotDeleted(Long userId) {
+		Integer gem = queryFactory
+			.select(user.gem)
 			.from(user)
 			.where(
 				user.id.eq(userId)
 					.and(user.isDeleted.eq(false))
 			)
 			.fetchOne();
-		return Optional.ofNullable(point);
+		return Optional.ofNullable(gem);
 	}
 
 	@Override
