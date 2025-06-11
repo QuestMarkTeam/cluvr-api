@@ -1,4 +1,4 @@
-package com.example.cluvrapi.domain.joinRequest.entity;
+package com.example.cluvrapi.domain.join.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -16,7 +16,7 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QJoinRequest extends EntityPathBase<JoinRequest> {
 
-    private static final long serialVersionUID = -31479646L;
+    private static final long serialVersionUID = 1146943167L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
@@ -26,13 +26,11 @@ public class QJoinRequest extends EntityPathBase<JoinRequest> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final EnumPath<com.example.cluvrapi.domain.joinRequest.enums.JoinStatus> joinStatus = createEnum("joinStatus", com.example.cluvrapi.domain.joinRequest.enums.JoinStatus.class);
+    public final BooleanPath isDeleted = createBoolean("isDeleted");
 
-    public final EnumPath<com.example.cluvrapi.domain.joinRequest.enums.JoinType> joinType = createEnum("joinType", com.example.cluvrapi.domain.joinRequest.enums.JoinType.class);
+    public final EnumPath<com.example.cluvrapi.domain.join.enums.JoinStatus> joinStatus = createEnum("joinStatus", com.example.cluvrapi.domain.join.enums.JoinStatus.class);
 
-    public final StringPath problemAnswer = createString("problemAnswer");
-
-    public final StringPath submissionText = createString("submissionText");
+    public final EnumPath<com.example.cluvrapi.domain.club.enums.JoinType> joinType = createEnum("joinType", com.example.cluvrapi.domain.club.enums.JoinType.class);
 
     public final com.example.cluvrapi.domain.user.entity.QUser user;
 
