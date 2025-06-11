@@ -20,6 +20,10 @@ import com.example.cluvrapi.domain.board.repository.BoardReactionRepository;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
+import com.example.cluvrapi.domain.notification.enums.NotificationType;
+import com.example.cluvrapi.domain.notification.event.NotificationEvent;
+import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.SelfReactionNotAllowedException;
@@ -32,6 +36,7 @@ public class BoardServiceImpl implements BoardService {
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
 	private final BoardReactionRepository boardReactionRepository;
+	private final NotificationProducer notificationProducer;
 
 	@Override
 	@Transactional
@@ -79,6 +84,21 @@ public class BoardServiceImpl implements BoardService {
 
 		BoardReaction boardReaction = new BoardReaction(user, board, reaction);
 		boardReactionRepository.save(boardReaction);
+
+		User boardOwner = board.getUser();
+		if (!boardOwner.getId().equals(user.getId())) {
+			String content = String.format("'%s'님이 회원님의 게시글에 '%s'를 남겼습니다.", user.getName(), reaction.name());
+
+			NotificationEvent event = NotificationEvent.from(
+				boardOwner.getId(),
+				NotificationType.REACTION,
+				content,
+				NotiTargetType.BOARD,
+				board.getId()
+			);
+
+			notificationProducer.send(event);
+		}
 	}
 
 	@Override
@@ -91,9 +111,9 @@ public class BoardServiceImpl implements BoardService {
 		}
 
 		boardReactionRepository.deleteByUserAndBoard(user, board);
-  }
-  
-  @Override
+	}
+
+	@Override
 	@Transactional(readOnly = true)
 	public PageResponseDto<ReadMyBoardsResponseDto> readBoardsWithUser(long userId, Pageable pageable) {
 		return boardRepository.findBoardsByUser(userId, pageable);

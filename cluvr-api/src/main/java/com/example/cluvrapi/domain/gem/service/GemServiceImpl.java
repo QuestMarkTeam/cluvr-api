@@ -14,6 +14,10 @@ import com.example.cluvrapi.domain.gem.dto.response.FindGemLogResponseDto;
 import com.example.cluvrapi.domain.gem.dto.response.UpdateGemResponseDto;
 import com.example.cluvrapi.domain.gem.enums.GemType;
 import com.example.cluvrapi.domain.gem.repository.GemLogRepository;
+import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
+import com.example.cluvrapi.domain.notification.enums.NotificationType;
+import com.example.cluvrapi.domain.notification.event.NotificationEvent;
+import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
@@ -26,6 +30,7 @@ public class GemServiceImpl implements GemService {
 	private final UserRepository userRepository;
 	private final GemLogRepository gemLogRepository;
 	private final GemRedisService gemRedisService;
+	private final NotificationProducer notificationProducer;
 
 	@Transactional
 	@Override
@@ -62,6 +67,17 @@ public class GemServiceImpl implements GemService {
 		// 하루 제한 이하면 적립
 		if (gemType.getTodayLimit() >= count) {
 			user.updateGem(gemType.getAmount());
+			String content = String.format("Gem %점을 획득하였습니다.", gemType.getAmount());
+
+			NotificationEvent event = NotificationEvent.from(
+				userId,
+				NotificationType.POINT,
+				content,
+				NotiTargetType.USER,
+				userId
+			);
+
+			notificationProducer.send(event);
 		}
 	}
 

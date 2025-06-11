@@ -24,6 +24,10 @@ import com.example.cluvrapi.domain.join.enums.FormFieldType;
 import com.example.cluvrapi.domain.join.enums.JoinStatus;
 import com.example.cluvrapi.domain.join.repository.JoinRequestAnswerRepository;
 import com.example.cluvrapi.domain.join.repository.JoinRequestRepository;
+import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
+import com.example.cluvrapi.domain.notification.enums.NotificationType;
+import com.example.cluvrapi.domain.notification.event.NotificationEvent;
+import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
@@ -43,6 +47,7 @@ public class JoinServiceImpl implements JoinService {
 	private final JoinRequestAnswerRepository joinRequestAnswerRepository;
 	private final ProblemFormRepository problemFormRepository;
 	private final SubmissionFormRepository submissionFormRepository;
+	private final NotificationProducer notificationProducer;
 
 	@Override
 	@Transactional
@@ -71,6 +76,22 @@ public class JoinServiceImpl implements JoinService {
 			case SIMPLE_REQUEST -> processSimpleRequest();
 			case SUBMISSION_FORM -> processFormSubmission(clubId, joinRequest, joinRequestDto.getAnswer());
 			case PROBLEM_FORM -> processFormProblem(clubId, joinRequest, joinRequestDto.getAnswer());
+		}
+
+		// 6) 클럽장에게 알림 전송
+		User clubOwner = findClub.getUser();
+		if (!clubOwner.getId().equals(findUser.getId())) { // 자기 자신이 아닌 경우에만
+			String content = String.format("'%s'님이 '%s' 클럽에 가입 신청을 했습니다.", findUser.getName(), findClub.getName());
+
+			NotificationEvent event = NotificationEvent.from(
+				clubOwner.getId(),                 // 클럽장에게
+				NotificationType.JOIN_REQUEST,
+				content,
+				NotiTargetType.CLUB,
+				clubId
+			);
+
+			notificationProducer.send(event);
 		}
 
 		return CreateJoinResponseDto.from(joinRequest.getId());
@@ -205,6 +226,23 @@ public class JoinServiceImpl implements JoinService {
 
 		// 3) 저장
 		joinRequestAnswerRepository.save(joinRequestAnswer);
+
+		// 4) 알림
+		User applicant = joinRequest.getUser();
+		User clubOwner = joinRequest.getClub().getUser();
+		if (!clubOwner.getId().equals(applicant.getId())) {
+			String content = String.format("'%s'님이 제출 양식을 통해 가입 신청을 했습니다.", applicant.getName());
+
+			NotificationEvent event = NotificationEvent.from(
+				clubOwner.getId(),
+				NotificationType.SUBMISSION_FORM,
+				content,
+				NotiTargetType.CLUB,
+				clubId
+			);
+
+			notificationProducer.send(event);
+		}
 	}
 
 	/**
@@ -234,5 +272,22 @@ public class JoinServiceImpl implements JoinService {
 
 		// 3. 저장
 		joinRequestAnswerRepository.save(joinRequestAnswer);
+
+		// 4) 알림
+		User applicant = joinRequest.getUser();
+		User clubOwner = joinRequest.getClub().getUser();
+		if (!clubOwner.getId().equals(applicant.getId())) {
+			String content = String.format("'%s'님이 문제 양식을 통해 가입 신청을 했습니다.", applicant.getName());
+
+			NotificationEvent event = NotificationEvent.from(
+				clubOwner.getId(),
+				NotificationType.PROBLEM_FORM,
+				content,
+				NotiTargetType.CLUB,
+				clubId
+			);
+
+			notificationProducer.send(event);
+		}
 	}
 }
