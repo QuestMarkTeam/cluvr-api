@@ -6,7 +6,7 @@ plugins {
 }
 
 // Q클래스 파일 경로 설정
-def generated = "$buildDir/generated/querydsl"
+def generated = "$buildDir/generated/sources/annotationProcessor/java/main"
 
 tasks.withType(JavaCompile) {
     options.getGeneratedSourceOutputDirectory().set(file(generated))
@@ -18,7 +18,7 @@ sourceSets {
 
 // clean 시 generated 파일 제거
 clean {
-    delete file('$buildDir/generated/querydsl')
+    delete file("$buildDir/generated/sources/annotationProcessor/java/main")
 }
 
 group = 'com.example'
