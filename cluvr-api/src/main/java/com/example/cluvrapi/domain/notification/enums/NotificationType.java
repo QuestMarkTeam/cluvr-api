@@ -9,5 +9,6 @@ public enum NotificationType {
 	REPLY,
 	TIL,
 	SUBMISSION_FORM,
-	JOIN_REQUEST
+	JOIN_REQUEST,
+	REACTION
 }
