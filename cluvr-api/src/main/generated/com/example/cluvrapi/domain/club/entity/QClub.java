@@ -39,6 +39,8 @@ public class QClub extends EntityPathBase<Club> {
 
     public final BooleanPath isPublic = createBoolean("isPublic");
 
+    public final EnumPath<com.example.cluvrapi.domain.club.enums.JoinType> joinType = createEnum("joinType", com.example.cluvrapi.domain.club.enums.JoinType.class);
+
     public final NumberPath<Integer> maxMemberCount = createNumber("maxMemberCount", Integer.class);
 
     public final NumberPath<Integer> minScoreRequirement = createNumber("minScoreRequirement", Integer.class);

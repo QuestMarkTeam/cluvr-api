@@ -1,4 +1,4 @@
-package com.example.cluvrapi.domain.analytics.entity;
+package com.example.cluvrapi.domain.clover.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -11,40 +11,42 @@ import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
- * QPointStatistics is a Querydsl query type for PointStatistics
+ * QClover is a Querydsl query type for Clover
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QPointStatistics extends EntityPathBase<PointStatistics> {
+public class QClover extends EntityPathBase<Clover> {
 
-    private static final long serialVersionUID = 1973356559L;
+    private static final long serialVersionUID = 1825411670L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QPointStatistics pointStatistics = new QPointStatistics("pointStatistics");
+    public static final QClover clover = new QClover("clover");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final NumberPath<Integer> point = createNumber("point", Integer.class);
+    public final NumberPath<Integer> score = createNumber("score", Integer.class);
+
+    public final EnumPath<com.example.cluvrapi.domain.clover.enums.Tier> tier = createEnum("tier", com.example.cluvrapi.domain.clover.enums.Tier.class);
 
     public final com.example.cluvrapi.domain.user.entity.QUser user;
 
-    public QPointStatistics(String variable) {
-        this(PointStatistics.class, forVariable(variable), INITS);
+    public QClover(String variable) {
+        this(Clover.class, forVariable(variable), INITS);
     }
 
-    public QPointStatistics(Path<? extends PointStatistics> path) {
+    public QClover(Path<? extends Clover> path) {
         this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
-    public QPointStatistics(PathMetadata metadata) {
+    public QClover(PathMetadata metadata) {
         this(metadata, PathInits.getFor(metadata, INITS));
     }
 
-    public QPointStatistics(PathMetadata metadata, PathInits inits) {
-        this(PointStatistics.class, metadata, inits);
+    public QClover(PathMetadata metadata, PathInits inits) {
+        this(Clover.class, metadata, inits);
     }
 
-    public QPointStatistics(Class<? extends PointStatistics> type, PathMetadata metadata, PathInits inits) {
+    public QClover(Class<? extends Clover> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.user = inits.isInitialized("user") ? new com.example.cluvrapi.domain.user.entity.QUser(forProperty("user")) : null;
     }
