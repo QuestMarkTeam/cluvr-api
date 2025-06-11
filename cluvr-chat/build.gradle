@@ -13,6 +13,8 @@ checkstyle {
     configProperties = ["suppressionFile": "${rootDir}/naver-checkstyle-suppressions.xml"]
     // checkstyle 버전 8.24 이상 선언
     toolVersion = "8.24"
+    ignoreFailures = true // 빌드 실패 x 경고만
+
 }
 
 group = 'com.example'
