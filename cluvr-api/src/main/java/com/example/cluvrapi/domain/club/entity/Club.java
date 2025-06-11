@@ -96,6 +96,16 @@ public class Club extends BaseTimeEntity {
 		this.description = description;
 	}
 
+	/**
+	 * 설명: 인원수 증가
+	 *
+	 * @param maxMemberCount
+	 * @author sinyoung0403
+	 */
+	public void upgradeMemberCount(int maxMemberCount) {
+		this.maxMemberCount += maxMemberCount;
+	}
+
 	public void changeJoinTypeToSimpleRequest() {
 		this.joinType = JoinType.SIMPLE_REQUEST;
 	}
