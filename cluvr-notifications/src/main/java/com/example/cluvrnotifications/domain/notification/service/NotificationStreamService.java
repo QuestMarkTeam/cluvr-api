@@ -27,6 +27,7 @@ public class NotificationStreamService {
 
 	private final SseEmitterRepository sseEmitterRepository;
 	private final NotificationCacheRepository notificationCacheRepository;
+	private final NotificationQueueService notificationQueueService;
 
 	/**
 	 * 설명: SSE 연결을 생성하고, 기존 MongoDB 알림을 꺼내서 전송 후 삭제
@@ -37,6 +38,9 @@ public class NotificationStreamService {
 	 * @author escomputer
 	 */
 	public SseEmitter connect(Long userId) {
+		//로그인 시점에 큐를 자동으로 생성하고 바인딩함.
+		notificationQueueService.declareQueueAndBinding(userId);
+
 		SseEmitter emitter = new SseEmitter(TIMEOUT);
 		sseEmitterRepository.save(userId, emitter);
 
