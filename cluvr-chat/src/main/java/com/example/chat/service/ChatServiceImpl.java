@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -25,8 +27,8 @@ import com.example.chat.enums.RoomType;
 import com.example.chat.repository.ChatLogRepository;
 import com.example.chat.repository.ChatRoomRepository;
 import com.example.chat.repository.ChatRoomUserRepository;
-
-import lombok.RequiredArgsConstructor;
+import com.example.notification.event.ChatNotificationEvent;
+import com.example.notification.event.ChatNotificationProducer;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +39,7 @@ public class ChatServiceImpl implements ChatService {
 	// private final GetInfoFromExternal getInfoFromExternal;
 	private final SimpMessagingTemplate messagingTemplate;
 	private final DummyInfoExternal dummyInfoExternal; // 무시해라 레빗아... 더미다
+	private final ChatNotificationProducer notificationProducer;
 
 	/**
 	 * Creates and persists a new chat room using the provided request data.
@@ -117,6 +120,18 @@ public class ChatServiceImpl implements ChatService {
 		String roomId = "/sub/chat/room/" + request.getRoomId();
 		messagingTemplate.convertAndSend(roomId, request); // 브로드 캐스트
 		saveMessage(request);
+
+		List<ChatRoomUser> roomUsers = userRepository.findByRoomId(request.getRoomId());
+		for (ChatRoomUser receiver : roomUsers) {
+			if (!receiver.getUserId().equals(request.getUserId())) {
+				ChatNotificationEvent event = new ChatNotificationEvent(
+					receiver.getUserId(),
+					request.getRoomId(),
+					request.getNickname() + "님의 새 메시지가 도착하였습니다."
+				);
+				notificationProducer.send(event);
+			}
+		}
 	}
 
 	/**
