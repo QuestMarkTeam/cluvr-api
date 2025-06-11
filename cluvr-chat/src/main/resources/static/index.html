@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cluvr 채팅방</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 700px;
+            margin: auto;
+            padding: 1rem;
+        }
+
+        #chatBox {
+            border: 1px solid #ccc;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: #f9f9f9;
+        }
+
+        .chat {
+            margin-bottom: 0.5rem;
+        }
+
+        .me {
+            text-align: right;
+            color: blue;
+        }
+
+        .other {
+            text-align: left;
+            color: black;
+        }
+
+        .system {
+            text-align: center;
+            color: gray;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+<h2>💬 Cluvr 채팅방</h2>
+
+<!-- 사용자 정보 입력 -->
+<label>클럽 ID: <input type="number" id="clubId" value="1"></label><br/>
+<label>내 ID: <input type="number" id="userId" value="1001"></label><br/>
+<button onclick="fetchChatRooms()">📜 채팅방 불러오기</button>
+
+<!-- 채팅방 목록 -->
+<div id="chatRoomList"></div>
+
+<!-- 채팅방 생성 -->
+<hr>
+<h3>📁 채팅방 생성</h3>
+<label>방 이름: <input type="text" id="roomName"></label><br/>
+<label>이미지 URL: <input type="text" id="imageUrl"></label><br/>
+<label>방 타입(MANAGER / MEMBER): <input type="text" id="roomType" value="MEMBER"></label><br/>
+<button onclick="createChatRoom()">➕ 채팅방 생성</button>
+
+<!-- 채팅창 -->
+<hr>
+<h3>💬 채팅</h3>
+<div id="chatBox"></div>
+<input type="text" id="messageInput" placeholder="메시지를 입력하세요" style="width: 80%;">
+<script>
+    let currentRoomId = null;
+    let clubId = null;
+    let userId = null;
+    let stompClient = null;
+    let socket = null;
+    let currentSubscription = null;
+    const API_BASE_URL = window.location.hostname == 'localhost' ? 'http://localhost:8082' : 'http://api.cluvr.com';
+
+    function joinChatRoom(clubId, userId) {
+        return fetch(`${API_BASE_URL}/club/${clubId}/chat/room/join`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(userId)
+        }).catch(error => {
+            console.error('채팅방 입장 실패: ', error);
+            alert('채팅방 입장에 실패했습니다.');
+        });
+    }
+
+    document.getElementById("messageInput").addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    });
+
+    function connectSocketAndSubscribe(roomId) {
+        clubId = parseInt(document.getElementById("clubId").value);
+        userId = parseInt(document.getElementById("userId").value);
+
+        // 이전 구독 해제
+        if (currentSubscription) {
+            currentSubscription.unsubscribe();
+        }
+
+        // 채팅창 비우기
+        const chatBox = document.getElementById("chatBox");
+        chatBox.innerHTML = "";
+
+        // 연결 상태에 따라 소켓 연결 관리
+        if (stompClient && stompClient.connected) {
+            stompClient.disconnect(() => {
+                console.log("Disconnected previous STOMP connection.");
+                startNewConnection();
+            });
+        } else {
+            startNewConnection();
+        }
+
+        // Helper function for connection & subscription
+        function startNewConnection() {
+            socket = new SockJS(`${API_BASE_URL}/cluvr-chat`);
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, () => {
+                joinChatRoom(clubId, userId).then(() => {
+                    currentRoomId = roomId;
+
+                    currentSubscription = stompClient.subscribe(`/sub/chat/room/${roomId}`, function (message) {
+                        const msgObj = JSON.parse(message.body);
+                        renderMessage(msgObj);
+                    });
+
+                    fetch(`${API_BASE_URL}/club/${clubId}/chat/${roomId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            const chatBox = document.getElementById("chatBox");
+                            chatBox.innerHTML = "";
+                            if (data.data && Array.isArray(data.data)) {
+                                data.data.forEach(renderMessage);
+                            }
+                        }).catch(error => {
+                        console.error('채팅방 입장 실패: ', error);
+                        alert('채팅방 입장에 실패했습니다.');
+                    });
+                });
+            });
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function renderMessage(message) {
+        const chatBox = document.getElementById("chatBox");
+        const msgDiv = document.createElement("div");
+
+        if (message.type === "ENTER" || message.type === "LEAVE") {
+            msgDiv.className = "system";
+            msgDiv.textContent = escapeHtml(message.message);
+        } else {
+            msgDiv.className = parseInt(message.userId) === parseInt(userId) ? "me" : "other";
+            msgDiv.textContent = `${escapeHtml(message.nickname)} : ${escapeHtml(message.message)}`;
+        }
+
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function fetchChatRooms() {
+        const clubId = parseInt(document.getElementById("clubId").value);
+        userId = parseInt(document.getElementById("userId").value);
+        // nickname = document.getElementById("nickname").value;
+        // const role = document.getElementById("role").value;
+
+        fetch(`${API_BASE_URL}/club/${clubId}/chat/list`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({userId})
+        })
+            .then(res => res.json())
+            .then(data => {
+                const roomListDiv = document.getElementById("chatRoomList");
+                roomListDiv.innerHTML = "<h3>📦 채팅방 리스트</h3>";
+                if (data.data && Array.isArray(data.data)) {
+                    data.data.forEach(room => {
+                        const btn = document.createElement("button");
+                        btn.textContent = room.name + ` (${room.type})`;
+                        btn.onclick = () => {
+                            currentRoomId = room.id;
+                            connectSocketAndSubscribe(currentRoomId);
+                        };
+                        roomListDiv.appendChild(btn);
+                        roomListDiv.appendChild(document.createElement("br"));
+                    });
+                }
+            }).catch(error => {
+            console.error('채팅방 입장 실패: ', error);
+            alert('채팅방 입장에 실패했습니다.');
+        });
+    }
+
+    function createChatRoom() {
+        const clubId = parseInt(document.getElementById("clubId").value);
+        const name = document.getElementById("roomName").value;
+        const imageUrl = document.getElementById("imageUrl").value;
+        const type = document.getElementById("roomType").value;
+        const userId = parseInt(document.getElementById("userId").value);
+
+        fetch(`${API_BASE_URL}/chat/create`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                clubId,
+                name,
+                userId,
+                imageUrl,
+                type
+            })
+        })
+            .then(res => res.json())
+            .then(() => {
+                alert("채팅방이 생성되었습니다.");
+                fetchChatRooms();
+            });
+    }
+
+    function sendMessage() {
+        const message = document.getElementById("messageInput").value;
+        if (!message || !currentRoomId || !stompClient || !stompClient.connected) return;
+
+        const payload = {
+            roomId: currentRoomId,
+            userId: parseInt(userId),
+            message: message,
+            type: "TALK"
+        };
+        stompClient.send("/chat/message", {}, JSON.stringify(payload));
+        document.getElementById("messageInput").value = "";
+    }
+</script>
+<button onclick="sendMessage()">📤 보내기</button>
+</body>
+</html>
