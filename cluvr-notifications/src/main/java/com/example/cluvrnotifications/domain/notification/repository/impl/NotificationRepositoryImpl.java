@@ -1,4 +1,4 @@
-package com.example.cluvrnotifications.domain.notification.repository;
+package com.example.cluvrnotifications.domain.notification.repository.impl;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +16,7 @@ import com.example.cluvrnotifications.domain.notification.entity.Notification;
 import com.example.cluvrnotifications.domain.notification.entity.NotificationSetting;
 import com.example.cluvrnotifications.domain.notification.entity.QNotification;
 import com.example.cluvrnotifications.domain.notification.entity.QNotificationSetting;
+import com.example.cluvrnotifications.domain.notification.repository.custom.NotificationRepositoryCustom;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @Repository

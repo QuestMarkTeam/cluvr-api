@@ -1,0 +1,53 @@
+package com.example.cluvrnotifications.domain.notification.service;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import com.example.cluvrnotifications.domain.notification.dto.event.NotificationEvent;
+import com.example.cluvrnotifications.domain.notification.repository.support.SseEmitterRepository;
+
+/**
+ * 설명: SseEmitterRepository를 통해 연결된 유저의 SSEEmitter를 조회하고,
+ * 실시간으로 알림을 전송하는 서비스
+ *
+ * 전송 중 예외가 발생하면 연결을 종료하고 emitter를 제거
+ *
+ * @author escomputer
+ */
+
+@Service
+@RequiredArgsConstructor
+public class NotificationSendService {
+
+	private final SseEmitterRepository sseEmitterRepository;
+
+	/**
+	 * 설명: 유저의 SSEEmitter가 존재하면 알림을 전송
+	 *
+	 * <p>{추가적인 설명이 필요하다면 여기에 작성합니다.}
+	 *
+	 * @param  event 알림 이벤트 객체
+	 *
+	 * @return 전송 성공 여부 (true = 전송됨, false = 실패하여 저장 필요)
+	 * @author escomputer
+	 */
+
+	public boolean send(NotificationEvent event) {
+		SseEmitter emitter = sseEmitterRepository.get(event.getReceiverId());
+
+		if (emitter != null) {
+			try {
+				emitter.send(SseEmitter.event()
+					.name("notification")
+					.data(event));
+				return true;
+			} catch (Exception e) {
+				sseEmitterRepository.delete(event.getReceiverId());
+			}
+		}
+
+		return false;
+	}
+}
