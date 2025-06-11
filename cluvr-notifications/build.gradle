@@ -50,6 +50,12 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'io.lettuce:lettuce-core'
+
+    // RabbitMQ (Spring AMQP)
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    // JSON 직렬화 (RabbitMQ 메시지용)
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 
