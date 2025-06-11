@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-	public static final String EXCHANGE_NAME = "chat.notification";
+	public static final String EXCHANGE_NAME = "notification.exchange";
 
 	@Bean
 	public DirectExchange chatNotificationExchange() {
