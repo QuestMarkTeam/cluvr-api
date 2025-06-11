@@ -120,4 +120,25 @@ public class ClubServiceImpl implements ClubService {
 		findClub.upgradeMemberCount(memberCountRequestDto.getMemberCount());
 	}
 
+	@Override
+	@Transactional
+	public void upgradeMemberCountWithGem(Long userId, Long clubId) {
+		// 1) 클럽 조회
+		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
+
+		// 2) 로그인한 유저와 조회한 클럽의 마스터가 일치하는지 검증
+		if (findClub.getUser().getId() != userId) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED);
+		}
+
+		// 3) 20 명 이하 검증
+		if (findClub.getMaxMemberCount() < 20) {
+			throw new BusinessException(
+				ResponseCode.INVALID_REQUEST,
+				"최대 20명까지는 무료로 확장할 수 있습니다. 이후 인원 추가를 원하시면 잼(Gem)을 사용해 확장해 주세요.");
+		}
+
+		// 4) 추가
+		findClub.upgradeMemberCount(5);
+	}
 }

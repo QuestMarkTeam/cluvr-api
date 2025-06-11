@@ -78,4 +78,15 @@ public interface ClubService {
 	 */
 
 	void upgradeMemberCount(Long userId, Long clubId, UpgradeMemberCountRequestDto upgradeMemberCountRequestDto);
+
+	/**
+	 * 설명: Gem 을 이용하여 클럽의 제한 인원수를 추가하는 메서드
+	 *
+	 * <p> Gem 을 사용해야 합니다.
+	 *
+	 * @param userId 유저 고유 식별자
+	 * @param clubId 클럽 고유 식별자
+	 * @author sinyoung0403
+	 */
+	void upgradeMemberCountWithGem(Long userId, Long clubId);
 }

@@ -99,4 +99,21 @@ public class ClubController {
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
+	@PatchMapping("/{clubId}/member-count/upgrade-with-gems")
+	/**
+	 * 설명: 클럽의 최대 인원수를 증가시킵니다. (Gem 사용)
+	 *
+	 * @param authUser 인증된 사용자 정보
+	 * @param clubId   최대 인원수를 증가시킬 클럽의 고유 식별자
+	 * @return 성공 응답 반환 (본문 없음, 상태 코드 204 NO_CONTENT)
+	 * @author sinyoung0403
+	 */
+	public ResponseEntity<BaseResponse<Void>> upgradeMemberCountWithGem(
+		@Auth AuthUser authUser,
+		@PathVariable("clubId") Long clubId
+	) {
+		System.out.println(authUser.id());
+		clubService.upgradeMemberCountWithGem(authUser.id(), clubId);
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
+	}
 }
