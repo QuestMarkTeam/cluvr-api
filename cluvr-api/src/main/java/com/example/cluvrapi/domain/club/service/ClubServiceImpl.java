@@ -32,6 +32,10 @@ public class ClubServiceImpl implements ClubService {
 	private final ClubRepository clubRepository;
 	private final CategoryRepository categoryRepository;
 
+	// 상수 선언
+	private static final int FREE_LIMIT = 20;
+	private static final int GEM_INCREMENT = 5;
+
 	@Override
 	@Transactional
 	public CreateClubResponseDto createClub(Long userId, CreateClubRequestDto createClubRequestDto) {
@@ -109,10 +113,16 @@ public class ClubServiceImpl implements ClubService {
 			throw new BusinessException(ResponseCode.ACCESS_DENIED);
 		}
 
-		// 3) 20 명 초과 검증
-		if (findClub.getMaxMemberCount() + memberCountRequestDto.getMemberCount() > 20) {
-			throw new BusinessException(
-				ResponseCode.INVALID_REQUEST,
+		// 3) 인원 검증
+
+		int requested = memberCountRequestDto.getMemberCount();
+
+		if (requested <= 0) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "추가 인원은 1명 이상이어야 합니다.");
+		}
+
+		if (findClub.getMaxMemberCount() + requested > FREE_LIMIT) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST,
 				"최대 인원 수는 20명을 초과할 수 없습니다. 추가 인원을 원하실 경우 잼(Gem)을 사용해 확장해 주세요.");
 		}
 
@@ -131,8 +141,8 @@ public class ClubServiceImpl implements ClubService {
 			throw new BusinessException(ResponseCode.ACCESS_DENIED);
 		}
 
-		// 3) 20 명 이하 검증
-		if (findClub.getMaxMemberCount() < 20) {
+		// 3) 인원 검증
+		if (findClub.getMaxMemberCount() < FREE_LIMIT) {
 			throw new BusinessException(
 				ResponseCode.INVALID_REQUEST,
 				"최대 20명까지는 무료로 확장할 수 있습니다. 이후 인원 추가를 원하시면 잼(Gem)을 사용해 확장해 주세요.");

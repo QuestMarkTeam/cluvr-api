@@ -99,11 +99,19 @@ public class Club extends BaseTimeEntity {
 	/**
 	 * 설명: 인원수 증가
 	 *
-	 * @param maxMemberCount
+	 * @param increment
 	 * @author sinyoung0403
 	 */
-	public void upgradeMemberCount(int maxMemberCount) {
-		this.maxMemberCount += maxMemberCount;
+	public void upgradeMemberCount(int increment) {
+		if (increment <= 0) {
+			throw new IllegalArgumentException("추가 인원은 1명 이상이어야 합니다.");
+		}
+
+		if (this.maxMemberCount + increment > 50) {
+			throw new IllegalStateException("최대 50명을 초과할 수 없습니다.");
+		}
+
+		this.maxMemberCount += increment;
 	}
 
 	public void changeJoinTypeToSimpleRequest() {
