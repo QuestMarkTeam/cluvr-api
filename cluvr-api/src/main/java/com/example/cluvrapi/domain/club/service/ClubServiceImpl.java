@@ -11,6 +11,7 @@ import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
 import com.example.cluvrapi.domain.category.repository.CategoryRepository;
 import com.example.cluvrapi.domain.club.dto.request.CreateClubRequestDto;
 import com.example.cluvrapi.domain.club.dto.request.UpdateClubRequestDto;
+import com.example.cluvrapi.domain.club.dto.request.UpgradeMemberCountRequestDto;
 import com.example.cluvrapi.domain.club.dto.response.CreateClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
@@ -20,6 +21,8 @@ import com.example.cluvrapi.domain.club.repository.ClubRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.exception.BusinessException;
+import com.example.cluvrapi.global.response.ResponseCode;
 
 @Service
 @RequiredArgsConstructor
@@ -94,4 +97,27 @@ public class ClubServiceImpl implements ClubService {
 
 		clubRepository.delete(findClub);
 	}
+
+	@Override
+	@Transactional
+	public void upgradeMemberCount(Long userId, Long clubId, UpgradeMemberCountRequestDto memberCountRequestDto) {
+		// 1) 클럽 조회
+		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
+
+		// 2) 로그인한 유저와 조회한 클럽의 마스터가 일치하는지 검증
+		if (findClub.getUser().getId() != userId) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED);
+		}
+
+		// 3) 20 명 초과 검증
+		if (findClub.getMaxMemberCount() + memberCountRequestDto.getMemberCount() > 20) {
+			throw new BusinessException(
+				ResponseCode.INVALID_REQUEST,
+				"최대 인원 수는 20명을 초과할 수 없습니다. 추가 인원을 원하실 경우 잼(Gem)을 사용해 확장해 주세요.");
+		}
+
+		// 4) 추가
+		findClub.upgradeMemberCount(memberCountRequestDto.getMemberCount());
+	}
+
 }

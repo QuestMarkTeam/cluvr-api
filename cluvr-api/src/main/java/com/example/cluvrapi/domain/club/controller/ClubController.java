@@ -19,11 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.club.dto.request.CreateClubRequestDto;
 import com.example.cluvrapi.domain.club.dto.request.UpdateClubRequestDto;
+import com.example.cluvrapi.domain.club.dto.request.UpgradeMemberCountRequestDto;
 import com.example.cluvrapi.domain.club.dto.response.CreateClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
 import com.example.cluvrapi.domain.club.enums.ClubType;
 import com.example.cluvrapi.domain.club.service.ClubService;
+import com.example.cluvrapi.domain.common.annotation.Auth;
+import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
@@ -77,4 +80,23 @@ public class ClubController {
 		clubService.deleteClub(clubId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
 	}
+
+	@PatchMapping("/{clubId}/member-count/upgrade")
+	/**
+	 * 설명: 클럽의 최대 인원수를 증가시킵니다. (포인트 미사용)
+	 *
+	 * @param authUser 인증된 사용자 정보
+	 * @param clubId   최대 인원수를 증가시킬 클럽의 고유 식별자
+	 * @return 성공 응답 반환 (본문 없음, 상태 코드 204 NO_CONTENT)
+	 * @author sinyoung0403
+	 */
+	public ResponseEntity<BaseResponse<Void>> upgradeMemberCount(
+		@Auth AuthUser authUser,
+		@PathVariable("clubId") Long clubId,
+		@Valid @RequestBody UpgradeMemberCountRequestDto memberCountRequestDto
+	) {
+		clubService.upgradeMemberCount(authUser.id(), clubId, memberCountRequestDto);
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
+	}
+
 }

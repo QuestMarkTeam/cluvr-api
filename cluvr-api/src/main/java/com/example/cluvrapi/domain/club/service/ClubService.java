@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.example.cluvrapi.domain.club.dto.request.CreateClubRequestDto;
 import com.example.cluvrapi.domain.club.dto.request.UpdateClubRequestDto;
+import com.example.cluvrapi.domain.club.dto.request.UpgradeMemberCountRequestDto;
 import com.example.cluvrapi.domain.club.dto.response.CreateClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
@@ -65,4 +66,16 @@ public interface ClubService {
 	 * @author {sinyoung0403}
 	 */
 	void deleteClub(Long clubId);
+
+	/**
+	 * 설명: 클럽의 제한 인원수를 추가하는 메서드
+	 *
+	 * <p> 무료로 인원수를 증가 시킬 수 있습니다.
+	 *
+	 * @param userId 유저 고유 식별자
+	 * @param clubId 클럽 고유 식별자
+	 * @author sinyoung0403
+	 */
+
+	void upgradeMemberCount(Long userId, Long clubId, UpgradeMemberCountRequestDto upgradeMemberCountRequestDto);
 }
