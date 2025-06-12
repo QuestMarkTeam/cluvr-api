@@ -25,8 +25,8 @@ public class NotificationCacheRepositoryImpl implements NotificationCacheReposit
 	}
 
 	@Override
-	public void deleteAllByReceiverId(Long receiverId) {
-		Query query = new Query(Criteria.where("receiverId").is(receiverId));
+	public void deleteAllById(List<String> ids) {
+		Query query = new Query(Criteria.where("_id").in(ids));
 		mongoTemplate.remove(query, NotificationDocument.class);
 	}
 }

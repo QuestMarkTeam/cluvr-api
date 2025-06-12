@@ -26,12 +26,5 @@ public interface NotificationCacheRepositoryCustom {
 	 */
 	List<NotificationDocument> findAllByReceiverId(Long receiverId);
 
-	/**
-	 * 설명: 특정 사용자 ID(receiverId)에 해당하는 모든 NotificationDocument를 삭제
-	 *
-	 * @param receiverId 알림 수신 대상 사용자 ID
-	 *
-	 * @author escomputer
-	 */
-	void deleteAllByReceiverId(Long receiverId);
+	void deleteAllById(List<String> ids);
 }

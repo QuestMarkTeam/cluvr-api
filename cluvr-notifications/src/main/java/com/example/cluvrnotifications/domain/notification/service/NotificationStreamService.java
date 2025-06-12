@@ -1,6 +1,7 @@
 package com.example.cluvrnotifications.domain.notification.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -35,33 +36,40 @@ public class NotificationStreamService {
 	/**
 	 * 설명: SSE 연결을 생성하고, 기존 MongoDB 알림을 꺼내서 전송 후 삭제
 	 *
+	 * doc : mongoDB에 저장된 알림 한건.
+	 *
 	 * @param userId 사용자 ID
 	 * @return SseEmitter 객체
 	 *
 	 * @author escomputer
 	 */
 	public SseEmitter connect(Long userId) {
+
 		//로그인 시점에 큐를 자동으로 생성하고 바인딩함.
 		notificationListenerManager.start(userId);
 
 		SseEmitter emitter = new SseEmitter(TIMEOUT);
 		sseEmitterRepository.save(userId, emitter);
 
-		//sse연결종료시(+ 타임아웃)에 , 자동으로 컨테이너도 중단됨.
-		emitter.onCompletion(() -> {
-			log.info(" SSE 연결 종료됨 -> 리스너 중단: user.{}", userId);
+		Runnable cleanUp = () -> {
+			log.info("SSE 연결 종료 -> 리스너 중단 및 Emitter 제거: user.{}", userId);
 			notificationListenerManager.stop(userId);
 			sseEmitterRepository.delete(userId, emitter);
-		});
+		};
 
-		emitter.onTimeout(() -> {
-			log.info("SSE 타임아웃 발생 ->리스너 중단: user.{}", userId);
-			notificationListenerManager.stop(userId);
-			sseEmitterRepository.delete(userId, emitter);
-		});
+		//sse연결종료시(+ 타임아웃)에 , 자동으로 컨테이너도 중단됨.
+		emitter.onCompletion(cleanUp);
+
+		emitter.onTimeout(cleanUp);
+		emitter.onError(ex ->
+			log.warn("SSE 오류 발생 : 사용자 ID = {} , 오류 = {}", userId, ex.toString()));
+		cleanUp.run();
 
 		//MongoDB에 저장된 알림 꺼내기
 		List<NotificationDocument> cachedList = notificationCacheRepository.findAllByReceiverId(userId);
+
+		//전송실패한 알림 리스트
+		List<NotificationDocument> failedToSend = new ArrayList<>();
 
 		cachedList.forEach(doc -> {
 			try {
@@ -75,13 +83,18 @@ public class NotificationStreamService {
 						doc.getTargetId()
 					)));
 			} catch (IOException e) {
+				log.warn("알림 전송 실패 -> 보존 대상: {}", doc.getContent());
+				failedToSend.add(doc);
 				sseEmitterRepository.delete(userId, emitter);
 			}
 		});
 
 		//MongoDB에서 다 꺼냈으니 알림 삭제
-		notificationCacheRepository.deleteAllByReceiverId(userId);
+		//성공한 애들만 삭제
+		cachedList.removeAll(failedToSend);
+		notificationCacheRepository.deleteAll(cachedList);
 
 		return emitter;
 	}
+
 }
