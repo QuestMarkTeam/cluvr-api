@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
 			requestDto.getGender(),                    // gender
 			requestDto.getCategoryDetail(),            // categoryDetail
 			encodedPassword,                           // 암호화된 password
-			0L,                                        // point 기본값
+			0L,                                        // clover 기본값
 			requestDto.getImageUrl(),                  // imageUrl (null 허용될 경우 DTO에서 null 가능)
 			false                                      // isDeleted: 신규 가입이므로 false
 		);

@@ -81,7 +81,7 @@ public class User extends BaseTimeEntity {
 	private String password;
 
 	/** 유저 포인트 (bigint, NOT NULL, DEFAULT 0) */
-	@Column(name = "point", nullable = false)
+	@Column(name = "clover", nullable = false)
 	private Long point = 0L;
 
 	/** 유저 프로필 이미지 URL (varchar(255), NULL 허용) */
