@@ -164,8 +164,8 @@ public class ClubServiceImpl implements ClubService {
 	}
 
 	@Override
+	@Transactional
 	public CreateInviteCodeResponseDto createInviteCode(Long userId, Long clubId) {
-
 		// 1) 클럽 조회 및 권한 검증
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 

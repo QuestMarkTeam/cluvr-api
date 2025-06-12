@@ -153,6 +153,7 @@ public class JoinServiceImpl implements JoinService {
 	}
 
 	@Override
+	@Transactional
 	public CreateJoinRequestByCodeResponseDto createJoinRequestByInviteCode(Long userId,
 		CreateJoinRequestByCodeRequestDto createJoinRequestByCodeRequestDto) {
 		// 1) Key 확인
@@ -160,7 +161,7 @@ public class JoinServiceImpl implements JoinService {
 		Map<Object, Object> codeData = joinRedisService.entries(key);
 
 		// 2) data 검증
-		if (codeData.isEmpty()) {
+		if (codeData.isEmpty() || !codeData.containsKey("clubId")) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "존재하지 않는 초대코드 입니다.");
 		}
 
