@@ -1,6 +1,7 @@
 package com.example.cluvrnotifications.domain.notification.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import com.example.cluvrnotifications.domain.notification.repository.base.Notifi
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationReceiveService {
 
 	private final NotificationSendService notificationSendService;
@@ -37,10 +39,10 @@ public class NotificationReceiveService {
 				event.getTargetId()
 			);
 			notificationCacheRepository.save(doc);
-			System.out.println(" SSE 끊김 -> 알림 저장됨: " + event.getContent());
+			log.info(" SSE 끊김 -> 알림 저장됨: 받는 사람: {}, 내용 : {}  ", event.getReceiverId(), event.getContent());
 
 		} else {
-			System.out.println(" SSE 연결됨 -> 알림 전송 완료: " + event.getContent());
+			log.info(" SSE 연결됨 -> 알림 전송 완료: 받을 사람: {}, 내용 : {}  ", event.getReceiverId(), event.getContent());
 		}
 	}
 }
