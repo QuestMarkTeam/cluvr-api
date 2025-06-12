@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class NotificationQueueService {
 
-	private static final String EXCHANGE_NAME = "notification.exchange";
-
 	private final AmqpAdmin amqpAdmin;
 	private final DirectExchange notificationExchange;
 
