@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.0'
     id 'io.spring.dependency-management' version '1.1.7'
-//    id 'java-library' <- 안되면 이거 ㄱㄱ
 }
 
 // Q클래스 파일 경로 설정
@@ -81,10 +80,6 @@ dependencies {
 
     // Redisson
     implementation 'org.redisson:redisson-spring-boot-starter:3.27.1'
-
-    // 의존성 주입
-    implementation project(":cluvr-batch")
-    implementation project(":cluvr-notifications")
 
     // RabbitMQ (Spring AMQP)
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
