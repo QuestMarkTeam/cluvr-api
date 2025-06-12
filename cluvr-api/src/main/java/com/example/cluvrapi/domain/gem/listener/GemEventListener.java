@@ -1,4 +1,4 @@
-package com.example.cluvrapi.global.listener;
+package com.example.cluvrapi.domain.gem.listener;
 
 import lombok.RequiredArgsConstructor;
 
@@ -6,20 +6,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import com.example.cluvrapi.domain.user.repository.UserRepository;
-import com.example.cluvrapi.global.listener.dto.UserEventDto;
-import com.example.cluvrapi.global.listener.enums.UserEventType;
-import com.example.cluvrapi.global.listener.service.UserEventRedisService;
+import com.example.cluvrapi.domain.gem.service.GemEvent;
+import com.example.cluvrapi.domain.gem.service.GemEventRedisService;
 
 @Component
 @RequiredArgsConstructor
-public class UserActivityEventListener {
+public class GemEventListener {
 
-	private final UserEventRedisService redisService;
-	private final UserRepository userRepository;
+	private final GemEventRedisService redisService;
 
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-	public void handleUserActivity(UserEventDto<?> event) {
+	public void handleUserActivity(GemEvent event) {
 		Long userId = event.getUserId();
 		String redisKey = event.getRedisKey().buildKey(userId);
 		double score = System.currentTimeMillis();

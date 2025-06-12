@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
 import com.example.cluvrapi.domain.gem.dto.response.FindGemLogResponseDto;
 import com.example.cluvrapi.domain.gem.dto.response.UpdateGemResponseDto;
-import com.example.cluvrapi.domain.gem.enums.GemType;
+import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.gem.repository.GemLogRepository;
 import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
 import com.example.cluvrapi.domain.notification.enums.NotificationType;
@@ -56,18 +56,18 @@ public class GemServiceImpl implements GemService {
 
 	@Transactional
 	@Override
-	public void earnGems(Long userId, GemType gemType) {
+	public void earnGems(Long userId, GemUserActivityType gemUserActivityType) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		String redisKey = "gem:" + gemType.name() + "count";
+		String redisKey = "gem:" + gemUserActivityType.name() + "count";
 
 		Duration ttl = getDurationUntilMidnight();
 		Long count = gemRedisService.setIfAbsent(redisKey, 1, ttl) ? 1L : gemRedisService.incrementValue(redisKey);
 
 		// 하루 제한 이하면 적립
-		if (gemType.getTodayLimit() >= count) {
-			user.updateGem(gemType.getAmount());
-			String content = String.format("Gem %점을 획득하였습니다.", gemType.getAmount());
+		if (gemUserActivityType.getTodayLimit() >= count) {
+			user.updateGem(gemUserActivityType.getAmount());
+			String content = String.format("Gem %점을 획득하였습니다.", gemUserActivityType.getAmount());
 
 			NotificationEvent event = NotificationEvent.from(
 				userId,
