@@ -164,16 +164,20 @@ public class ClubServiceImpl implements ClubService {
 	}
 
 	@Override
-	public CreateInviteCodeResponseDto createInviteCode(Long id, Long clubId) {
+	public CreateInviteCodeResponseDto createInviteCode(Long userId, Long clubId) {
 
-		// 1) 검증
-		clubRepository.findByIdOrElseThrow(clubId);
+		// 1) 클럽 조회 및 권한 검증
+		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
+
+		if (findClub.getUser().getId().equals(userId)) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED, "클럽장만이 초대코드를 생성할 수 있습니다.");
+		}
 
 		// 2) Base64 로 초대코드 생성
 		String code;
 		String key;
+		SecureRandom random = new SecureRandom();
 		do {
-			SecureRandom random = new SecureRandom();
 			byte[] bytes = new byte[10];
 			random.nextBytes(bytes);
 			code = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes).substring(0, 12);
