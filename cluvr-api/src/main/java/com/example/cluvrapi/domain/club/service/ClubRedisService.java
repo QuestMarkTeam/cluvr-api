@@ -15,10 +15,10 @@ public class ClubRedisService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 
-	// 키가 없으면 값을 설정하고 true 반환, 키가 이미 존재하면 아무 작업도 하지 않고 false 반환
+	// 초대코드 정보를 Redis Hash 에 저장하고 TTL(Time To Live)을 설정합니다.
 	public void saveInviteCode(String key, Map<String, Object> codeData, Duration validityTime) {
 		redisTemplate.opsForHash().putAll(key, codeData);
-		redisTemplate.expire(key, validityTime.getSeconds(), TimeUnit.DAYS);
+		redisTemplate.expire(key, validityTime.getSeconds(), TimeUnit.SECONDS);
 	}
 
 	public boolean hasKey(String key) {
