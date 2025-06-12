@@ -97,6 +97,10 @@ public class NotificationListenerManager {
 	 */
 
 	public void remove(Long userId) {
+
+		//먼저 컨테이너를 중단 후 삭제 (ChannelShutDownException 방지)
+		stop(userId);
+
 		String queueName = "user." + userId;
 		amqpAdmin.deleteQueue(queueName);
 		log.info("user.{} 큐 삭제 완료", userId);
