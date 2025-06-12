@@ -130,7 +130,7 @@ public class ClubController {
 	 * @return 초대코드 및 유효시간 등의 정보를 포함한 응답
 	 * @author sinyoung0403
 	 */
-	@PostMapping("/{clubId}/invite-codes")
+	@PostMapping("/{clubId}/invite-code")
 	public ResponseEntity<BaseResponse<CreateInviteCodeResponseDto>> createInviteCode(
 		@Auth AuthUser authUser,
 		@PathVariable("clubId") Long clubId
