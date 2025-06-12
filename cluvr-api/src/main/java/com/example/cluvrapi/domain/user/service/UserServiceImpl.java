@@ -5,17 +5,13 @@ import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.user.dto.request.UpdateUserRequestDto;
+import com.example.cluvrapi.domain.user.dto.response.GetUserGemResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserOtherResponseDto;
-import com.example.cluvrapi.domain.user.dto.response.GetUserPointResponseDto;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 
@@ -44,15 +40,15 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public GetUserPointResponseDto getUserPoint(Long userId) {
-		Optional<Long> optPoint = userRepository.findPointByIdNotDeleted(userId);
+	public GetUserGemResponseDto getUserGem(Long userId) {
+		Optional<Integer> optGem = userRepository.findGemByIdNotDeleted(userId);
 
-		if (optPoint.isEmpty()) {
+		if (optGem.isEmpty()) {
 			throw new IllegalArgumentException("해당 ID의 사용자를 찾을 수 없습니다. id=" + userId);
 		}
 
-		Long point = optPoint.get();
-		return new GetUserPointResponseDto(point);
+		Integer gem = optGem.get();
+		return new GetUserGemResponseDto(gem);
 	}
 
 	@Override
@@ -80,25 +76,6 @@ public class UserServiceImpl implements UserService {
 
 		return GetUserMeResponseDto.from(user);
 
-		String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
-
-		User newUser = new User(null,                                      // id → 데이터베이스에서 자동 생성
-			requestDto.getName(),                      // name
-			requestDto.getBirthday(),                  // birthday
-			requestDto.getEmail(),                     // email
-			requestDto.getPhoneNumber(),               // phoneNumber
-			UserRole.USER,                             // 가입 시 기본 권한(예: USER)
-			requestDto.getGender(),                    // gender
-			requestDto.getCategoryDetail(),            // categoryDetail
-			encodedPassword,                           // 암호화된 password
-			0,                                        // point 기본값
-			requestDto.getImageUrl(),                  // imageUrl (null 허용될 경우 DTO에서 null 가능)
-			false                                      // isDeleted: 신규 가입이므로 false
-		);
-
-		User savedUser = userRepository.save(newUser);
-
-		return SignUpUserResponseDto.from(savedUser);
 	}
 
 	@Override

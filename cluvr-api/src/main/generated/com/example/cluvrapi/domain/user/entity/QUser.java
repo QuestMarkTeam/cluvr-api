@@ -23,12 +23,14 @@ public class QUser extends EntityPathBase<User> {
 
     public final DatePath<java.time.LocalDate> birthday = createDate("birthday", java.time.LocalDate.class);
 
-    public final EnumPath<com.example.cluvrapi.domain.user.entity.enums.CategoryDetail> categoryDetail = createEnum("categoryDetail", com.example.cluvrapi.domain.user.entity.enums.CategoryDetail.class);
+    public final EnumPath<com.example.cluvrapi.domain.category.enums.CategoryType> categoryType = createEnum("categoryType", com.example.cluvrapi.domain.category.enums.CategoryType.class);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
     public final StringPath email = createString("email");
+
+    public final NumberPath<Integer> gem = createNumber("gem", Integer.class);
 
     public final EnumPath<com.example.cluvrapi.domain.user.entity.enums.Gender> gender = createEnum("gender", com.example.cluvrapi.domain.user.entity.enums.Gender.class);
 
@@ -46,8 +48,6 @@ public class QUser extends EntityPathBase<User> {
     public final StringPath password = createString("password");
 
     public final StringPath phoneNumber = createString("phoneNumber");
-
-    public final NumberPath<Integer> point = createNumber("point", Integer.class);
 
     public final EnumPath<com.example.cluvrapi.domain.user.entity.enums.UserRole> userRole = createEnum("userRole", com.example.cluvrapi.domain.user.entity.enums.UserRole.class);
 

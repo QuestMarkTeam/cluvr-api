@@ -1,7 +1,5 @@
 package com.example.cluvrapi.domain.reply.service;
 
-
-import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
@@ -15,6 +13,10 @@ import com.example.cluvrapi.domain.board.enums.ReactionType;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
+import com.example.cluvrapi.domain.notification.enums.NotificationType;
+import com.example.cluvrapi.domain.notification.event.NotificationEvent;
+import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
@@ -37,6 +39,7 @@ public class ReplyServiceImpl implements ReplyService {
 	private final BoardRepository boardRepository;
 	private final ReplyReactionRepository reactionRepository;
 	private final ReplyReactionRepository replyReactionRepository;
+	private final NotificationProducer notificationProducer;
 
 	@Transactional
 	@Override
@@ -49,7 +52,24 @@ public class ReplyServiceImpl implements ReplyService {
 		}
 
 		Reply reply = dto.fromDto(user, board, parent);
-		return replyRepository.save(reply).getId();
+		Long savedId = replyRepository.save(reply).getId();
+
+		if (dto.getParentId() == null && !user.getId().equals(board.getUser().getId())) {
+			Long receiverId = board.getUser().getId();
+			String content = String.format("'%s'님이 회원님의 게시글에 댓글을 남겼습니다.", user.getName());
+
+			NotificationEvent event = NotificationEvent.from(
+				receiverId,
+				NotificationType.REPLY,
+				content,
+				NotiTargetType.BOARD,
+				boardId
+			);
+
+			notificationProducer.send(event);
+		}
+
+		return savedId;
 	}
 
 	@Transactional(readOnly = true)
@@ -96,6 +116,8 @@ public class ReplyServiceImpl implements ReplyService {
 		}
 
 		replyReactionRepository.deleteByUserAndReply(user, reply);
+	}
+
 	public PageResponseDto<ReadMyReplyResponseDto> readRepliesWithUser(long userId, Pageable pageable) {
 		return replyRepository.findRepliesByUser(userId, pageable);
 	}
