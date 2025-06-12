@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.cluvrnotifications.domain.notification.dto.event.NotificationEvent;
 import com.example.cluvrnotifications.domain.notification.entity.NotificationDocument;
+import com.example.cluvrnotifications.domain.notification.manager.NotificationListenerManager;
 import com.example.cluvrnotifications.domain.notification.repository.base.NotificationCacheRepository;
 import com.example.cluvrnotifications.domain.notification.repository.support.SseEmitterRepository;
 
@@ -21,13 +23,14 @@ import com.example.cluvrnotifications.domain.notification.repository.support.Sse
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationStreamService {
 
 	private static final Long TIMEOUT = 60 * 1000L; //60초 타임아웃
 
 	private final SseEmitterRepository sseEmitterRepository;
 	private final NotificationCacheRepository notificationCacheRepository;
-	private final NotificationQueueService notificationQueueService;
+	private final NotificationListenerManager notificationListenerManager;
 
 	/**
 	 * 설명: SSE 연결을 생성하고, 기존 MongoDB 알림을 꺼내서 전송 후 삭제
@@ -39,10 +42,23 @@ public class NotificationStreamService {
 	 */
 	public SseEmitter connect(Long userId) {
 		//로그인 시점에 큐를 자동으로 생성하고 바인딩함.
-		notificationQueueService.declareQueueAndBinding(userId);
+		notificationListenerManager.start(userId);
 
 		SseEmitter emitter = new SseEmitter(TIMEOUT);
 		sseEmitterRepository.save(userId, emitter);
+
+		//sse연결종료시(+ 타임아웃)에 , 자동으로 컨테이너도 중단됨.
+		emitter.onCompletion(() -> {
+			log.info(" SSE 연결 종료됨 -> 리스너 중단: user.{}", userId);
+			notificationListenerManager.stop(userId);
+			sseEmitterRepository.delete(userId);
+		});
+
+		emitter.onTimeout(() -> {
+			log.info("SSE 타임아웃 발생 ->리스너 중단: user.{}", userId);
+			notificationListenerManager.stop(userId);
+			sseEmitterRepository.delete(userId);
+		});
 
 		//MongoDB에 저장된 알림 꺼내기
 		List<NotificationDocument> cachedList = notificationCacheRepository.findAllByReceiverId(userId);
