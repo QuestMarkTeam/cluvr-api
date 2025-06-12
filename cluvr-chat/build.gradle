@@ -29,6 +29,13 @@ repositories {
 }
 
 dependencies {
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -57,6 +64,15 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
     // JSON 직렬화 (RabbitMQ 메시지용)
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // JSON 직렬화
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 

@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,9 +23,14 @@ import com.example.chat.entity.ChatRoomUser;
 import com.example.chat.enums.ClubRole;
 import com.example.chat.enums.MessageType;
 import com.example.chat.enums.RoomType;
+import com.example.chat.pubsub.RedisPublisher;
 import com.example.chat.repository.ChatLogRepository;
 import com.example.chat.repository.ChatRoomRepository;
 import com.example.chat.repository.ChatRoomUserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
 import com.example.notification.event.ChatNotificationEvent;
 import com.example.notification.event.ChatNotificationProducer;
 
@@ -37,9 +41,11 @@ public class ChatServiceImpl implements ChatService {
 	private final ChatLogRepository chatLogRepository;
 	private final ChatRoomUserRepository userRepository;
 	// private final GetInfoFromExternal getInfoFromExternal;
-	private final SimpMessagingTemplate messagingTemplate;
+	// private final SimpMessagingTemplate messagingTemplate;
 	private final DummyInfoExternal dummyInfoExternal; // 무시해라 레빗아... 더미다
 	private final ChatNotificationProducer notificationProducer;
+	private final RedisPublisher redisPublisher;
+	private final ObjectMapper objectMapper;
 
 	/**
 	 * Creates and persists a new chat room using the provided request data.
@@ -49,6 +55,12 @@ public class ChatServiceImpl implements ChatService {
 	// CreateChatRoomRequestDto에 메서드 만들어서 이 코드 넣으면 서비스 코드 길이 더 줄어들 것 같아요.
 	@Override
 	public void createChatRoom(CreateChatRoomRequestDto request) {
+		// 클럽 멤버 쪽 API 완료 시 요청 하는 구조로 정보를 받아오고 조건 검사 진행 예정
+		// if (request.getRole()
+		// 	== ClubRole.MEMBER) { // 외부 API지만 같은 회사내 다른 서버 API를 호출하는거임. 나중에 지정한 경로에서만 접속 가능하도록 WebConfig, SocketConfig 변경 필요
+		// 	throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 클럽에 가입되어 있지 않습니다.");
+		// }
+
 		ChatRoom room = new ChatRoom(
 			request.getClubId(),
 			request.getName(),
@@ -117,9 +129,9 @@ public class ChatServiceImpl implements ChatService {
 				HttpStatus.BAD_REQUEST, "잘못된 요청입니다."));
 		request.setNickname(user.getNickname());
 
-		String roomId = "/sub/chat/room/" + request.getRoomId();
+		/*String roomId = "/sub/chat/room/" + request.getRoomId();
 		messagingTemplate.convertAndSend(roomId, request); // 브로드 캐스트
-		saveMessage(request);
+		saveMessage(request);*/
 
 		List<ChatRoomUser> roomUsers = userRepository.findByRoomId(request.getRoomId());
 		for (ChatRoomUser receiver : roomUsers) {
@@ -132,6 +144,18 @@ public class ChatServiceImpl implements ChatService {
 				notificationProducer.send(event);
 			}
 		}
+		/*String roomId = "/sub/chat/room/" + request.getRoomId();
+		messagingTemplate.convertAndSend(roomId, request); // 브로드 캐스트*/
+
+		try {
+			System.out.println("🥕🥕🥕 Redis publish 실행");
+			String json = objectMapper.writeValueAsString(request);
+			redisPublisher.publish("room:" + request.getRoomId(), json);
+		} catch (JsonProcessingException e) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "메세지 직렬화 실패");
+		}
+
+		// saveMessage(request);
 	}
 
 	/**
