@@ -23,8 +23,14 @@ public class RedisSubscriber implements MessageListener {
 	public void onMessage(Message message, byte[] pattern) {
 		String channel = new String(message.getChannel(), StandardCharsets.UTF_8);
 		String msg = new String(message.getBody(), StandardCharsets.UTF_8);
-		log.info("📩 📩 📩 채널: {}, 메시지: {}", channel, msg);
-		System.out.println("🥕🥕🥕 Kafka Producer 실행");
-		kafkaChatProducer.sendMessage("chat-log", msg); // send to kafka
+		log.info("📩 채널={}, 메시지={}", channel, msg);
+		// System.out.println("🥕🥕🥕 Kafka Producer 실행");
+		// kafkaChatProducer.sendMessage("chat-log", msg); // send to kafka
+		try {
+			kafkaChatProducer.sendMessage("chat-log", msg);
+		} catch (Exception e) {
+			log.error("Kafka 전송 실패 – channel={}, msg={}", channel, msg, e);
+			// TODO: 재시도 또는 장애 전파 정책 적용 필요
+		}
 	}
 }
