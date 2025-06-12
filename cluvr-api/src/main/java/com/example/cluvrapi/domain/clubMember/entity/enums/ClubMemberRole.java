@@ -1,8 +1,7 @@
 package com.example.cluvrapi.domain.clubMember.entity.enums;
 
-public enum MemberStatus {
+public enum ClubMemberRole {
 	OWNER,
 	ADMIN,
 	MEMBER,
-	WITHDRAW
 }
