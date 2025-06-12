@@ -96,6 +96,7 @@ public class NotificationListenerManager {
 		SimpleMessageListenerContainer container = listenerContainers.remove(userId);
 		if (container != null) {
 			container.stop();
+			container.destroy();
 			log.info("user.{} 컨테이너 중단", userId);
 		}
 	}
