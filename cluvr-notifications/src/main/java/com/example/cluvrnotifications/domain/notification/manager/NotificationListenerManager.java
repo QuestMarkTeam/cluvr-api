@@ -47,8 +47,8 @@ public class NotificationListenerManager {
 	/**
 	 * 설명: 사용자 ID 기준으로 큐를 동적으로 생성하고, exchange에 바인딩
 	 *
-	 * 큐에 메시지는 살아있어야한다(접속 종료, 재시작 등등에도)
-	 * 그래서 durable !!
+	 * 다른 스레드가 들어와서 같은 userId로 또 컨테이너 만들 수 있음을 방지하여
+	 * computeIfAbsent
 	 *
 	 * @param userId 사용자 ID
 	 *
@@ -65,17 +65,22 @@ public class NotificationListenerManager {
 
 		String queueName = "user." + userId;
 
-		// 큐 생성 & 바인딩
-		createQueueAndBinding(queueName);
-
 		//리스너 컨테이너 생성 (동적으로 생성되는 큐를 리스닝함)
-		SimpleMessageListenerContainer container = createContainer(queueName);
+		SimpleMessageListenerContainer container = listenerContainers.computeIfAbsent(userId, id -> {
+			// 큐 생성 & 바인딩
+			createQueueAndBinding(queueName);
+			SimpleMessageListenerContainer c = createContainer(queueName);
+			c.start();
+			log.info("user.{} 컨테이너 생성 및 시작", userId);
+			return c;    //여기서 put까지 일어나서 메모리에 저장이됨.
 
-		//컨테이너 실행
-		container.start();
+		});
 
-		//중단하거나 제거하기 위해서 메모리에 저장함
-		listenerContainers.put(userId, container);
+		// 이미 존재했을 경우에도 log를 남기고 끝낼 수 있음
+		if (container != null && container.isRunning()) {
+			log.debug("user.{} 컨테이너 이미 실행 중", userId);
+		}
+
 	}
 
 	public void stop(Long userId) {
@@ -111,6 +116,8 @@ public class NotificationListenerManager {
 	 *
 	 * <p>사용자 접속 시 호출되며, 해당 사용자의 전용 큐(queue.user.{id})가 없으면 생성합니다.
 	 * DLX(dead.exchange), DLQ(dead.queue)와도 함께 바인딩되어야 하므로 arguments를 포함합니다.
+	 * 큐에 메시지는 살아있어야한다(접속 종료, 재시작 등등에도)
+	 * 그래서 durable !!
 	 *
 	 * @param queueName 생성할 큐의 이름 (예: user.123)
 	 * @author escomputer
