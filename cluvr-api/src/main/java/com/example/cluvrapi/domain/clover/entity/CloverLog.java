@@ -16,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import com.example.cluvrapi.domain.clover.enums.CloverActionType;
 import com.example.cluvrapi.domain.user.entity.User;
 
 @Entity
@@ -41,6 +42,8 @@ public class CloverLog {
 	private LocalDateTime createdAt;
 
 	private LocalDateTime deletedAt;
+
+	private CloverActionType actionType;
 
 	public CloverLog(User user, String description, Integer amount, LocalDateTime createdAt,
 		LocalDateTime deletedAt) {

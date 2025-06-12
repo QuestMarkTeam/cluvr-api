@@ -11,11 +11,12 @@ import lombok.Getter;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.enums.BoardType;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.clover.dto.CloverEarnDto;
 import com.example.cluvrapi.domain.user.entity.User;
 
 @Getter
 @AllArgsConstructor
-public class CreateBoardRequestDto {
+public class CreateBoardRequestDto implements CloverEarnDto {
 	@NotBlank(message = "제목은 필수입니다.")
 	private String title;
 

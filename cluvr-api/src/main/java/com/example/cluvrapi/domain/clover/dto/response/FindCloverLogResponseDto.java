@@ -1,4 +1,4 @@
-package com.example.cluvrapi.domain.clover.dto;
+package com.example.cluvrapi.domain.clover.dto.response;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package com.example.cluvrapi.global.listener.enums;
+package com.example.cluvrapi.global.event.enums;
 
 import lombok.Getter;
 

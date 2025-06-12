@@ -5,10 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
+import com.example.cluvrapi.domain.clover.enums.CloverUserActivityType;
 
 @Target(value = ElementType.METHOD)
 @Retention(value = RetentionPolicy.RUNTIME)
-public @interface EarnGem {
-	GemUserActivityType value();
+public @interface EarnClover {
+	CloverUserActivityType value();
 }

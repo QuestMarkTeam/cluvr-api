@@ -2,8 +2,8 @@ package com.example.cluvrapi.domain.clover.service;
 
 import java.util.List;
 
-import com.example.cluvrapi.domain.clover.dto.FindCloverLogResponseDto;
 import com.example.cluvrapi.domain.clover.dto.request.CreateCloverLogRequestDto;
+import com.example.cluvrapi.domain.clover.dto.response.FindCloverLogResponseDto;
 
 public interface CloverLogService {
 	/**
