@@ -11,6 +11,7 @@ import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
 import com.example.cluvrapi.domain.category.repository.CategoryRepository;
 import com.example.cluvrapi.domain.club.dto.request.CreateClubRequestDto;
 import com.example.cluvrapi.domain.club.dto.request.UpdateClubRequestDto;
+import com.example.cluvrapi.domain.club.dto.request.UpgradeMemberCountRequestDto;
 import com.example.cluvrapi.domain.club.dto.response.CreateClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
@@ -20,6 +21,8 @@ import com.example.cluvrapi.domain.club.repository.ClubRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.exception.BusinessException;
+import com.example.cluvrapi.global.response.ResponseCode;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,10 @@ public class ClubServiceImpl implements ClubService {
 	private final UserRepository userRepository;
 	private final ClubRepository clubRepository;
 	private final CategoryRepository categoryRepository;
+
+	// 상수 선언
+	private static final int FREE_LIMIT = 20;
+	private static final int GEM_INCREMENT = 5;
 
 	@Override
 	@Transactional
@@ -93,5 +100,55 @@ public class ClubServiceImpl implements ClubService {
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
 		clubRepository.delete(findClub);
+	}
+
+	@Override
+	@Transactional
+	public void upgradeMemberCount(Long userId, Long clubId, UpgradeMemberCountRequestDto memberCountRequestDto) {
+		// 1) 클럽 조회
+		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
+
+		// 2) 로그인한 유저와 조회한 클럽의 마스터가 일치하는지 검증
+		if (findClub.getUser().getId() != userId) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED);
+		}
+
+		// 3) 인원 검증
+
+		int requested = memberCountRequestDto.getMemberCount();
+
+		if (requested <= 0) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "추가 인원은 1명 이상이어야 합니다.");
+		}
+
+		if (findClub.getMaxMemberCount() + requested > FREE_LIMIT) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST,
+				"최대 인원 수는 20명을 초과할 수 없습니다. 추가 인원을 원하실 경우 잼(Gem)을 사용해 확장해 주세요.");
+		}
+
+		// 4) 추가
+		findClub.upgradeMemberCount(memberCountRequestDto.getMemberCount());
+	}
+
+	@Override
+	@Transactional
+	public void upgradeMemberCountWithGem(Long userId, Long clubId) {
+		// 1) 클럽 조회
+		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
+
+		// 2) 로그인한 유저와 조회한 클럽의 마스터가 일치하는지 검증
+		if (findClub.getUser().getId() != userId) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED);
+		}
+
+		// 3) 인원 검증
+		if (findClub.getMaxMemberCount() < FREE_LIMIT) {
+			throw new BusinessException(
+				ResponseCode.INVALID_REQUEST,
+				"최대 20명까지는 무료로 확장할 수 있습니다. 이후 인원 추가를 원하시면 잼(Gem)을 사용해 확장해 주세요.");
+		}
+
+		// 4) 추가
+		findClub.upgradeMemberCount(GEM_INCREMENT);
 	}
 }
