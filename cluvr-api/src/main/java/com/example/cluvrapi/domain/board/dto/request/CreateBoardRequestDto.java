@@ -43,4 +43,9 @@ public class CreateBoardRequestDto implements CloverEarnDto {
 			clover
 		);
 	}
+
+	@Override
+	public Integer getClover() {
+		return this.clover;
+	}
 }

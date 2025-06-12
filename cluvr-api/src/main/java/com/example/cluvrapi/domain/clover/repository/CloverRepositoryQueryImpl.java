@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
-import com.example.cluvrapi.domain.clover.dto.QFindCloverLogResponseDto;
-import com.example.cluvrapi.domain.clover.dto.QFindCloverResponseDto;
 import com.example.cluvrapi.domain.clover.dto.response.FindCloverLogResponseDto;
 import com.example.cluvrapi.domain.clover.dto.response.FindCloverResponseDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
