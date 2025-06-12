@@ -3,9 +3,12 @@ package com.example.cluvrapi.domain.clubMember.entity;
 import static jakarta.persistence.GenerationType.*;
 
 import com.example.cluvrapi.domain.club.entity.Club;
-import com.example.cluvrapi.domain.clubMember.entity.enums.MemberStatus;
+import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
+import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberStatus;
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
 import com.example.cluvrapi.domain.user.entity.User;
+import com.example.cluvrapi.global.exception.BusinessException;
+import com.example.cluvrapi.global.response.ResponseCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,12 +43,39 @@ public class ClubMember extends BaseTimeEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false, length = 10)
-	private MemberStatus memberStatus;
+	private ClubMemberRole clubMemberRole;
 
-	public ClubMember(Club club, User user, MemberStatus memberStatus) {
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 10)
+	private ClubMemberStatus clubMemberStatus;
+
+	public ClubMember(Club club, User user, ClubMemberRole clubMemberRole, ClubMemberStatus clubMemberStatus) {
 		this.club = club;
 		this.user = user;
-		this.memberStatus = memberStatus;
+		this.clubMemberRole = clubMemberRole;
+		this.clubMemberStatus = clubMemberStatus;
+	}
+
+	public void rejoin() {
+		this.clubMemberStatus = ClubMemberStatus.ACTIVE;
+	}
+
+	public void changeRole(ClubMemberRole newRole) {
+		this.clubMemberRole = newRole;
+	}
+
+	public void withdraw() {
+		if (this.clubMemberRole == ClubMemberRole.OWNER) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "OWNER는 탈퇴할 수 없습니다.");
+		}
+		this.clubMemberStatus = ClubMemberStatus.WITHDRAWN;
+	}
+
+	public void kick() {
+		if (this.clubMemberRole == ClubMemberRole.OWNER) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "OWNER는 강퇴할 수 없습니다.");
+		}
+		this.clubMemberStatus = ClubMemberStatus.KICKED;
 	}
 
 }

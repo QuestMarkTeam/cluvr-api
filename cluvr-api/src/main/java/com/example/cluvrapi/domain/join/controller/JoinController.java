@@ -1,9 +1,5 @@
 package com.example.cluvrapi.domain.join.controller;
 
-import jakarta.validation.Valid;
-
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +23,9 @@ import com.example.cluvrapi.domain.join.dto.response.MyJoinRequestResponseDto;
 import com.example.cluvrapi.domain.join.service.JoinService;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 가입 요청 관련 API 를 처리하는 컨트롤러입니다.
@@ -54,7 +53,11 @@ public class JoinController {
 		@PathVariable Long clubId,
 		@Valid @RequestBody CreateJoinRequestDto joinRequestDto
 	) {
-		CreateJoinResponseDto joinResponseDto = joinService.createJoin(1L, clubId, joinRequestDto);
+		CreateJoinResponseDto joinResponseDto = joinService.createJoin(
+			authUser.id(),
+			clubId,
+			joinRequestDto
+		);
 		return ResponseEntity.ok(BaseResponse.success(joinResponseDto, ResponseCode.CREATED));
 	}
 
