@@ -26,7 +26,6 @@ public class NotificationSendService {
 	/**
 	 * 설명: 유저의 SSEEmitter가 존재하면 알림을 전송
 	 *
-	 * <p>{추가적인 설명이 필요하다면 여기에 작성합니다.}
 	 *
 	 * @param  event 알림 이벤트 객체
 	 *
