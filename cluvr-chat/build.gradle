@@ -52,6 +52,12 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3' // jjwt-api 라이브러리 버전 지정
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3' // jjwt-impl 라이브러리 버전 지정 (런타임에만 필요)
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3' // jjwt-jackson 라이브러리 버전 지정 (Jackson과 연동할 때 필요)
+
+    // RabbitMQ (Spring AMQP)
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    // JSON 직렬화 (RabbitMQ 메시지용)
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.named('test') {
