@@ -1,6 +1,7 @@
 package com.example.cluvrnotifications.domain.notification.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -19,6 +20,7 @@ import com.example.cluvrnotifications.domain.notification.repository.support.Sse
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationSendService {
 
 	private final SseEmitterRepository sseEmitterRepository;
@@ -43,6 +45,7 @@ public class NotificationSendService {
 					.data(event));
 				return true;
 			} catch (Exception e) {
+				log.warn("SSE 전송 실패 - 사용자 Id :{}, 사유 : {}, 내용 : {}", event.getReceiverId(), e, e.getMessage());
 				sseEmitterRepository.delete(event.getReceiverId());
 			}
 		}
