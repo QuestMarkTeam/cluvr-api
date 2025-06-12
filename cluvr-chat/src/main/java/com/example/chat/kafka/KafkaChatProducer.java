@@ -4,7 +4,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KafkaChatProducer {
@@ -15,7 +17,14 @@ public class KafkaChatProducer {
 	public void sendMessage(String topic, String message) {
 		// "chat-log"라는 Kafka 토픽(topic)에
 		// → message라는 문자열 메시지를 전송(Publish)
-		System.out.println("🥕🥕🥕 Kafka 서버에서 메세지 받음");
-		kafkaTemplate.send(topic, message);
+		// System.out.println("🥕🥕🥕 Kafka 서버에서 메세지 받음");
+		kafkaTemplate.send(topic, message).whenComplete((result, ex) -> {
+			if (ex != null) {
+				log.error("Publish failed", ex);
+			} else {
+				log.debug("Publish success, offset={}", result.getRecordMetadata().offset());
+			}
+		});
+		log.info("Kafka Publish ▶ topic={}, message={}", topic, message);
 	}
 }
