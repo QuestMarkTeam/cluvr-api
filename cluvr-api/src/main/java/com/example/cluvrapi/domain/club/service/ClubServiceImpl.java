@@ -1,5 +1,12 @@
 package com.example.cluvrapi.domain.club.service;
 
+import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -13,6 +20,7 @@ import com.example.cluvrapi.domain.club.dto.request.CreateClubRequestDto;
 import com.example.cluvrapi.domain.club.dto.request.UpdateClubRequestDto;
 import com.example.cluvrapi.domain.club.dto.request.UpgradeMemberCountRequestDto;
 import com.example.cluvrapi.domain.club.dto.response.CreateClubResponseDto;
+import com.example.cluvrapi.domain.club.dto.response.CreateInviteCodeResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
 import com.example.cluvrapi.domain.club.entity.Club;
@@ -31,10 +39,13 @@ public class ClubServiceImpl implements ClubService {
 	private final UserRepository userRepository;
 	private final ClubRepository clubRepository;
 	private final CategoryRepository categoryRepository;
+	private final ClubRedisService clubRedisService;
 
 	// 상수 선언
 	private static final int FREE_LIMIT = 20;
 	private static final int GEM_INCREMENT = 5;
+	private static final String INVITE_CODE_KEY_PREFIX = "ic:";
+	private static final Duration EXPIRE_TTL_TIME = Duration.ofDays(3);
 
 	@Override
 	@Transactional
@@ -150,5 +161,33 @@ public class ClubServiceImpl implements ClubService {
 
 		// 4) 추가
 		findClub.upgradeMemberCount(GEM_INCREMENT);
+	}
+
+	@Override
+	public CreateInviteCodeResponseDto createInviteCode(Long id, Long clubId) {
+
+		// 1) 검증
+		clubRepository.findByIdOrElseThrow(clubId);
+
+		// 2) Base64 로 초대코드 생성
+		String code;
+		String key;
+		do {
+			SecureRandom random = new SecureRandom();
+			byte[] bytes = new byte[10];
+			random.nextBytes(bytes);
+			code = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes).substring(0, 12);
+			key = INVITE_CODE_KEY_PREFIX + code;
+		} while (clubRedisService.hasKey(key));
+
+		// 4) Redis 저장
+		Map<String, Object> codeData = new HashMap<>();
+		codeData.put("clubId", clubId);
+		codeData.put("createdAt", LocalDateTime.now().toString());
+
+		clubRedisService.saveInviteCode(key, codeData, EXPIRE_TTL_TIME);
+
+		// 5) 반환
+		return CreateInviteCodeResponseDto.from(code);
 	}
 }

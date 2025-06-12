@@ -22,6 +22,7 @@ import com.example.cluvrapi.domain.club.dto.request.CreateClubRequestDto;
 import com.example.cluvrapi.domain.club.dto.request.UpdateClubRequestDto;
 import com.example.cluvrapi.domain.club.dto.request.UpgradeMemberCountRequestDto;
 import com.example.cluvrapi.domain.club.dto.response.CreateClubResponseDto;
+import com.example.cluvrapi.domain.club.dto.response.CreateInviteCodeResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
 import com.example.cluvrapi.domain.club.enums.ClubType;
@@ -113,8 +114,28 @@ public class ClubController {
 		@Auth AuthUser authUser,
 		@PathVariable("clubId") Long clubId
 	) {
-		System.out.println(authUser.id());
 		clubService.upgradeMemberCountWithGem(authUser.id(), clubId);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(BaseResponse.success(ResponseCode.NO_CONTENT));
+	}
+
+	/**
+	 * 설명: 클럽 초대코드 생성합니다.
+	 *
+	 * <p> 요청한 사용자가 특정 클럽에 대해 초대코드를 생성할 수 있습니다.
+	 * 생성된 초대코드는 다른 사용자가 클럽에 가입할 때 사용할 수 있습니다.
+	 * 해당 클럽의 생성자 또는 관리자만 초대코드를 생성할 수 있습니다.
+	 *
+	 * @param authUser 인증된 사용자 정보 (토큰 기반)
+	 * @param clubId   초대코드를 생성할 대상 클럽의 고유 ID
+	 * @return 초대코드 및 유효시간 등의 정보를 포함한 응답
+	 * @author sinyoung0403
+	 */
+	@PostMapping("/{clubId}/invite-codes")
+	public ResponseEntity<BaseResponse<CreateInviteCodeResponseDto>> createInviteCode(
+		@Auth AuthUser authUser,
+		@PathVariable("clubId") Long clubId
+	) {
+		CreateInviteCodeResponseDto createInviteCodeResponseDto = clubService.createInviteCode(authUser.id(), clubId);
+		return ResponseEntity.ok(BaseResponse.success(createInviteCodeResponseDto, ResponseCode.OK));
 	}
 }

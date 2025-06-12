@@ -6,10 +6,12 @@ import com.example.cluvrapi.domain.club.dto.request.CreateClubRequestDto;
 import com.example.cluvrapi.domain.club.dto.request.UpdateClubRequestDto;
 import com.example.cluvrapi.domain.club.dto.request.UpgradeMemberCountRequestDto;
 import com.example.cluvrapi.domain.club.dto.response.CreateClubResponseDto;
+import com.example.cluvrapi.domain.club.dto.response.CreateInviteCodeResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
 import com.example.cluvrapi.domain.club.enums.ClubType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.global.exception.BusinessException;
 
 public interface ClubService {
 
@@ -89,4 +91,18 @@ public interface ClubService {
 	 * @author sinyoung0403
 	 */
 	void upgradeMemberCountWithGem(Long userId, Long clubId);
+
+	/**
+	 * 설명: 클럽 초대코드를 생성합니다.
+	 *
+	 * <p> 해당 메서드는 클럽장 권한을 가진 사용자가 초대코드를 발급할 때 사용됩니다.
+	 * 이미 초대코드가 존재할 경우, 기존 코드를 무효화하고 새로 생성합니다.
+	 *
+	 * @param userId 초대코드를 생성하려는 유저의 고유 식별자 (클럽장)
+	 * @param clubId 초대코드를 생성할 클럽의 고유 식별자
+	 * @return 생성된 초대코드 정보를 담은 DTO
+	 * @throws BusinessException {ResponseCode.NOT_FOUND}
+	 * @author sinyoung0403
+	 */
+	CreateInviteCodeResponseDto createInviteCode(Long userId, Long clubId);
 }
