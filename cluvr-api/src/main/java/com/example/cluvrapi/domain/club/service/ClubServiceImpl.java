@@ -149,6 +149,6 @@ public class ClubServiceImpl implements ClubService {
 		}
 
 		// 4) 추가
-		findClub.upgradeMemberCount(5);
+		findClub.upgradeMemberCount(GEM_INCREMENT);
 	}
 }

@@ -30,6 +30,8 @@ import com.example.cluvrapi.domain.user.entity.User;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Club extends BaseTimeEntity {
 
+	private static final int MAX_MEMBER_LIMIT = 50;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -107,7 +109,7 @@ public class Club extends BaseTimeEntity {
 			throw new IllegalArgumentException("추가 인원은 1명 이상이어야 합니다.");
 		}
 
-		if (this.maxMemberCount + increment > 50) {
+		if (this.maxMemberCount + increment > MAX_MEMBER_LIMIT) {
 			throw new IllegalStateException("최대 50명을 초과할 수 없습니다.");
 		}
 
