@@ -263,23 +263,6 @@ public class JoinServiceImpl implements JoinService {
 
 		// 3) 저장
 		joinRequestAnswerRepository.save(joinRequestAnswer);
-
-		// 4) 알림
-		User applicant = joinRequest.getUser();
-		User clubOwner = joinRequest.getClub().getUser();
-		if (!clubOwner.getId().equals(applicant.getId())) {
-			String content = String.format("'%s'님이 제출 양식을 통해 가입 신청을 했습니다.", applicant.getName());
-
-			NotificationEvent event = NotificationEvent.from(
-				clubOwner.getId(),
-				NotificationType.SUBMISSION_FORM,
-				content,
-				NotiTargetType.CLUB,
-				clubId
-			);
-
-			notificationProducer.send(event);
-		}
 	}
 
 	/**
@@ -309,22 +292,5 @@ public class JoinServiceImpl implements JoinService {
 
 		// 3. 저장
 		joinRequestAnswerRepository.save(joinRequestAnswer);
-
-		// 4) 알림
-		User applicant = joinRequest.getUser();
-		User clubOwner = joinRequest.getClub().getUser();
-		if (!clubOwner.getId().equals(applicant.getId())) {
-			String content = String.format("'%s'님이 문제 양식을 통해 가입 신청을 했습니다.", applicant.getName());
-
-			NotificationEvent event = NotificationEvent.from(
-				clubOwner.getId(),
-				NotificationType.PROBLEM_FORM,
-				content,
-				NotiTargetType.CLUB,
-				clubId
-			);
-
-			notificationProducer.send(event);
-		}
 	}
 }
