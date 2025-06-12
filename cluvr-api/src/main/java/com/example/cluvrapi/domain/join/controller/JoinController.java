@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestByCodeRequestDto;
 import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestDto;
 import com.example.cluvrapi.domain.join.dto.request.UpdateJoinRequestDto;
+import com.example.cluvrapi.domain.join.dto.response.CreateJoinRequestByCodeResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.CreateJoinResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.InfoJoinRequestResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.MyClubJoinResponseDto;
@@ -152,5 +154,26 @@ public class JoinController {
 	) {
 		joinService.cancelJoinRequest(clubId, joinRequestId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
+	}
+
+	/**
+	 * 설명: 초대코드를 이용한 클럽 가입 요청합니다.
+	 *
+	 * <p> 사용자가 초대코드를 입력하여 특정 클럽에 가입 요청을 보냅니다.
+	 * 유효한 초대코드가 존재해야 요청이 처리됩니다.
+	 *
+	 * @param authUser                          인증된 사용자 정보 (토큰 기반)
+	 * @param createJoinRequestByCodeRequestDto 초대코드를 포함한 클럽 가입 요청 데이터
+	 * @return 클럽 가입 요청 결과 정보 (성공 시 JoinRequest ID 반환)
+	 * @author sinyoung0403
+	 */
+	@PostMapping("clubs/join-with-codes")
+	public ResponseEntity<BaseResponse<CreateJoinRequestByCodeResponseDto>> createJoinRequestByInviteCode(
+		@Auth AuthUser authUser,
+		@RequestBody CreateJoinRequestByCodeRequestDto createJoinRequestByCodeRequestDto
+	) {
+		CreateJoinRequestByCodeResponseDto joinRequestByInviteCodeDto = joinService.createJoinRequestByInviteCode(
+			authUser.id(), createJoinRequestByCodeRequestDto);
+		return ResponseEntity.ok(BaseResponse.success(joinRequestByInviteCodeDto, ResponseCode.OK));
 	}
 }
