@@ -2,20 +2,23 @@ package com.example.cluvrapi.domain.auth.dto.request;
 
 import java.time.LocalDate;
 
-import com.example.cluvrapi.domain.category.enums.CategoryType;
-import com.example.cluvrapi.domain.user.entity.enums.Gender;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+
+import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.user.entity.enums.Gender;
 
 @Getter
 @RequiredArgsConstructor
+@NoArgsConstructor(force = true)
 public class SignUpUserRequestDto {
 	@NotBlank(message = "이름을 입력해야 합니다.")
 	@Size(max = 10, message = "이름은 최대 10자까지 가능합니다.")

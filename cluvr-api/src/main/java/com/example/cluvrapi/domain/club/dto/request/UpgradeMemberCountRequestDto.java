@@ -1,0 +1,13 @@
+package com.example.cluvrapi.domain.club.dto.request;
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+
+import lombok.Getter;
+
+@Getter
+public class UpgradeMemberCountRequestDto {
+	@Min(value = 1, message = "멤버 수 추가는 최소 1명부터 가능합니다.")
+	@Max(value = 18, message = "무료 확장은 최대 18명까지(총 20명) 가능합니다.")
+	private int memberCount;
+}
