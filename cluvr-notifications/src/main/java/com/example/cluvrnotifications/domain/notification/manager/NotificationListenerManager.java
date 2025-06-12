@@ -1,24 +1,29 @@
 package com.example.cluvrnotifications.domain.notification.manager;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.MessageListener;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
 import org.springframework.stereotype.Service;
 
 import com.example.cluvrnotifications.domain.notification.dto.event.NotificationEvent;
+import com.example.cluvrnotifications.global.exception.BusinessException;
+import com.example.cluvrnotifications.global.response.ResponseCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -61,29 +66,10 @@ public class NotificationListenerManager {
 		String queueName = "user." + userId;
 
 		// 큐 생성 & 바인딩
-		Queue queue = QueueBuilder.durable(queueName).build(); //영속
-		amqpAdmin.declareQueue(queue);
-
-		Binding binding = BindingBuilder
-			.bind(queue)
-			.to(notificationExchange)
-			.with(queueName);//queuename = 라우팅 키
-
-		amqpAdmin.declareBinding(binding);
+		createQueueAndBinding(queueName);
 
 		//리스너 컨테이너 생성 (동적으로 생성되는 큐를 리스닝함)
-		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-		container.setConnectionFactory(connectionFactory);
-		container.setQueueNames(queueName);
-		container.setMessageListener((MessageListener)message -> {
-			try {
-				String raw = new String(message.getBody(), StandardCharsets.UTF_8);
-				NotificationEvent event = objectMapper.readValue(raw, NotificationEvent.class);
-				log.info("{} 알림 수신 : {} ", queueName, event.getContent());
-			} catch (Exception e) {
-				log.error("메시지 파싱 실패", e);
-			}
-		});
+		SimpleMessageListenerContainer container = createContainer(queueName);
 
 		//컨테이너 실행
 		container.start();
@@ -114,5 +100,103 @@ public class NotificationListenerManager {
 		String queueName = "user." + userId;
 		amqpAdmin.deleteQueue(queueName);
 		log.info("user.{} 큐 삭제 완료", userId);
+	}
+
+	/**
+	 * 설명: 큐를 동적으로 생성하고 DLX(DLQ) 바인딩까지 함께 처리합니다.
+	 *
+	 * <p>사용자 접속 시 호출되며, 해당 사용자의 전용 큐(queue.user.{id})가 없으면 생성합니다.
+	 * DLX(dead.exchange), DLQ(dead.queue)와도 함께 바인딩되어야 하므로 arguments를 포함합니다.
+	 *
+	 * @param queueName 생성할 큐의 이름 (예: user.123)
+	 * @author escomputer
+	 */
+	private void createQueueAndBinding(String queueName) {
+		Map<String, Object> args = new HashMap<>();
+		args.put("x-dead-letter-exchange", "dead.exchange");        // DLX 이름
+		args.put("x-dead-letter-routing-key", "dead.queue");        // DLQ 큐 이름 (routing key로 사용됨)
+
+		//durable = true ,exclusive = false , autoDelet=false
+		Queue queue = new Queue(queueName, true, false, false, args);
+		amqpAdmin.declareQueue(queue);
+
+		Binding binding = BindingBuilder
+			.bind(queue)
+			.to(notificationExchange)
+			.with(queueName);//queuename = 라우팅 키
+
+		amqpAdmin.declareBinding(binding);
+	}
+
+	/**
+	 * 설명: 주어진 큐 이름에 대해 리스너 컨테이너를 생성합니다.
+	 *
+	 * <p>해당 컨테이너는 MANUAL ACK 모드로 동작하며, 메시지 처리 실패 시
+	 * 최대 3회 재시도 후 DLQ(dead.queue)로 전송됩니다.
+	 *
+	 * @param queueName 수신할 큐 이름 (예: user.123)
+	 * @return 생성된 SimpleMessageListenerContainer 인스턴스
+	 * @throws BusinessException 채널이 null인 경우 (중대 오류)
+	 * @author escomputer
+	 */
+	private SimpleMessageListenerContainer createContainer(String queueName) {
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		container.setConnectionFactory(connectionFactory);
+		container.setQueueNames(queueName);
+
+		//ack 모드(정보전달모드)
+		container.setAcknowledgeMode(AcknowledgeMode.MANUAL);
+		container.setMessageListener((ChannelAwareMessageListener)(message, channel) -> {
+			Long tag = message.getMessageProperties().getDeliveryTag();
+
+			if (channel == null) {
+				log.error("채널이 null이라 ACK/NACK을 실행할 수 없음. 메시지 유실 위험!");
+				throw new BusinessException(ResponseCode.CHANNEL_NULL);
+			}
+
+			try {
+				String raw = new String(message.getBody(), StandardCharsets.UTF_8);
+				NotificationEvent event = objectMapper.readValue(raw, NotificationEvent.class);
+				log.info("{} 알림 수신 : {} ", queueName, event.getContent());
+
+				channel.basicAck(tag, false);
+			} catch (Exception e) {
+				log.error("메시지 파싱 실패", e);
+
+				int retryCount = getRetryCount(message);
+
+				if (retryCount >= 3) {
+					log.warn("최대 재시도 횟수 초과로 인해 DLQ로 전송합니다.");
+					channel.basicReject(tag, false);    //DLQ
+				} else {
+					channel.basicNack(tag, false, true);
+				}
+			}
+		});
+
+		return container;
+	}
+
+	/**
+	 * 설명: 메시지의 헤더에서 x-death 정보를 파싱하여 현재까지 실패 횟수를 반환합니다.
+	 *
+	 * <p>RabbitMQ는 DLQ로 전송되었던 메시지에 대해 x-death 헤더를 자동으로 부여합니다.
+	 * 이를 기반으로 몇 번 재시도되었는지 파악할 수 있습니다.
+	 *
+	 * @param message RabbitMQ 메시지
+	 * @return 재시도 횟수 (없으면 0)
+	 * @author escomputer
+	 */
+	private int getRetryCount(Message message) {
+		List<Map<String, ?>> xDeathHeader = (List<Map<String, ?>>)
+			message.getMessageProperties().getHeaders().get("x-death");
+		if (xDeathHeader != null && !xDeathHeader.isEmpty()) {
+			Map<String, ?> death = xDeathHeader.get(0);
+			Object count = death.get("count");
+			if (count instanceof Long) {
+				return ((Long)count).intValue();
+			}
+		}
+		return 0;
 	}
 }
