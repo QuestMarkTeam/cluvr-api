@@ -1,5 +1,7 @@
 package com.example.cluvrnotifications.domain.notification.service;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,20 +38,26 @@ public class NotificationSendService {
 	 */
 
 	public boolean send(NotificationEvent event) {
-		SseEmitter emitter = sseEmitterRepository.get(event.getReceiverId());
+		List<SseEmitter> emitters = sseEmitterRepository.get(event.getReceiverId());
 
-		if (emitter != null) {
+		if (emitters.isEmpty()) {
+			return false;
+		}
+
+		boolean success = false;
+
+		for (SseEmitter emitter : emitters) {
 			try {
 				emitter.send(SseEmitter.event()
 					.name("notification")
 					.data(event));
-				return true;
+				success = true;
 			} catch (Exception e) {
 				log.warn("SSE 전송 실패 - 사용자 Id :{}, 사유 : {}, 내용 : {}", event.getReceiverId(), e, e.getMessage());
-				sseEmitterRepository.delete(event.getReceiverId());
+				sseEmitterRepository.delete(event.getReceiverId(), emitter);
 			}
 		}
 
-		return false;
+		return success;
 	}
 }

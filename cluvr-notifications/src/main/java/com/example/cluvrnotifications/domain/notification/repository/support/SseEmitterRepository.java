@@ -1,7 +1,11 @@
 package com.example.cluvrnotifications.domain.notification.repository.support;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -18,14 +22,15 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
  */
 
 @Repository
+@Slf4j
 public class SseEmitterRepository {
 
-	private final Map<Long, SseEmitter> emitterMap = new ConcurrentHashMap<>();
+	private final Map<Long, List<SseEmitter>> emitterMap = new ConcurrentHashMap<>();
 
 	/**
 	 * 설명: 사용자 ID 기준으로 emitter를 저장
 	 *
-	 * <p>{추가적인 설명이 필요하다면 여기에 작성합니다.}
+	 * <p>userId 키에 해당하는 emitter 리스트가 없으면 새 리스트 생성, 그 후 emitter 추가
 	 *
 	 * @param userId 사용자 ID
 	 * @param emitter 연결된 SseEmitter
@@ -34,29 +39,52 @@ public class SseEmitterRepository {
 	 */
 
 	public void save(Long userId, SseEmitter emitter) {
-		emitterMap.put(userId, emitter);
+		emitterMap.computeIfAbsent(userId, key -> new CopyOnWriteArrayList<>()).add(emitter);
+		log.info("Emitter 저장 완료: userId={}, 총 연결 수={}", userId, emitterMap.get(userId).size());
 	}
 
 	/**
 	 * 설명: 사용자 ID 기준으로 emitter를 조회
+	 *
+	 * <p>유저의 모든 emitter 반환
 	 *
 	 * @param userId 사용자 ID
 	 * @return 해당 사용자의 emitter 또는 null
 	 *
 	 * @author escomputer
 	 */
-	public SseEmitter get(Long userId) {
-		return emitterMap.get(userId);
+	public List<SseEmitter> get(Long userId) {
+		return emitterMap.getOrDefault(userId, List.of());
 	}
 
 	/**
-	 * 설명: 사용자 ID 기준으로 emitter를 삭제
+	 * 설명: 사용자 ID 기준으로 특정 emitter를 삭제
 	 *
 	 * @param userId 사용자 ID
 	 *
 	 * @author escomputer
 	 */
-	public void delete(Long userId) {
+	public void delete(Long userId, SseEmitter emitter) {
+		List<SseEmitter> emitters = emitterMap.get(userId);
+		if (emitters != null) {
+			emitters.remove(emitter);
+			log.info("Emitter 삭제: userId={}, 남은 연결 수={}", userId, emitters.size());
+			if (emitters.isEmpty()) {
+				emitterMap.remove(userId);
+			}
+		}
+	}
+
+	/**
+	 * 설명: 유저의 모든 emitter삭제
+	 *
+	 * 나중에 고도화때 쓸 메서드입니다. (로그아웃, 탈퇴시에)
+	 *
+	 * @author escomputer
+	 */
+
+	public void deleteAll(Long userId) {
 		emitterMap.remove(userId);
+		log.info("Emitter 전체 삭제: userId={}", userId);
 	}
 }

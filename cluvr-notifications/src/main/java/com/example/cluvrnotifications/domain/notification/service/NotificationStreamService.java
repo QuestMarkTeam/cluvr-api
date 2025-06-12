@@ -51,13 +51,13 @@ public class NotificationStreamService {
 		emitter.onCompletion(() -> {
 			log.info(" SSE 연결 종료됨 -> 리스너 중단: user.{}", userId);
 			notificationListenerManager.stop(userId);
-			sseEmitterRepository.delete(userId);
+			sseEmitterRepository.delete(userId, emitter);
 		});
 
 		emitter.onTimeout(() -> {
 			log.info("SSE 타임아웃 발생 ->리스너 중단: user.{}", userId);
 			notificationListenerManager.stop(userId);
-			sseEmitterRepository.delete(userId);
+			sseEmitterRepository.delete(userId, emitter);
 		});
 
 		//MongoDB에 저장된 알림 꺼내기
@@ -75,7 +75,7 @@ public class NotificationStreamService {
 						doc.getTargetId()
 					)));
 			} catch (IOException e) {
-				sseEmitterRepository.delete(userId);
+				sseEmitterRepository.delete(userId, emitter);
 			}
 		});
 
