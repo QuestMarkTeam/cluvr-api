@@ -1,16 +1,17 @@
 package com.example.cluvrapi.domain.user.repository;
 
-import static com.example.cluvrapi.domain.user.entity.QUser.user;
+import static com.example.cluvrapi.domain.user.entity.QUser.*;
+import static java.util.Objects.*;
 
 import java.util.List;
 import java.util.Optional;
-
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Repository;
 
 import com.example.cluvrapi.domain.user.entity.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
@@ -60,5 +61,25 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 			.selectFrom(user)
 			.where(user.isDeleted.eq(false))
 			.fetch();
+	}
+
+	@Override
+	public boolean existsByEmail(String email) {
+		Long cnt = queryFactory
+			.select(user.count())
+			.from(user)
+			.where(user.email.eq(email))
+			.fetchOne();
+		return requireNonNullElse(cnt, 0L) > 0;
+	}
+
+	@Override
+	public boolean existsByPhoneNumber(String phoneNumber) {
+		Long cnt = queryFactory
+			.select(user.count())
+			.from(user)
+			.where(user.phoneNumber.eq(phoneNumber))
+			.fetchOne();
+		return requireNonNullElse(cnt, 0L) > 0;
 	}
 }
