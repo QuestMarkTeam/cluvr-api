@@ -1,5 +1,12 @@
 package com.example.cluvrapi.domain.join.entity;
 
+import org.hibernate.annotations.SQLDelete;
+
+import com.example.cluvrapi.domain.club.entity.Club;
+import com.example.cluvrapi.domain.club.enums.JoinType;
+import com.example.cluvrapi.domain.join.enums.JoinStatus;
+import com.example.cluvrapi.domain.user.entity.User;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,17 +18,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.hibernate.annotations.SQLDelete;
-
-import com.example.cluvrapi.domain.club.entity.Club;
-import com.example.cluvrapi.domain.club.enums.JoinType;
-import com.example.cluvrapi.domain.join.enums.JoinStatus;
-import com.example.cluvrapi.domain.user.entity.User;
 
 /**
  * 신청의 본체, 메타 정보를 담고 있습니다.
@@ -107,5 +106,13 @@ public class JoinRequest {
 	 */
 	public void updateJoinStatus() {
 		this.joinStatus = JoinStatus.CANCELED;
+	}
+
+	public void approve() {
+		this.joinStatus = JoinStatus.APPROVED;
+	}
+
+	public void reject() {
+		this.joinStatus = JoinStatus.REJECTED;
 	}
 }
