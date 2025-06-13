@@ -69,7 +69,7 @@ public class ClubController {
 			authUser.id(),
 			createClubRequestDto
 		);
-		return ResponseEntity.ok(BaseResponse.success(dto, ResponseCode.CREATED));
+		return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success(dto, ResponseCode.CREATED));
 	}
 
 	/**
@@ -145,7 +145,7 @@ public class ClubController {
 		@PathVariable Long clubId
 	) {
 		clubService.deleteClub(clubId);
-		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 	/**
@@ -204,6 +204,7 @@ public class ClubController {
 		@PathVariable("clubId") Long clubId
 	) {
 		CreateInviteCodeResponseDto createInviteCodeResponseDto = clubService.createInviteCode(authUser.id(), clubId);
-		return ResponseEntity.ok(BaseResponse.success(createInviteCodeResponseDto, ResponseCode.OK));
+		return ResponseEntity.status(HttpStatus.CREATED)
+			.body(BaseResponse.success(createInviteCodeResponseDto, ResponseCode.CREATED));
 	}
 }
