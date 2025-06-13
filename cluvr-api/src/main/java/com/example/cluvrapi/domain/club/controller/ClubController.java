@@ -129,7 +129,7 @@ public class ClubController {
 		@Valid @RequestBody UpdateClubRequestDto updateClubRequest
 	) {
 		clubService.updateClub(authUser.id(), clubId, updateClubRequest);
-		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 	/**
@@ -148,7 +148,7 @@ public class ClubController {
 		@PathVariable Long clubId
 	) {
 		clubService.deleteClub(authUser.id(), clubId);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(BaseResponse.success(ResponseCode.NO_CONTENT));
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 	/**
@@ -167,7 +167,7 @@ public class ClubController {
 		@Valid @RequestBody UpgradeMemberCountRequestDto memberCountRequestDto
 	) {
 		clubService.upgradeMemberCount(authUser.id(), clubId, memberCountRequestDto);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(BaseResponse.success(ResponseCode.NO_CONTENT));
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class ClubController {
 		@PathVariable("clubId") Long clubId
 	) {
 		clubService.upgradeMemberCountWithGem(authUser.id(), clubId);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(BaseResponse.success(ResponseCode.NO_CONTENT));
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 	/**
@@ -234,6 +234,6 @@ public class ClubController {
 		@RequestParam @NotNull(message = "공개 여부는 필수") Boolean isPublic
 	) {
 		clubService.updatePrivacy(authUser.id(), clubId, isPublic);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(BaseResponse.success(ResponseCode.NO_CONTENT));
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 }
