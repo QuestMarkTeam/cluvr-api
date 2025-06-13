@@ -170,20 +170,13 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 	}
 
 	@Override
-	public GetMemberRoleResponseDto getMemberRole(Long clubId, Long targetUserId, AuthUser requester) {
+	public GetMemberRoleResponseDto getMemberRole(Long clubId, Long targetUserId) {
 		Club club = clubRepository.findByIdOrElseThrow(clubId);
-
-		boolean isActive = clubMemberRepository.findByClubIdAndUserId(clubId, requester.id())
-			.filter(cm -> cm.getClubMemberStatus() == ClubMemberStatus.ACTIVE)
-			.isPresent();
-		if (!isActive) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "클럽의 ACTIVE 멤버만 조회할 수 있습니다.");
-		}
 
 		ClubMember target = clubMemberRepository.findByClubIdAndUserId(clubId, targetUserId)
 			.orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND, "대상 멤버를 찾을 수 없습니다."));
 
-		return new GetMemberRoleResponseDto(
+		return GetMemberRoleResponseDto.toDto(
 			club.getId(),
 			club.getName(),
 			targetUserId,

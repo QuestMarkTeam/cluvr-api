@@ -99,7 +99,7 @@ public class ClubMemberController {
 		@PathVariable("userId") Long targetUserId,
 		@Auth AuthUser authUser
 	) {
-		GetMemberRoleResponseDto dto = clubMemberService.getMemberRole(clubId, targetUserId, authUser);
+		GetMemberRoleResponseDto dto = clubMemberService.getMemberRole(clubId, targetUserId);
 		return ResponseEntity
 			.ok(BaseResponse.success(dto, ResponseCode.OK));
 	}

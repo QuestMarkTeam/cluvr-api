@@ -12,4 +12,14 @@ public class GetMemberRoleResponseDto {
 	private final String clubName;
 	private final Long userId;
 	private final ClubMemberRole role;
+
+	public static GetMemberRoleResponseDto toDto(
+		Long clubId,
+		String clubName,
+		Long userId,
+		ClubMemberRole role
+	) {
+		return new GetMemberRoleResponseDto(clubId, clubName, userId, role);
+	}
 }
+

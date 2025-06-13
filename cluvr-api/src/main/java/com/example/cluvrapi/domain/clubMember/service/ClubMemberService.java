@@ -23,5 +23,5 @@ public interface ClubMemberService {
 
 	Page<ClubMemberInfoResponseDto> listMembers(Long clubId, AuthUser authUser, Pageable pageable);
 
-	GetMemberRoleResponseDto getMemberRole(Long clubId, Long targetUserId, AuthUser requester);
+	GetMemberRoleResponseDto getMemberRole(Long clubId, Long targetUserId);
 }
