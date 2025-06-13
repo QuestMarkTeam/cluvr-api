@@ -12,21 +12,21 @@ import lombok.Getter;
 
 @Getter
 public class CreateClubResponseDto {
-	private Long id;
+	private Long clubId;
 
-	public CreateClubResponseDto(Long id) {
-		this.id = id;
+	public CreateClubResponseDto(Long clubId) {
+		this.clubId = clubId;
 	}
 
 	/**
 	 * 설명: 주어진 클럽 ID 로부터 CreateClubResponseDto 객체 생성
 	 *
-	 * @param userId 생성된 클럽의 ID
+	 * @param clubId 생성된 클럽의 ID
 	 * @return CreateClubResponseDto 인스턴스
 	 * @author sinyoung0403
 	 */
 
-	public static CreateClubResponseDto from(Long userId) {
-		return new CreateClubResponseDto(userId);
+	public static CreateClubResponseDto from(Long clubId) {
+		return new CreateClubResponseDto(clubId);
 	}
 }

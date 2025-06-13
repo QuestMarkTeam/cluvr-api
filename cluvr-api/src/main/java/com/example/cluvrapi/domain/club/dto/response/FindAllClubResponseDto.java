@@ -33,21 +33,21 @@ public class FindAllClubResponseDto {
 	private ClubType clubType;
 	private CategoryType categoryDetail;
 	private String greeting;
-	private String postUrl;
+	private String posterUrl;
 	private int maxMemberCounter;
 	private int minCloverRequirement;
 
 	@QueryProjection
 	public FindAllClubResponseDto(Long clubId, Long authorId, String name, ClubType clubType,
 		CategoryType categoryDetail,
-		String greeting, String postUrl, int maxMemberCounter, int minCloverRequirement) {
+		String greeting, String posterUrl, int maxMemberCounter, int minCloverRequirement) {
 		this.clubId = clubId;
 		this.authorId = authorId;
 		this.name = name;
 		this.clubType = clubType;
 		this.categoryDetail = categoryDetail;
 		this.greeting = greeting;
-		this.postUrl = postUrl;
+		this.posterUrl = posterUrl;
 		this.maxMemberCounter = maxMemberCounter;
 		this.minCloverRequirement = minCloverRequirement;
 	}
