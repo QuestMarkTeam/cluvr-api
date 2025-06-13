@@ -2,6 +2,13 @@ package com.example.cluvrapi.domain.user.entity;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.SQLDelete;
+
+import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
+import com.example.cluvrapi.domain.user.entity.enums.Gender;
+import com.example.cluvrapi.domain.user.entity.enums.UserRole;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,17 +17,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.hibernate.annotations.SQLDelete;
-
-import com.example.cluvrapi.domain.category.enums.CategoryType;
-import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
-import com.example.cluvrapi.domain.user.entity.enums.Gender;
-import com.example.cluvrapi.domain.user.entity.enums.UserRole;
 
 @Getter
 @Entity
@@ -46,7 +45,7 @@ public class User extends BaseTimeEntity {
 	private String email;
 
 	/** 전화번호 (varchar(11), NOT NULL) */
-	@Column(name = "phone_number", nullable = false, length = 11)
+	@Column(name = "phone_number", nullable = false, length = 11, unique = true)
 	private String phoneNumber;
 
 	/**
