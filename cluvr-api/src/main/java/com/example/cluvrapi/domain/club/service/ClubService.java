@@ -10,6 +10,7 @@ import com.example.cluvrapi.domain.club.dto.response.CreateInviteCodeResponseDto
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
 import com.example.cluvrapi.domain.club.enums.ClubType;
+import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.global.exception.BusinessException;
 
@@ -129,4 +130,16 @@ public interface ClubService {
 	 */
 
 	void updatePrivacy(Long userId, Long clubId, Boolean isPublic);
+
+	/**
+	 * 설명: 클럽의 가입 방식을 변경하는 메서드
+	 *
+	 * @param userId   클럽 가입 방식을 변경하려는 사용자의 ID (권한 검증에 사용)
+	 * @param clubId   가입 방식이 변경될 클럽의 ID
+	 * @param joinType 변경할 새로운 가입 방식 (JoinType enum)
+	 * @throws BusinessException 권한이 없거나 클럽 상태가 유효하지 않을 경우 발생할 수 있음
+	 * @author sinyoung0403
+	 */
+
+	void updateJoinType(Long userId, Long clubId, JoinType joinType);
 }

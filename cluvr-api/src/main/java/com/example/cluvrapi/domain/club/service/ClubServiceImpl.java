@@ -277,6 +277,28 @@ public class ClubServiceImpl implements ClubService {
 		findClub.updatePrivacy(isPublic);
 	}
 
+	@Override
+	@Transactional
+	public void updateJoinType(Long userId, Long clubId, JoinType joinType) {
+		// 1) 클럽 조회
+		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
+
+		// 2) 비공개일 경우 JoinType 변경 불가
+		if (!findClub.getIsPublic()) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비공개 클럽인 경우 JoinType 변경이 불가합니다.");
+		}
+
+		// 3) 클럽 맴버 조회 및 권한 검증
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
+		);
+
+		validateOwnerRole(findClubMember.getClubMemberRole());
+
+		// 4) 수정
+		findClub.updateJoinType(joinType);
+	}
+
 	/**
 	 * 설명: 클럽 생성 시 공개 여부와 가입 방식이 유효한 조합인지 검증
 	 *

@@ -236,4 +236,14 @@ public class ClubController {
 		clubService.updatePrivacy(authUser.id(), clubId, isPublic);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
+
+	@PatchMapping("/{clubId}/join-type")
+	public ResponseEntity<BaseResponse<Void>> updateJoinType(
+		@Auth AuthUser authUser,
+		@PathVariable("clubId") Long clubId,
+		@RequestParam @NotNull(message = "가입 방식은 필수입니다.") JoinType joinType
+	) {
+		clubService.updateJoinType(authUser.id(), clubId, joinType);
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
+	}
 }
