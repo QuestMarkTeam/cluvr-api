@@ -19,6 +19,14 @@ import com.example.cluvrapi.domain.club.enums.ClubType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+/**
+ * ClubRepositoryQuery 인터페이스를 구현한 클래스입니다.
+ *
+ * <p> QueryDSL 을 활용하여 클럽 단건 조회 및 클럽 리스트 조회 (페이징 포함) 기능을 제공합니다.
+ *
+ * @author sinyoung0403
+ */
+
 @RequiredArgsConstructor
 public class ClubRepositoryImpl implements ClubRepositoryCustom {
 

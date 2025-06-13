@@ -36,7 +36,11 @@ import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
-import lombok.RequiredArgsConstructor;
+/**
+ * 클럽 관련 비즈니스 로직을 구현하는 서비스 클래스입니다.
+ *
+ * @author sinyoung0403
+ */
 
 @Service
 @RequiredArgsConstructor
@@ -57,8 +61,10 @@ public class ClubServiceImpl implements ClubService {
 	@Override
 	@Transactional
 	public CreateClubResponseDto createClub(Long userId, CreateClubRequestDto createClubRequestDto) {
+		// 1) 클럽 조회
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 
+		// 2) 클럽 Entity 생성 및 저장
 		Club newClub = new Club(
 			createClubRequestDto.getName(),
 			createClubRequestDto.getClubType(),
@@ -74,21 +80,24 @@ public class ClubServiceImpl implements ClubService {
 
 		clubRepository.save(newClub);
 
+		// 3) Category Entity 생성 및 저장
 		Category newCategory = new Category(
 			newClub.getId(),
 			createClubRequestDto.getCategoryDetail(),
 			CategoryTargetType.CLUB
 		);
 
+		categoryRepository.save(newCategory);
+
+		// 4) 클럽 맴버 Entity 생성 및 저장
 		ClubMember ownerMember = new ClubMember(
 			newClub,
 			findUser,
 			ClubMemberRole.OWNER,
 			ClubMemberStatus.ACTIVE
 		);
-		clubMemberRepository.save(ownerMember);
 
-		categoryRepository.save(newCategory);
+		clubMemberRepository.save(ownerMember);
 
 		return CreateClubResponseDto.from(newClub.getId());
 	}
