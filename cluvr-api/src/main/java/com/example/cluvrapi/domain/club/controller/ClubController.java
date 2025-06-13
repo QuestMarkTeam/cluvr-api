@@ -226,6 +226,7 @@ public class ClubController {
 	 * @param clubId   변경할 대상 클럽의 ID
 	 * @param isPublic 변경할 공개 여부 (true: 공개, false: 비공개)
 	 * @return 성공 응답 반환 (본문 없음, 상태 코드 204 NO_CONTENT)
+	 * @author sinyoung0403
 	 */
 
 	@PatchMapping("/{clubId}/privacy")
@@ -237,6 +238,19 @@ public class ClubController {
 		clubService.updatePrivacy(authUser.id(), clubId, isPublic);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
+
+	/**
+	 * 설명: 클럽의 가입 방식을 수정하는 API 입니다.
+	 *
+	 * <p> 해당 API 는 클럽장이 클럽의 현재 가입 방식을 변경할 수 있도록 합니다.
+	 * 공개 클럽일 경우 SIMPLE_REQUEST, 비공개 클럽일 경우 INVITE_CODE 등의 방식으로 설정할 수 있습니다.
+	 *
+	 * @param authUser 인증된 사용자 정보
+	 * @param clubId   가입 방식을 변경할 대상 클럽의 ID
+	 * @param joinType 변경할 가입 방식
+	 * @return 204 No Content 응답을 포함한 성공 응답
+	 * @author sinyoung0403
+	 */
 
 	@PatchMapping("/{clubId}/join-type")
 	public ResponseEntity<BaseResponse<Void>> updateJoinType(
