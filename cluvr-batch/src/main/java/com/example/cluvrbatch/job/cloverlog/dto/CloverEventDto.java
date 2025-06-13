@@ -1,21 +1,25 @@
 package com.example.cluvrbatch.job.cloverlog.dto;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.time.LocalDateTime;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import com.example.cluvrbatch.job.cloverlog.enums.CloverActionType;
 
+@NoArgsConstructor(access = PROTECTED)
 @Getter
 public class CloverEventDto { // redis에 올릴 데이터
 
-	private final Long userId;
-	private final Integer amount;
-	private final LocalDateTime createdAt;
-	private final LocalDateTime deletedAt;
-	private final String description;
-	private final String action; // 어떤 활동으로 적립인지
-	private final CloverActionType flowType; // 사용인지 적립인지
+	private Long userId;
+	private Integer amount;
+	private LocalDateTime createdAt;
+	private LocalDateTime deletedAt;
+	private String description;
+	private String action; // 어떤 활동으로 적립인지
+	private CloverActionType flowType; // 사용인지 적립인지
 
 	public CloverEventDto(Integer amount, LocalDateTime createdAt, LocalDateTime deletedAt, String description,
 		Long userId, String action, CloverActionType flowType) {
@@ -29,10 +33,10 @@ public class CloverEventDto { // redis에 올릴 데이터
 	}
 
 	public static CloverEventDto of(Integer amount, LocalDateTime createdAt, LocalDateTime deletedAt,
-		String description,
-		Long userId, String action, CloverActionType flowType) {
+		String description, Long userId, String action, CloverActionType flowType) {
 		return new CloverEventDto(amount, createdAt, deletedAt, description, userId, action,
 			flowType);
 	}
 
 }
+
