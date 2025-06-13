@@ -62,7 +62,7 @@ public class ClubServiceImpl implements ClubService {
 	@Override
 	@Transactional
 	public CreateClubResponseDto createClub(Long userId, CreateClubRequestDto createClubRequestDto) {
-		// 1) 클럽 조회
+		// 1) 유저 조회
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 
 		// 2) 검증
@@ -74,7 +74,7 @@ public class ClubServiceImpl implements ClubService {
 
 		validateCreateClubRequest(createClubRequestDto.getIsPublic(), createClubRequestDto.getJoinType());
 
-		// 2) 클럽 Entity 생성 및 저장
+		// 3) 클럽 Entity 생성 및 저장
 		Club newClub = new Club(
 			createClubRequestDto.getName(),
 			createClubRequestDto.getClubType(),
@@ -89,7 +89,7 @@ public class ClubServiceImpl implements ClubService {
 
 		clubRepository.save(newClub);
 
-		// 3) Category Entity 생성 및 저장
+		// 4) Category Entity 생성 및 저장
 		Category newCategory = new Category(
 			newClub.getId(),
 			createClubRequestDto.getCategoryDetail(),
@@ -98,7 +98,7 @@ public class ClubServiceImpl implements ClubService {
 
 		categoryRepository.save(newCategory);
 
-		// 4) 클럽 맴버 Entity 생성 및 저장
+		// 5) 클럽 맴버 Entity 생성 및 저장
 		ClubMember ownerMember = new ClubMember(
 			newClub,
 			findUser,
@@ -108,6 +108,7 @@ public class ClubServiceImpl implements ClubService {
 
 		clubMemberRepository.save(ownerMember);
 
+		// 6) DTO 변환
 		return CreateClubResponseDto.from(newClub.getId());
 	}
 
@@ -301,6 +302,7 @@ public class ClubServiceImpl implements ClubService {
 		validateOwnerRole(findClubMember.getClubMemberRole());
 
 		// 3) 가입방식 유효한지 검증
+		validateCreateClubRequest(findClub.getIsPublic(), joinType);
 
 		// 4) 수정
 		findClub.updateJoinType(joinType);
@@ -316,6 +318,10 @@ public class ClubServiceImpl implements ClubService {
 	 */
 
 	public void validateCreateClubRequest(Boolean isPublic, JoinType joinType) {
+		if (isPublic == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "공개 여부는 필수 값입니다.");
+		}
+
 		if (!isPublic && joinType != JoinType.INVITE_CODE) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비공개 클럽은 초대코드 가입 방식만 가능합니다.");
 		}
