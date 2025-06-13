@@ -1,11 +1,6 @@
 package com.example.cluvrapi.domain.user.controller;
 
-import jakarta.validation.Valid;
-
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,9 +17,11 @@ import com.example.cluvrapi.domain.user.dto.response.GetUserGemResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
 import com.example.cluvrapi.domain.user.dto.response.GetUserOtherResponseDto;
 import com.example.cluvrapi.domain.user.service.UserService;
-import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/users")
@@ -55,10 +52,10 @@ public class UserController {
 
 	@GetMapping("/me/gem")
 	public ResponseEntity<BaseResponse<GetUserGemResponseDto>> getMyGem(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-		Long userId = customUserDetails.getId();
-		GetUserGemResponseDto responseDto = userService.getUserGem(userId);
-		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.OK));
+		@Auth AuthUser authUser) {
+		GetUserGemResponseDto dto = userService.getUserGem(authUser.id());
+		return ResponseEntity
+			.ok(BaseResponse.success(dto, ResponseCode.OK));
 
 	}
 
@@ -77,7 +74,7 @@ public class UserController {
 		// 로그인된 유저의 ID로만 탈퇴 처리
 		userService.deleteMyProfile(authUser.id());
 		return ResponseEntity
-			.ok(BaseResponse.success(null, ResponseCode.OK));
+			.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 }

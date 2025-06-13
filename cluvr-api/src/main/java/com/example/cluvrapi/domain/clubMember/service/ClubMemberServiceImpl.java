@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
 import com.example.cluvrapi.domain.clubMember.dto.response.ClubMemberInfoResponseDto;
+import com.example.cluvrapi.domain.clubMember.dto.response.GetMemberRoleResponseDto;
 import com.example.cluvrapi.domain.clubMember.entity.ClubMember;
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberStatus;
@@ -166,6 +167,28 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 
 		return page.map(cm -> new ClubMemberInfoResponseDto(cm.getId(), cm.getUser().getId(), cm.getUser().getName(),
 			cm.getClubMemberRole()));
+	}
+
+	@Override
+	public GetMemberRoleResponseDto getMemberRole(Long clubId, Long targetUserId, AuthUser requester) {
+		Club club = clubRepository.findByIdOrElseThrow(clubId);
+
+		boolean isActive = clubMemberRepository.findByClubIdAndUserId(clubId, requester.id())
+			.filter(cm -> cm.getClubMemberStatus() == ClubMemberStatus.ACTIVE)
+			.isPresent();
+		if (!isActive) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "클럽의 ACTIVE 멤버만 조회할 수 있습니다.");
+		}
+
+		ClubMember target = clubMemberRepository.findByClubIdAndUserId(clubId, targetUserId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND, "대상 멤버를 찾을 수 없습니다."));
+
+		return new GetMemberRoleResponseDto(
+			club.getId(),
+			club.getName(),
+			targetUserId,
+			target.getClubMemberRole()
+		);
 	}
 
 }

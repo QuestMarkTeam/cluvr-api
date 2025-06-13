@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.cluvrapi.domain.clubMember.dto.request.ChangeMemberRoleRequestDto;
 import com.example.cluvrapi.domain.clubMember.dto.request.HandleJoinStatusRequestDto;
 import com.example.cluvrapi.domain.clubMember.dto.response.ClubMemberInfoResponseDto;
+import com.example.cluvrapi.domain.clubMember.dto.response.GetMemberRoleResponseDto;
 import com.example.cluvrapi.domain.clubMember.service.ClubMemberService;
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
@@ -90,6 +91,17 @@ public class ClubMemberController {
 		Page<ClubMemberInfoResponseDto> page = clubMemberService.listMembers(clubId, authUser, pageable);
 		return ResponseEntity
 			.ok(BaseResponse.success(page, ResponseCode.OK));
+	}
+
+	@GetMapping("/members/{userId}/role")
+	public ResponseEntity<BaseResponse<GetMemberRoleResponseDto>> getMemberRole(
+		@PathVariable Long clubId,
+		@PathVariable("userId") Long targetUserId,
+		@Auth AuthUser authUser
+	) {
+		GetMemberRoleResponseDto dto = clubMemberService.getMemberRole(clubId, targetUserId, authUser);
+		return ResponseEntity
+			.ok(BaseResponse.success(dto, ResponseCode.OK));
 	}
 
 }
