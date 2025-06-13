@@ -31,6 +31,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 	private final ClubMemberRepository clubMemberRepository;
 	private final ClubRepository clubRepository;
 
+	@Transactional
 	@Override
 	public void handleJoinRequest(Long clubId, Long joinRequestId, JoinStatus status, AuthUser approver) {
 		JoinRequest jr = joinRequestRepository
