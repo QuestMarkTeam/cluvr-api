@@ -98,7 +98,7 @@ public class SubmissionFormServiceImpl implements SubmissionFormService {
 
 		// 3) 즉시 가입 방식으로 변경
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
-		findClub.changeJoinTypeToSimpleRequest();
+		findClub.updateJoinType(JoinType.DIRECT_JOIN);
 	}
 
 }
