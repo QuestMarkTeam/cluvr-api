@@ -19,7 +19,6 @@ import com.example.chat.dto.request.JoinRequestDto;
 import com.example.chat.dto.response.ChatRoomResponseDto;
 import com.example.chat.entity.ChatLog;
 import com.example.chat.entity.ChatRoomUser;
-import com.example.chat.enums.ClubRole;
 import com.example.chat.service.ChatService;
 import com.example.global.response.response.BaseResponse;
 import com.example.global.response.response.ResponseCode;
@@ -92,10 +91,6 @@ public class ChatController {
 	public ResponseEntity<BaseResponse<Void>> createChatRoom(
 		@RequestBody CreateChatRoomRequestDto request) {
 		log.info("방 생성 요청: {}", request);
-		if (request.getRole()
-			== ClubRole.MEMBER) { // 외부 API지만 같은 회사내 다른 서버 API를 호출하는거임. 나중에 지정한 경로에서만 접속 가능하도록 WebConfig, SocketConfig 변경 필요
-			return ResponseEntity.ok(BaseResponse.error(ResponseCode.ACCESS_DENIED, "권한이 없습니다. 관리자에게 문의하세요."));
-		}
 		chatService.createChatRoom(request);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.CREATED));
 	}
