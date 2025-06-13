@@ -75,36 +75,22 @@ public class ClubServiceImpl implements ClubService {
 		validateCreateClubRequest(createClubRequestDto.getIsPublic(), createClubRequestDto.getJoinType());
 
 		// 3) 클럽 Entity 생성 및 저장
-		Club newClub = new Club(
-			createClubRequestDto.getName(),
-			createClubRequestDto.getClubType(),
-			createClubRequestDto.getMaxMemberCount(),
-			createClubRequestDto.getMinCloverRequirement(),
-			createClubRequestDto.getGreeting(),
-			createClubRequestDto.getDescription(),
-			createClubRequestDto.getPosterUrl(),
-			createClubRequestDto.getIsPublic(),
-			createClubRequestDto.getJoinType()
-		);
+		Club newClub = new Club(createClubRequestDto.getName(), createClubRequestDto.getClubType(),
+			createClubRequestDto.getMaxMemberCount(), createClubRequestDto.getMinCloverRequirement(),
+			createClubRequestDto.getGreeting(), createClubRequestDto.getDescription(),
+			createClubRequestDto.getPosterUrl(), createClubRequestDto.getIsPublic(),
+			createClubRequestDto.getJoinType());
 
 		clubRepository.save(newClub);
 
 		// 4) Category Entity 생성 및 저장
-		Category newCategory = new Category(
-			newClub.getId(),
-			createClubRequestDto.getCategoryDetail(),
-			CategoryTargetType.CLUB
-		);
+		Category newCategory = new Category(newClub.getId(), createClubRequestDto.getCategoryDetail(),
+			CategoryTargetType.CLUB);
 
 		categoryRepository.save(newCategory);
 
 		// 5) 클럽 맴버 Entity 생성 및 저장
-		ClubMember ownerMember = new ClubMember(
-			newClub,
-			findUser,
-			ClubMemberRole.OWNER,
-			ClubMemberStatus.ACTIVE
-		);
+		ClubMember ownerMember = new ClubMember(newClub, findUser, ClubMemberRole.OWNER, ClubMemberStatus.ACTIVE);
 
 		clubMemberRepository.save(ownerMember);
 
@@ -131,9 +117,8 @@ public class ClubServiceImpl implements ClubService {
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
 		// 2) 클럽 맴버 조회 및 권한 검증
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
-		);
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다."));
 
 		validateOwnerRole(findClubMember.getClubMemberRole());
 
@@ -162,9 +147,8 @@ public class ClubServiceImpl implements ClubService {
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
 		// 2) 클럽 맴버 조회 및 권한 검증
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
-		);
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다."));
 
 		validateOwnerRole(findClubMember.getClubMemberRole());
 
@@ -178,9 +162,8 @@ public class ClubServiceImpl implements ClubService {
 		// 1) 클럽 조회
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
-		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
-		);
+		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다."));
 
 		// 2) 로그인한 유저와 조회한 클럽의 마스터가 일치하는지 검증
 		validateOwnerRole(clubMember.getClubMemberRole());
@@ -207,17 +190,15 @@ public class ClubServiceImpl implements ClubService {
 		// 1) 클럽 조회
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
-		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
-		);
+		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다."));
 
 		// 2) 로그인한 유저와 조회한 클럽의 마스터가 일치하는지 검증
 		validateOwnerRole(clubMember.getClubMemberRole());
 
 		// 3) 인원 검증
 		if (findClub.getMaxMemberCount() < FREE_LIMIT) {
-			throw new BusinessException(
-				ResponseCode.INVALID_REQUEST,
+			throw new BusinessException(ResponseCode.INVALID_REQUEST,
 				"최대 20명까지는 무료로 확장할 수 있습니다. 이후 인원 추가를 원하시면 잼(Gem)을 사용해 확장해 주세요.");
 		}
 
@@ -231,9 +212,8 @@ public class ClubServiceImpl implements ClubService {
 		// 1) 클럽 조회 및 권한 검증
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
-		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
-		);
+		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다."));
 
 		// 2) 로그인한 유저와 조회한 클럽의 마스터가 일치하는지 검증
 		validateOwnerRole(clubMember.getClubMemberRole());
@@ -277,15 +257,14 @@ public class ClubServiceImpl implements ClubService {
 		}
 
 		// 3) 클럽 맴버 조회 및 권한 검증
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
-		);
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다."));
 
 		validateOwnerRole(findClubMember.getClubMemberRole());
 
 		// 4) JoinType 과 isPublic 수정
-		findClub.updateJoinType(isPublic ? JoinType.SIMPLE_REQUEST : JoinType.INVITE_CODE);
 		findClub.updatePrivacy(isPublic);
+		findClub.updateJoinType(isPublic ? JoinType.SIMPLE_REQUEST : JoinType.INVITE_CODE);
 	}
 
 	@Override
@@ -295,9 +274,8 @@ public class ClubServiceImpl implements ClubService {
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
 		// 2) 클럽 맴버 조회 및 권한 검증
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
-		);
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다."));
 
 		validateOwnerRole(findClubMember.getClubMemberRole());
 
@@ -320,6 +298,10 @@ public class ClubServiceImpl implements ClubService {
 	public void validateCreateClubRequest(Boolean isPublic, JoinType joinType) {
 		if (isPublic == null) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "공개 여부는 필수 값입니다.");
+		}
+
+		if (joinType == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "가입 방식은 필수 값입니다.");
 		}
 
 		if (!isPublic && joinType != JoinType.INVITE_CODE) {
