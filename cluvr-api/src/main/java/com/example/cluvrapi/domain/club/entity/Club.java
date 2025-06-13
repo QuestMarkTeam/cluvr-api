@@ -19,6 +19,8 @@ import org.hibernate.annotations.Where;
 import com.example.cluvrapi.domain.club.enums.ClubType;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
+import com.example.cluvrapi.global.exception.BusinessException;
+import com.example.cluvrapi.global.response.ResponseCode;
 
 /**
  * 클럽 도메인 엔티티입니다.
@@ -197,11 +199,11 @@ public class Club extends BaseTimeEntity {
 
 	public void upgradeMemberCount(int increment) {
 		if (increment <= 0) {
-			throw new IllegalArgumentException("추가 인원은 1명 이상이어야 합니다.");
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "추가 인원은 1명 이상이어야 합니다.");
 		}
 
 		if (this.maxMemberCount + increment > MAX_MEMBER_LIMIT) {
-			throw new IllegalStateException("최대 50명을 초과할 수 없습니다.");
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "최대 50명을 초과할 수 없습니다.");
 		}
 
 		this.maxMemberCount += increment;
@@ -216,7 +218,7 @@ public class Club extends BaseTimeEntity {
 
 	public void updateJoinType(JoinType joinType) {
 		if (joinType == null) {
-			throw new IllegalArgumentException("isPublic 은 null 일 수 없습니다.");
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "joinType 은 null 일 수 없습니다.");
 		}
 
 		this.joinType = joinType;
@@ -231,7 +233,7 @@ public class Club extends BaseTimeEntity {
 
 	public void updatePrivacy(Boolean isPublic) {
 		if (isPublic == null) {
-			throw new IllegalArgumentException("isPublic 은 null 일 수 없습니다.");
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "isPublic 은 null 일 수 없습니다.");
 		}
 
 		this.isPublic = isPublic;
