@@ -9,13 +9,13 @@ import com.example.cluvrapi.domain.clover.enums.CloverActionType;
 @Getter
 public class CloverEventDto { // redis에 올릴 데이터
 
-	private final Long userId;
-	private final Integer amount;
-	private final LocalDateTime createdAt;
-	private final LocalDateTime deletedAt;
-	private final String description;
-	private final String action; // 어떤 활동으로 적립인지
-	private final CloverActionType flowType; // 사용인지 적립인지
+	private Long userId;
+	private Integer amount;
+	private LocalDateTime createdAt;
+	private LocalDateTime deletedAt;
+	private String description;
+	private String action; // 어떤 활동으로 적립인지
+	private CloverActionType flowType; // 사용인지 적립인지
 
 	public CloverEventDto(Integer amount, LocalDateTime createdAt, LocalDateTime deletedAt, String description,
 		Long userId, String action, CloverActionType flowType) {
