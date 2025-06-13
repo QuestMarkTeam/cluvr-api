@@ -50,10 +50,9 @@ public class GemLog {
 	@Column(name = "action_type", nullable = false)
 	private GemActionType actionType;
 
-	public GemLog(Long id, User user, String description, Integer amount, LocalDateTime createdAt,
+	public GemLog(User user, String description, Integer amount, LocalDateTime createdAt,
 		LocalDateTime deletedAt,
 		GemActionType actionType) {
-		this.id = id;
 		this.user = user;
 		this.description = description;
 		this.amount = amount;
