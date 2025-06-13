@@ -1,5 +1,6 @@
 package com.example.cluvrapi.domain.user.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -71,10 +72,10 @@ public class UserController {
 
 	@DeleteMapping("/me")
 	public ResponseEntity<BaseResponse<Void>> deleteMyProfile(@Auth AuthUser authUser) {
-		// 로그인된 유저의 ID로만 탈퇴 처리
 		userService.deleteMyProfile(authUser.id());
 		return ResponseEntity
-			.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
+			.status(HttpStatus.NO_CONTENT)
+			.body(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 }
