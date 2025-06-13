@@ -36,7 +36,11 @@ public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 
 	@Override
 	public boolean existsByClubName(String name) {
-		return jpaQueryFactory.selectOne().from(club).where(club.name.eq(club.name)).fetchFirst() != null;
+		return jpaQueryFactory
+			.selectOne()
+			.from(club)
+			.where(club.name.eq(name))
+			.fetchFirst() != null;
 	}
 
 	@Override
