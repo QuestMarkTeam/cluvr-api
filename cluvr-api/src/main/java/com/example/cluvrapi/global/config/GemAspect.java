@@ -1,6 +1,7 @@
 package com.example.cluvrapi.global.config;
 
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,15 +13,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.example.cluvrapi.domain.gem.enums.GemType;
+import com.example.cluvrapi.domain.gem.enums.GemActionType;
+import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
+import com.example.cluvrapi.domain.gem.service.GemEvent;
 import com.example.cluvrapi.domain.gem.service.GemService;
 import com.example.cluvrapi.global.annotation.EarnGem;
 import com.example.cluvrapi.global.jwt.CustomUserDetails;
-import com.example.cluvrapi.global.listener.dto.GemLogDto;
-import com.example.cluvrapi.global.listener.dto.UserEventDto;
-import com.example.cluvrapi.global.listener.enums.RedisKey;
-import com.example.cluvrapi.global.listener.enums.UserEventType;
 
 @Aspect
 @RequiredArgsConstructor
@@ -30,6 +30,7 @@ public class GemAspect {
 	private final GemService gemService; // 내부에서 트랜잭션 공유 가능하도록
 	private final ApplicationEventPublisher publisher; // 이벤트 발행
 
+	@Transactional
 	@Around("@annotation(com.example.cluvrapi.global.annotation.EarnGem)")
 	public Object afterSuccess(ProceedingJoinPoint pjp) throws Throwable {
 
@@ -39,7 +40,13 @@ public class GemAspect {
 		MethodSignature signature = (MethodSignature)pjp.getSignature();
 		Method method = signature.getMethod();
 		EarnGem earnGem = method.getAnnotation(EarnGem.class);
-		GemType gemType = earnGem.value();
+		GemUserActivityType gemUserActivityType = earnGem.value();
+		GemActionType flowType = gemUserActivityType.getFlowType();
+
+		Integer gem = flowType.apply(gemUserActivityType.getAmount()); // 음수,양수 바꿈
+
+		LocalDateTime createdTime = flowType.getEventDate();
+		LocalDateTime deletedTime = flowType.getDeleteDate();
 
 		// 시큐리티에 인증된 유저 정보
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -48,19 +55,10 @@ public class GemAspect {
 			Object principal = auth.getPrincipal();
 			if (principal instanceof CustomUserDetails userDetails) {
 				Long userId = userDetails.getUser().getId();
-				gemService.earnGems(userId, gemType);
-				publisher.publishEvent(new UserEventDto<>(
-						userId,
-						RedisKey.GEM_LOG,
-						UserEventType.GEM,
-						GemLogDto.of(
-							userId,
-							gemType.getAmount(),
-							gemType.getDescription(),
-							gemType.name(),
-							gemType.getFlowType()
-						)
-					)
+				gemService.earnGems(userId, gemUserActivityType);
+				publisher.publishEvent(
+					GemEvent.createEvent(userId, gem, gemUserActivityType.getDescription(), createdTime, deletedTime,
+						gemUserActivityType.getFlowType(), gemUserActivityType.name())
 				);
 			}
 		}

@@ -1,8 +1,8 @@
 package com.example.cluvrapi.domain.clover.service;
 
-import com.example.cluvrapi.domain.clover.dto.FindCloverResponseDto;
 import com.example.cluvrapi.domain.clover.dto.request.CreateCloverRequestDto;
 import com.example.cluvrapi.domain.clover.dto.request.UpdateCloverRequestDto;
+import com.example.cluvrapi.domain.clover.dto.response.FindCloverResponseDto;
 
 public interface CloverService extends CloverLogService {
 	/**
@@ -28,5 +28,5 @@ public interface CloverService extends CloverLogService {
 
 	public void createClover(CreateCloverRequestDto requestDto);
 
-	public void updateClover(Long cloverId, UpdateCloverRequestDto requestDto);
+	public void updateClover(UpdateCloverRequestDto requestDto);
 }

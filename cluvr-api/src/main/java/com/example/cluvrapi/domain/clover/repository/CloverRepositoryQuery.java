@@ -2,8 +2,8 @@ package com.example.cluvrapi.domain.clover.repository;
 
 import java.util.List;
 
-import com.example.cluvrapi.domain.clover.dto.FindCloverLogResponseDto;
-import com.example.cluvrapi.domain.clover.dto.FindCloverResponseDto;
+import com.example.cluvrapi.domain.clover.dto.response.FindCloverLogResponseDto;
+import com.example.cluvrapi.domain.clover.dto.response.FindCloverResponseDto;
 
 public interface CloverRepositoryQuery {
 	/**

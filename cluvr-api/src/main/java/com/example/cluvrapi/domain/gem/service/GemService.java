@@ -2,7 +2,7 @@ package com.example.cluvrapi.domain.gem.service;
 
 import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
 import com.example.cluvrapi.domain.gem.dto.response.UpdateGemResponseDto;
-import com.example.cluvrapi.domain.gem.enums.GemType;
+import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 
 public interface GemService extends GemLogService {
 	/**
@@ -39,10 +39,10 @@ public interface GemService extends GemLogService {
 	 * <p>{추가적인 설명이 필요하다면 여기에 작성합니다.}
 	 *
 	 * @param userId 유저 식별자
-	 * @param gemType 포인트 적립 amount
+	 * @param gemUserActivityType 포인트 적립 amount
 	 *
 	 * @author 나원준
 	 */
 
-	void earnGems(Long userId, GemType gemType);
+	void earnGems(Long userId, GemUserActivityType gemUserActivityType);
 }

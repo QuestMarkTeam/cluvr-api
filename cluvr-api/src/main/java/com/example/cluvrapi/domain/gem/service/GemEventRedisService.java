@@ -1,4 +1,4 @@
-package com.example.cluvrapi.global.listener.service;
+package com.example.cluvrapi.domain.gem.service;
 
 import java.time.Duration;
 
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Service
 @RequiredArgsConstructor
-public class UserEventRedisService {
+public class GemEventRedisService {
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final ObjectMapper objectMapper;
 

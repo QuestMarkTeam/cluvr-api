@@ -1,4 +1,4 @@
-package com.example.cluvrapi.global.listener.enums;
+package com.example.cluvrapi.global.event.enums;
 
 import lombok.Getter;
 
@@ -9,6 +9,8 @@ public enum RedisKey {
 	GEM_LOG("user:gem:log:userId:"),
 	CLOVER_LOG("user:clover:log:userId:"),
 	BOARD_ACTIVITY_LOG("user:board:activity:log:userId:"),
+	// gem 적립 이벤트 제한 키
+	GEM_GET_LIMIT("gem:earn:count:userId:"),
 
 	// HASH 메인 키
 	USER_ACTIVITY_COUNT("user:activity:count:userId:"), // ex) user:gem:count:userId

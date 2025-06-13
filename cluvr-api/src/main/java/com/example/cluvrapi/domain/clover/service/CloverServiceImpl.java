@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.cluvrapi.domain.clover.dto.FindCloverLogResponseDto;
-import com.example.cluvrapi.domain.clover.dto.FindCloverResponseDto;
 import com.example.cluvrapi.domain.clover.dto.request.CreateCloverLogRequestDto;
 import com.example.cluvrapi.domain.clover.dto.request.CreateCloverRequestDto;
 import com.example.cluvrapi.domain.clover.dto.request.UpdateCloverRequestDto;
+import com.example.cluvrapi.domain.clover.dto.response.FindCloverLogResponseDto;
+import com.example.cluvrapi.domain.clover.dto.response.FindCloverResponseDto;
 import com.example.cluvrapi.domain.clover.entity.Clover;
 import com.example.cluvrapi.domain.clover.entity.CloverLog;
 import com.example.cluvrapi.domain.clover.repository.CloverLogRepository;
@@ -55,11 +55,11 @@ public class CloverServiceImpl implements CloverService {
 
 	@Transactional
 	@Override
-	public void updateClover(Long cloverId, UpdateCloverRequestDto requestDto) {
-		Clover clover = cloverRepository.findByIdOrElseThrow(cloverId);
+	public void updateClover(UpdateCloverRequestDto requestDto) {
+		Clover clover = cloverRepository.findByUserIdOrElseThrow(requestDto.getUserId());
 		clover.updateScore(requestDto.getScore());
 
-		Long receiverId = requestDto.getUser().getId();  // 랭크 → 유저
+		Long receiverId = requestDto.getUserId();  // 랭크 → 유저
 		String content = String.format("랭크 점수가 %d점으로 갱신되었습니다.", requestDto.getScore());
 
 		NotificationEvent event = NotificationEvent.from(
@@ -73,8 +73,8 @@ public class CloverServiceImpl implements CloverService {
 		notificationProducer.send(event);
 	}
 
-	@Override
 	@Transactional(readOnly = true)
+	@Override
 	public List<FindCloverLogResponseDto> findCloverLogByUserId(Long userId) {
 		return cloverRepository.findCloverLogByUserId(userId);
 	}
@@ -83,7 +83,7 @@ public class CloverServiceImpl implements CloverService {
 	public void createCloverLog(CreateCloverLogRequestDto requestDto) {
 		User user = userRepository.findByIdOrElseThrow(requestDto.getUserId());
 		CloverLog cloverLog = new CloverLog(user, requestDto.getDescription(), requestDto.getAmount(),
-			requestDto.getCreatedAt(), requestDto.getDeletedAt());
+			requestDto.getCreatedAt(), requestDto.getDeletedAt(), requestDto.getActionType());
 		cloverLogRepository.save(cloverLog);
 
 	}
