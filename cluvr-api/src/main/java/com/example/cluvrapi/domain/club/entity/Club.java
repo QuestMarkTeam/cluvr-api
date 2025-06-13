@@ -120,7 +120,7 @@ public class Club extends BaseTimeEntity {
 	 * 삭제 여부
 	 */
 
-	@Column(nullable = false)
+	@Column(name = "is_deleted", nullable = false)
 	private Boolean isDeleted = false;
 
 	/**
@@ -170,6 +170,7 @@ public class Club extends BaseTimeEntity {
 	 * @param greeting 소개말
 	 * @author sinyoung0403
 	 */
+
 	public void updateGreeting(String greeting) {
 		this.greeting = greeting;
 	}
@@ -180,6 +181,7 @@ public class Club extends BaseTimeEntity {
 	 * @param description 자세한 설명
 	 * @author sinyoung0403
 	 */
+
 	public void updateDescription(String description) {
 		this.description = description;
 	}
@@ -192,6 +194,7 @@ public class Club extends BaseTimeEntity {
 	 * @param increment 증가되는 인원수
 	 * @author sinyoung0403
 	 */
+
 	public void upgradeMemberCount(int increment) {
 		if (increment <= 0) {
 			throw new IllegalArgumentException("추가 인원은 1명 이상이어야 합니다.");
@@ -212,6 +215,10 @@ public class Club extends BaseTimeEntity {
 	 */
 
 	public void updateJoinType(JoinType joinType) {
+		if (joinType == null) {
+			throw new IllegalArgumentException("isPublic 은 null 일 수 없습니다.");
+		}
+
 		this.joinType = joinType;
 	}
 
@@ -223,6 +230,10 @@ public class Club extends BaseTimeEntity {
 	 */
 
 	public void updatePrivacy(Boolean isPublic) {
+		if (isPublic == null) {
+			throw new IllegalArgumentException("isPublic 은 null 일 수 없습니다.");
+		}
+
 		this.isPublic = isPublic;
 	}
 }

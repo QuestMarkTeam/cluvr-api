@@ -132,7 +132,8 @@ public class ClubServiceImpl implements ClubService {
 
 		validateOwnerRole(findClubMember.getClubMemberRole());
 
-		if (clubRepository.existsByClubName(updateClubRequestDto.getName())) {
+		if (!updateClubRequestDto.getName().equals(findClub.getName()) &&
+			clubRepository.existsByClubName(updateClubRequestDto.getName())) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 존재하는 클럽명입니다.");
 		}
 

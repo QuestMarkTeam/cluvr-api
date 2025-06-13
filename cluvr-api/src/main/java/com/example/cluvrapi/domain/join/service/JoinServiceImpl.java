@@ -93,13 +93,16 @@ public class JoinServiceImpl implements JoinService {
 
 		// 6) 클럽장에게 알림 전송
 		ClubMember clubOwner = clubMemberRepository.findOwnerByClub(findClub).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST)
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "클럽장의 정보를 찾을 수 없습니다.")
 		);
-		if (!clubOwner.getId().equals(findUser.getId())) { // 자기 자신이 아닌 경우에만
+
+		Long ownerUserId = clubOwner.getUser().getId();
+
+		if (!ownerUserId.equals(findUser.getId())) { // 자기 자신이 아닌 경우에만
 			String content = String.format("'%s'님이 '%s' 클럽에 가입 신청을 했습니다.", findUser.getName(), findClub.getName());
 
 			NotificationEvent event = NotificationEvent.from(
-				clubOwner.getId(),                 // 클럽장에게
+				ownerUserId,                 // 클럽장에게
 				NotificationType.JOIN_REQUEST,
 				content,
 				NotiTargetType.CLUB,

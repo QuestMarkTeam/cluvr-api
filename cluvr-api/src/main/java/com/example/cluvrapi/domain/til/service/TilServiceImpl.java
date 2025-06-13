@@ -58,11 +58,13 @@ public class TilServiceImpl implements TilService {
 		tilRepository.save(til);
 
 		// 4) 알림 전송
-		if (!clubMember.getId().equals(findUser.getId())) { // 자기 자신에게는 알림 안 보냄
+		Long ownerUserId = clubMember.getUser().getId();
+
+		if (!ownerUserId.equals(findUser.getId())) { // 자기 자신에게는 알림 안 보냄
 			String content = String.format("'%s'님이 클럽에 새로운 TIL을 작성했습니다.", findUser.getName());
 
 			NotificationEvent event = NotificationEvent.from(
-				clubMember.getId(),                     // 수신자: 클럽장
+				ownerUserId,                           // 수신자: 클럽장
 				NotificationType.TIL,                  // 알림 타입: TIL
 				content,
 				NotiTargetType.CLUB,                   // 대상 타입: CLUB
