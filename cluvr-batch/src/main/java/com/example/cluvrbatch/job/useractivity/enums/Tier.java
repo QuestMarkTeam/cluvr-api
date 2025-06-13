@@ -1,4 +1,4 @@
-package com.example.cluvrapi.domain.clover.enums;
+package com.example.cluvrbatch.job.useractivity.enums;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -26,8 +26,8 @@ public enum Tier {
 		this.requiredWriteBoard = requiredWriteBoard;
 		this.requiredWriteReply = requiredWriteReply;
 	}
-	
-	public Integer checkAndUpgrade(Integer revel, Integer clover, Integer boardCnt, Integer replyCnt) {
+
+	public static Tier checkAndUpgrade(Integer revel, Integer clover, Integer boardCnt, Integer replyCnt) {
 		return Arrays.stream(Tier.values())
 			.sorted(Comparator.comparingInt(Tier::getRevel).reversed()) // 높은 등급부터
 			.filter(tier -> tier.getRevel() <= revel)
@@ -35,7 +35,6 @@ public enum Tier {
 			.filter(tier -> tier.getRequiredWriteBoard() <= boardCnt)
 			.filter(tier -> tier.getRequiredWriteReply() <= replyCnt)
 			.findFirst()
-			.orElse(SPROUT)
-			.getRevel();
+			.orElse(SPROUT);
 	}
 }

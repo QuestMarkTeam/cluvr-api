@@ -1,4 +1,4 @@
-package com.example.cluvrbatch.job.gemlog;
+package com.example.cluvrbatch.job.useractivity;
 
 import lombok.RequiredArgsConstructor;
 
@@ -9,19 +9,19 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class GemLogScheduler {
+public class BoardStatScheduler {
 
 	private final JobLauncher jobLauncher;
-	private final GemJobService gemJobService;
-	private final Job gemLogJob;
+	private final Job boardLogJob;
+	private final BoardStatJobService boardStatJobService;
 
 	@Scheduled(cron = "0 0 3 * * *") // 매일 새벽 3시
-	public void runGemLogJob() {
+	public void runBoardStatJob() {
 		try {
-			gemJobService.runJob();
+			boardStatJobService.runJob();
 		} catch (Exception e) {
 			// 로깅 or 슬랙 알림
-			throw new IllegalStateException("runGemLogJob 실행 실패", e);
+			throw new IllegalStateException("runBoardStatJob 실행 실패", e);
 		}
 	}
 }

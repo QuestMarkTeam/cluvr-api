@@ -16,12 +16,12 @@ public class CloverLogScheduler {
 	private final CloverJobService cloverJobService;
 
 	@Scheduled(cron = "0 0 3 * * *") // 매일 새벽 3시
-	public void runPointLogJob() {
+	public void runCloverLogJob() {
 		try {
 			cloverJobService.runJob();
 		} catch (Exception e) {
 			// 로깅 or 슬랙 알림
-			throw new IllegalStateException("PointLogJob 실행 실패", e);
+			throw new IllegalStateException("runCloverLogJob 실행 실패", e);
 		}
 	}
 }
