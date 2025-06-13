@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import com.example.cluvrapi.domain.club.enums.ClubType;
 import com.example.cluvrapi.domain.club.enums.JoinType;
@@ -46,6 +47,7 @@ import com.example.cluvrapi.domain.user.entity.User;
 @Getter
 @Table(name = "clubs")
 @SQLDelete(sql = "UPDATE clubs SET is_deleted = true WHERE id = ?")
+@Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Club extends BaseTimeEntity {
 
@@ -63,7 +65,7 @@ public class Club extends BaseTimeEntity {
 	 * 클럽명
 	 */
 
-	@Column(nullable = false, length = 20)
+	@Column(unique = true, nullable = false, length = 20)
 	private String name;
 
 	/**

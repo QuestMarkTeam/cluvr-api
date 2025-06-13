@@ -33,6 +33,11 @@ public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
+	public boolean existsByClubName(String name) {
+		return jpaQueryFactory.selectOne().from(club).where(club.name.eq(club.name)).fetchFirst() != null;
+	}
+
+	@Override
 	public FindClubResponseDto findClubById(Long clubId) {
 		FindClubResponseDto content = jpaQueryFactory.select(
 				new QFindClubResponseDto(club.clubType, club.name, category.categoryType.stringValue(), club.greeting,
@@ -53,7 +58,7 @@ public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 			.from(club)
 			.leftJoin(category)
 			.on(category.targetType.eq(CategoryTargetType.CLUB).and(category.targetId.eq(club.id)))
-			.where(club.clubType.eq(clubType))
+			.where(club.clubType.eq(clubType), ClubQueryFilter.notDeleted())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -62,7 +67,7 @@ public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 			.from(club)
 			.leftJoin(category)
 			.on(category.targetType.eq(CategoryTargetType.CLUB).and(category.targetId.eq(club.id)))
-			.where(club.clubType.eq(clubType))
+			.where(club.clubType.eq(clubType), ClubQueryFilter.notDeleted())
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));

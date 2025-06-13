@@ -64,6 +64,10 @@ public class ClubServiceImpl implements ClubService {
 		// 1) 클럽 조회
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 
+		// 2) 검증
+		validateCreateClubRequest(createClubRequestDto.getIsPublic(), createClubRequestDto.getJoinType());
+		clubRepository.existsByClubName(createClubRequestDto.getName());
+
 		// 2) 클럽 Entity 생성 및 저장
 		Club newClub = new Club(
 			createClubRequestDto.getName(),
@@ -243,4 +247,13 @@ public class ClubServiceImpl implements ClubService {
 		findClub.updatePrivacy(isPublic);
 	}
 
+	public void validateCreateClubRequest(boolean isPublic, JoinType joinType) {
+		if (!isPublic && joinType != JoinType.INVITE_CODE) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비공개 클럽은 초대코드 가입 방식만 가능합니다.");
+		}
+
+		if (isPublic && joinType == JoinType.INVITE_CODE) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "공개 클럽은 초대코드 가입 방식을 선택할 수 없습니다.");
+		}
+	}
 }

@@ -18,6 +18,16 @@ import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 public interface ClubRepositoryQuery {
 
 	/**
+	 * 특정 클럽 이름이 이미 존재하는지 여부를 확인합니다.
+	 *
+	 * @param name 확인할 클럽 이름
+	 * @return 해당 이름을 가진 클럽이 존재하면 true, 아니면 false
+	 * @author sinyoung0403
+	 */
+
+	boolean existsByClubName(String name);
+
+	/**
 	 * 설명: 클럽 고유 ID로 클럽 상세 정보를 조회
 	 *
 	 * @param clubId 조회할 클럽의 고유 식별자
