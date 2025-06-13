@@ -288,7 +288,7 @@ public class ClubServiceImpl implements ClubService {
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
 		// 2) 비공개일 경우 JoinType 변경 불가
-		if (!findClub.getIsPublic()) {
+		if (!findClub.getIsPublic() && joinType == JoinType.INVITE_CODE) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비공개 클럽인 경우 JoinType 변경이 불가합니다.");
 		}
 
