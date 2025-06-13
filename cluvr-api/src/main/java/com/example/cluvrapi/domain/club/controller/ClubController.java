@@ -1,9 +1,5 @@
 package com.example.cluvrapi.domain.club.controller;
 
-import jakarta.validation.Valid;
-
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -33,6 +29,9 @@ import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/clubs")
 @RequiredArgsConstructor
@@ -42,10 +41,13 @@ public class ClubController {
 
 	@PostMapping
 	public ResponseEntity<BaseResponse<CreateClubResponseDto>> createClub(
-		// @Auth AuthUser authUser,
+		@Auth AuthUser authUser,
 		@Valid @RequestBody CreateClubRequestDto createClubRequestDto
 	) {
-		CreateClubResponseDto dto = clubService.createClub(1L, createClubRequestDto);
+		CreateClubResponseDto dto = clubService.createClub(
+			authUser.id(),
+			createClubRequestDto
+		);
 		return ResponseEntity.ok(BaseResponse.success(dto, ResponseCode.CREATED));
 	}
 
