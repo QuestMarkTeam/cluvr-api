@@ -35,9 +35,9 @@ public class CreateClubRequestDto {
 	@NotNull(message = "카테고리 타입은 필수값입니다.")
 	private CategoryType categoryDetail;
 
-	@Min(value = 0, message = "점수 제한은 0점 이상이어야 합니다.")
-	@Max(value = 10000, message = "점수 제한은 10,000점 이하여야 합니다.")
-	private int minScoreRequirement;
+	@Min(value = 0, message = "클로버 제한은 0점 이상이어야 합니다.")
+	@Max(value = 10000, message = "클로버 제한은 10,000점 이하여야 합니다.")
+	private int minCloverRequirement;
 
 	@Min(value = 2, message = "인원수는 2명 이상이어야 합니다.")
 	@Max(value = 10, message = "인원수는 10명 이하여야 합니다.")

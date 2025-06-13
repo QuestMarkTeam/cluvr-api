@@ -25,6 +25,7 @@ import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.enums.ClubType;
+import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
 import com.example.cluvrapi.domain.clubMember.entity.ClubMember;
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
@@ -50,8 +51,8 @@ public class ClubServiceImpl implements ClubService {
 	private final ClubRepository clubRepository;
 	private final CategoryRepository categoryRepository;
 	private final ClubRedisService clubRedisService;
-
 	private final ClubMemberRepository clubMemberRepository;
+
 	// 상수 선언
 	private static final int FREE_LIMIT = 20;
 	private static final int GEM_INCREMENT = 5;
@@ -73,7 +74,7 @@ public class ClubServiceImpl implements ClubService {
 			createClubRequestDto.getName(),
 			createClubRequestDto.getClubType(),
 			createClubRequestDto.getMaxMemberCount(),
-			createClubRequestDto.getMinScoreRequirement(),
+			createClubRequestDto.getMinCloverRequirement(),
 			createClubRequestDto.getGreeting(),
 			createClubRequestDto.getDescription(),
 			createClubRequestDto.getPosterUrl(),

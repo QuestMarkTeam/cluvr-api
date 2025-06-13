@@ -89,7 +89,7 @@ public class Club extends BaseTimeEntity {
 	 */
 
 	@Column(nullable = false)
-	private int minScoreRequirement = 0;
+	private int minCloverRequirement = 0;
 
 	/**
 	 * 소개말
@@ -151,12 +151,12 @@ public class Club extends BaseTimeEntity {
 	 * 기본 생성자
 	 */
 
-	public Club(String name, ClubType clubType, int maxMemberCount, int minScoreRequirement,
+	public Club(String name, ClubType clubType, int maxMemberCount, int minCloverRequirement,
 		String greeting, String description, String posterUrl, Boolean isPublic, JoinType joinType, User user) {
 		this.name = name;
 		this.clubType = clubType;
 		this.maxMemberCount = maxMemberCount;
-		this.minScoreRequirement = minScoreRequirement;
+		this.minCloverRequirement = minCloverRequirement;
 		this.greeting = greeting;
 		this.description = description;
 		this.posterUrl = posterUrl;

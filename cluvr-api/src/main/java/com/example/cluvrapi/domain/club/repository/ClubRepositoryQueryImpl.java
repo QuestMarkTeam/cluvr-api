@@ -54,7 +54,7 @@ public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 	public PageResponseDto<FindAllClubResponseDto> findAllClub(ClubType clubType, Pageable pageable) {
 		List<FindAllClubResponseDto> content = jpaQueryFactory.select(
 				new QFindAllClubResponseDto(club.id, club.user.id, club.name, club.clubType, category.categoryType,
-					club.greeting, club.posterUrl, club.maxMemberCount))
+					club.greeting, club.posterUrl, club.maxMemberCount, club.minCloverRequirement))
 			.from(club)
 			.leftJoin(category)
 			.on(category.targetType.eq(CategoryTargetType.CLUB).and(category.targetId.eq(club.id)))
