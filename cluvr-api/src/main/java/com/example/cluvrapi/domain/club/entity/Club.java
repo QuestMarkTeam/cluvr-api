@@ -214,7 +214,25 @@ public class Club extends BaseTimeEntity {
 		this.maxMemberCount += increment;
 	}
 
-	public void changeJoinTypeToSimpleRequest() {
-		this.joinType = JoinType.SIMPLE_REQUEST;
+	/**
+	 * 설명: 클럽의 가입 방식을 변경
+	 *
+	 * @param joinType 변경할 가입 방식
+	 * @author sinyoung0403
+	 */
+
+	public void updateJoinType(JoinType joinType) {
+		this.joinType = joinType;
+	}
+
+	/**
+	 * 설명: 클럽의 공개 여부를 변경
+	 *
+	 * @param isPublic 변경할 공개 여부 (true: 공개, false: 비공개)
+	 * @author sinyoung0403
+	 */
+
+	public void updatePrivacy(Boolean isPublic) {
+		this.isPublic = isPublic;
 	}
 }

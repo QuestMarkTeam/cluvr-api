@@ -116,4 +116,15 @@ public interface ClubService {
 	 * @author sinyoung0403
 	 */
 	CreateInviteCodeResponseDto createInviteCode(Long userId, Long clubId);
+
+	/**
+	 * 설명: 클럽을 공개 상태로 전환하는 메서드
+	 *
+	 * @param userId 현재 요청을 수행하는 사용자 ID
+	 * @param clubId 공개 상태로 전환할 클럽의 ID
+	 * @throws BusinessException {ResponseCode.NOT_FOUND}
+	 * @author sinyoung0403
+	 */
+
+	void updatePrivacy(Long userId, Long clubId, Boolean isPublic);
 }

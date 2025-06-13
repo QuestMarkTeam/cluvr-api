@@ -218,4 +218,29 @@ public class ClubServiceImpl implements ClubService {
 		// 5) 반환
 		return CreateInviteCodeResponseDto.from(code);
 	}
+
+	@Override
+	@Transactional
+	public void updatePrivacy(Long userId, Long clubId, Boolean isPublic) {
+		// 1) 클럽 조회 및 검증
+		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
+
+		if (findClub.getIsPublic().equals(isPublic)) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 해당 공개 상태입니다.");
+		}
+
+		// 2) 클럽 맴버 조회 및 권한 검증
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
+		);
+
+		if (findClubMember.getClubMemberRole() != ClubMemberRole.OWNER) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED);
+		}
+
+		// 3) JoinType 과 isPublic 수정
+		findClub.updateJoinType(isPublic ? JoinType.SIMPLE_REQUEST : JoinType.INVITE_CODE);
+		findClub.updatePrivacy(isPublic);
+	}
+
 }

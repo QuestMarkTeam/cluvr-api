@@ -1,6 +1,7 @@
 package com.example.cluvrapi.domain.club.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.RequiredArgsConstructor;
 
@@ -206,5 +207,31 @@ public class ClubController {
 		CreateInviteCodeResponseDto createInviteCodeResponseDto = clubService.createInviteCode(authUser.id(), clubId);
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(BaseResponse.success(createInviteCodeResponseDto, ResponseCode.CREATED));
+	}
+
+	/**
+	 * 설명: 클럽의 공개 여부를 변경하는 API 입니다.
+	 *
+	 * <p>클럽의 공개 상태를 공개(true) 또는 비공개(false)로 전환합니다.
+	 * 공개로 전환되면 클럽의 가입 방식이 SIMPLE_REQUEST 로 설정됩니다.
+	 * 비공개로 전환되면 가입 방식이 INVITE_CODE 로 강제 변경됩니다.
+	 *
+	 * <p> 오직 클럽장(OWNER)만 공개 여부를 변경할 수 있으며,
+	 * 이미 동일한 상태일 경우 `INVALID_REQUEST` 예외가 발생합니다.
+	 *
+	 * @param authUser 인증된 사용자 정보
+	 * @param clubId   변경할 대상 클럽의 ID
+	 * @param isPublic 변경할 공개 여부 (true: 공개, false: 비공개)
+	 * @return 성공 응답 반환 (본문 없음, 상태 코드 204 NO_CONTENT)
+	 */
+
+	@PatchMapping("/{clubId}/privacy")
+	public ResponseEntity<BaseResponse<Void>> updatePrivacy(
+		@Auth AuthUser authUser,
+		@PathVariable("clubId") Long clubId,
+		@RequestParam @NotNull(message = "공개 여부는 필수") Boolean isPublic
+	) {
+		clubService.updatePrivacy(authUser.id(), clubId, isPublic);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 }
