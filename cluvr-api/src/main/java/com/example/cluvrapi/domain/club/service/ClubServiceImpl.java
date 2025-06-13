@@ -262,21 +262,27 @@ public class ClubServiceImpl implements ClubService {
 	@Override
 	@Transactional
 	public void updatePrivacy(Long userId, Long clubId, Boolean isPublic) {
-		// 1) 클럽 조회 및 검증
+
+		// 1) 파라미터 검증
+		if (isPublic == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "공개 여부는 필수 값입니다.");
+		}
+
+		// 2) 클럽 조회 및 검증
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
 		if (findClub.getIsPublic().equals(isPublic)) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 해당 공개 상태입니다.");
 		}
 
-		// 2) 클럽 맴버 조회 및 권한 검증
+		// 3) 클럽 맴버 조회 및 권한 검증
 		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
 			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
 		);
 
 		validateOwnerRole(findClubMember.getClubMemberRole());
 
-		// 3) JoinType 과 isPublic 수정
+		// 4) JoinType 과 isPublic 수정
 		findClub.updateJoinType(isPublic ? JoinType.SIMPLE_REQUEST : JoinType.INVITE_CODE);
 		findClub.updatePrivacy(isPublic);
 	}
@@ -287,15 +293,14 @@ public class ClubServiceImpl implements ClubService {
 		// 1) 클럽 조회
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
-		// 2) 가입방식 유효한지 검증
-		validateCreateClubRequest(findClub.getIsPublic(), joinType);
-
-		// 3) 클럽 맴버 조회 및 권한 검증
+		// 2) 클럽 맴버 조회 및 권한 검증
 		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
 			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
 		);
 
 		validateOwnerRole(findClubMember.getClubMemberRole());
+
+		// 3) 가입방식 유효한지 검증
 
 		// 4) 수정
 		findClub.updateJoinType(joinType);
@@ -310,7 +315,7 @@ public class ClubServiceImpl implements ClubService {
 	 * @author sinyoung0403
 	 */
 
-	public void validateCreateClubRequest(boolean isPublic, JoinType joinType) {
+	public void validateCreateClubRequest(Boolean isPublic, JoinType joinType) {
 		if (!isPublic && joinType != JoinType.INVITE_CODE) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비공개 클럽은 초대코드 가입 방식만 가능합니다.");
 		}
