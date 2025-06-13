@@ -20,6 +20,7 @@ import com.example.cluvrapi.domain.notification.event.NotificationEvent;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.event.enums.RedisKey;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -59,7 +60,7 @@ public class GemServiceImpl implements GemService {
 	public void earnGems(Long userId, GemUserActivityType gemUserActivityType) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		String redisKey = "gem:" + gemUserActivityType.name() + "count";
+		String redisKey = RedisKey.GEM_GET_LIMIT.getKey() + userId;
 
 		Duration ttl = getDurationUntilMidnight();
 		Long count = gemRedisService.setIfAbsent(redisKey, 1, ttl) ? 1L : gemRedisService.incrementValue(redisKey);

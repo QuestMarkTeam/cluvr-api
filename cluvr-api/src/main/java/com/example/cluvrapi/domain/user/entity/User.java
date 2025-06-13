@@ -22,10 +22,6 @@ import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
 import com.example.cluvrapi.domain.user.entity.enums.Gender;
 import com.example.cluvrapi.domain.user.entity.enums.UserRole;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 @Getter
 @Entity
 @Table(name = "users")

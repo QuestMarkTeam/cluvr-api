@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -43,14 +45,17 @@ public class CloverLog {
 
 	private LocalDateTime deletedAt;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "action_type", nullable = false)
 	private CloverActionType actionType;
 
 	public CloverLog(User user, String description, Integer amount, LocalDateTime createdAt,
-		LocalDateTime deletedAt) {
+		LocalDateTime deletedAt, CloverActionType actionType) {
 		this.user = user;
 		this.description = description;
 		this.amount = amount;
 		this.createdAt = createdAt;
 		this.deletedAt = deletedAt;
+		this.actionType = actionType;
 	}
 }

@@ -1,11 +1,15 @@
 package com.example.cluvrapi.domain.clover.listener.dto;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.time.LocalDateTime;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import com.example.cluvrapi.domain.clover.enums.CloverActionType;
 
+@NoArgsConstructor(access = PROTECTED)
 @Getter
 public class CloverEventDto { // redis에 올릴 데이터
 
@@ -29,8 +33,7 @@ public class CloverEventDto { // redis에 올릴 데이터
 	}
 
 	public static CloverEventDto of(Integer amount, LocalDateTime createdAt, LocalDateTime deletedAt,
-		String description,
-		Long userId, String action, CloverActionType flowType) {
+		String description, Long userId, String action, CloverActionType flowType) {
 		return new CloverEventDto(amount, createdAt, deletedAt, description, userId, action,
 			flowType);
 	}

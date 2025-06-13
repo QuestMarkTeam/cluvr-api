@@ -1,11 +1,15 @@
 package com.example.cluvrapi.domain.gem.listener.dto;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.time.LocalDateTime;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import com.example.cluvrapi.domain.gem.enums.GemActionType;
 
+@NoArgsConstructor(access = PROTECTED)
 @Getter
 public class GemEventDto {
 	private Long userId;

@@ -23,7 +23,9 @@ import com.example.cluvrapi.domain.clover.enums.CloverUserActivityType;
 import com.example.cluvrapi.domain.clover.service.CloverEvent;
 import com.example.cluvrapi.domain.clover.service.CloverService;
 import com.example.cluvrapi.global.annotation.EarnClover;
+import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.jwt.CustomUserDetails;
+import com.example.cluvrapi.global.response.ResponseCode;
 
 @Aspect
 @RequiredArgsConstructor
@@ -69,7 +71,11 @@ public class CloverAspect {
 				cloverService.updateClover(new UpdateCloverRequestDto(clover, userId));
 				publisher.publishEvent(
 					CloverEvent.createEvent(userId, clover, createdTime, deletedTime, cloverUserActivityType));
+			} else {
+				throw new BusinessException(ResponseCode.AUTH_REQUIRED);
 			}
+		} else {
+			throw new BusinessException(ResponseCode.AUTH_REQUIRED);
 		}
 		return result;
 	}

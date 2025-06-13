@@ -83,7 +83,7 @@ public class CloverServiceImpl implements CloverService {
 	public void createCloverLog(CreateCloverLogRequestDto requestDto) {
 		User user = userRepository.findByIdOrElseThrow(requestDto.getUserId());
 		CloverLog cloverLog = new CloverLog(user, requestDto.getDescription(), requestDto.getAmount(),
-			requestDto.getCreatedAt(), requestDto.getDeletedAt());
+			requestDto.getCreatedAt(), requestDto.getDeletedAt(), requestDto.getActionType());
 		cloverLogRepository.save(cloverLog);
 
 	}

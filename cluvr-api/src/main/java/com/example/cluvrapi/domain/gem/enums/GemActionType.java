@@ -6,7 +6,7 @@ public enum GemActionType {
 	EARN(1),   // 적립
 	USE(-1),  // 사용
 	EXPIRE(-1), // 소멸
-	REFUND(-1) // 환불
+	REFUND(1) // 환불
 	;
 
 	private final Integer multiplier;
