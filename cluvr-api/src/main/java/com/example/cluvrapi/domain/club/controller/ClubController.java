@@ -27,6 +27,7 @@ import com.example.cluvrapi.domain.club.dto.response.CreateInviteCodeResponseDto
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
 import com.example.cluvrapi.domain.club.enums.ClubType;
+import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.club.service.ClubService;
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
@@ -231,7 +232,7 @@ public class ClubController {
 	public ResponseEntity<BaseResponse<Void>> updatePrivacy(
 		@Auth AuthUser authUser,
 		@PathVariable("clubId") Long clubId,
-		@RequestParam @NotNull(message = "공개 여부는 필수") Boolean isPublic
+		@RequestParam @NotNull(message = "공개 여부는 필수입니다.") Boolean isPublic
 	) {
 		clubService.updatePrivacy(authUser.id(), clubId, isPublic);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));

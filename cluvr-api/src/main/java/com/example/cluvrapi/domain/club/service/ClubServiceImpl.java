@@ -66,8 +66,10 @@ public class ClubServiceImpl implements ClubService {
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 
 		// 2) 검증
-		if (clubRepository.existsByClubName(createClubRequestDto.getName())) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 존재하는 클럽명입니다.");
+		if (createClubRequestDto.getName() != null) {
+			if (clubRepository.existsByClubName(createClubRequestDto.getName())) {
+				throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 존재하는 클럽명입니다.");
+			}
 		}
 
 		validateCreateClubRequest(createClubRequestDto.getIsPublic(), createClubRequestDto.getJoinType());
@@ -110,11 +112,13 @@ public class ClubServiceImpl implements ClubService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public FindClubResponseDto findClubById(Long clubId) {
 		return clubRepository.findClubById(clubId);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public PageResponseDto<FindAllClubResponseDto> findAllClub(ClubType clubType, Pageable pageable) {
 		return clubRepository.findAllClub(clubType, pageable);
 	}
@@ -132,26 +136,26 @@ public class ClubServiceImpl implements ClubService {
 
 		validateOwnerRole(findClubMember.getClubMemberRole());
 
-		if (!updateClubRequestDto.getName().equals(findClub.getName()) &&
-			clubRepository.existsByClubName(updateClubRequestDto.getName())) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 존재하는 클럽명입니다.");
+		if (updateClubRequestDto.getName() != null && !updateClubRequestDto.getName().equals(findClub.getName())) {
+			if (clubRepository.existsByClubName(updateClubRequestDto.getName())) {
+				throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 존재하는 클럽명입니다.");
+			}
 		}
 
 		// 3) 수정
-		if (updateClubRequestDto.getName() != null) {
+		if (updateClubRequestDto.getName() != null)
 			findClub.updateName(updateClubRequestDto.getName());
-		}
 
-		if (updateClubRequestDto.getGreeting() != null) {
+		if (updateClubRequestDto.getGreeting() != null)
 			findClub.updateGreeting(updateClubRequestDto.getGreeting());
-		}
 
-		if (updateClubRequestDto.getDescription() != null) {
+		if (updateClubRequestDto.getDescription() != null)
 			findClub.updateDescription(updateClubRequestDto.getDescription());
-		}
+
 	}
 
 	@Override
+	@Transactional
 	public void deleteClub(Long userId, Long clubId) {
 		// 1) 클럽 조회
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
