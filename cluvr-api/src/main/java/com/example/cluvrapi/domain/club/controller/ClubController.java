@@ -51,7 +51,7 @@ public class ClubController {
 	private final ClubService clubService;
 
 	/**
-	 * 설명: 클럽을 생성합니다.
+	 * 설명: 클럽을 생성하는 API 입니다.
 	 *
 	 * <p> 요청한 유저를 클럽장으로 하여 새 클럽을 생성합니다.
 	 *
@@ -74,7 +74,7 @@ public class ClubController {
 	}
 
 	/**
-	 * 클럽 단건을 조회합니다.
+	 * 설명: 클럽 단건을 조회하는 API 입니다.
 	 *
 	 * <p> 클럽의 고유 ID를 기반으로 해당 클럽 정보를 조회합니다.
 	 *
@@ -92,7 +92,7 @@ public class ClubController {
 	}
 
 	/**
-	 * 설명: 클럽 목록을 조회합니다.
+	 * 설명: 클럽 목록을 조회하는 API 입니다.
 	 *
 	 * <p> 클럽 타입을 기준으로 페이징 처리된 클럽 목록을 조회합니다.
 	 *
@@ -112,7 +112,7 @@ public class ClubController {
 	}
 
 	/**
-	 * 설명: 클럽 정보를 수정합니다.
+	 * 설명: 클럽 정보를 수정하는 API 입니다.
 	 *
 	 * <p>클럽의 이름, 소개말, 설명을 수정할 수 있습니다.
 	 *
@@ -124,15 +124,16 @@ public class ClubController {
 
 	@PatchMapping("/{clubId}")
 	public ResponseEntity<BaseResponse<Void>> updateClub(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@Valid @RequestBody UpdateClubRequestDto updateClubRequest
 	) {
-		clubService.updateClub(clubId, updateClubRequest);
+		clubService.updateClub(authUser.id(), clubId, updateClubRequest);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
 	}
 
 	/**
-	 * 설명: 클럽을 삭제합니다.
+	 * 설명: 클럽을 삭제하는 API 입니다.
 	 *
 	 * <p> 해당 클럽은 Soft Delete 방식으로 삭제 처리됩니다.
 	 *
@@ -143,14 +144,15 @@ public class ClubController {
 
 	@DeleteMapping("/{clubId}")
 	public ResponseEntity<BaseResponse<Void>> deleteClub(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId
 	) {
-		clubService.deleteClub(clubId);
+		clubService.deleteClub(authUser.id(), clubId);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 	/**
-	 * 설명: 클럽의 최대 인원수를 증가시킵니다. (Gem 미사용)
+	 * 설명: 클럽의 최대 인원수를 증가시키는 API 입니다. (Gem 미사용)
 	 *
 	 * @param authUser 인증된 사용자 정보
 	 * @param clubId   최대 인원수를 증가시킬 클럽의 고유 식별자
@@ -169,7 +171,7 @@ public class ClubController {
 	}
 
 	/**
-	 * 설명: 클럽의 최대 인원수를 증가시킵니다. (Gem 사용)
+	 * 설명: 클럽의 최대 인원수를 증가시키는 API 입니다. (Gem 사용)
 	 *
 	 * @param authUser 인증된 사용자 정보
 	 * @param clubId   최대 인원수를 증가시킬 클럽의 고유 식별자
@@ -187,7 +189,7 @@ public class ClubController {
 	}
 
 	/**
-	 * 설명: 클럽 초대코드 생성합니다.
+	 * 설명: 클럽 초대코드 생성하는 API 입니다.
 	 *
 	 * <p> 요청한 사용자가 특정 클럽에 대해 초대코드를 생성할 수 있습니다.
 	 * 생성된 초대코드는 다른 사용자가 클럽에 가입할 때 사용할 수 있습니다.

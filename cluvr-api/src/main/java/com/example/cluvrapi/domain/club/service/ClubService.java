@@ -106,7 +106,7 @@ public interface ClubService {
 	void upgradeMemberCountWithGem(Long userId, Long clubId);
 
 	/**
-	 * 설명: 클럽 초대코드를 생성합니다.
+	 * 설명: 클럽 초대코드를 생성하는 메서드
 	 *
 	 * <p> 해당 메서드는 클럽장 권한을 가진 사용자가 초대코드를 발급할 때 사용됩니다.
 	 * 이미 초대코드가 존재할 경우, 기존 코드를 무효화하고 새로 생성합니다.

@@ -276,6 +276,15 @@ public class ClubServiceImpl implements ClubService {
 		findClub.updatePrivacy(isPublic);
 	}
 
+	/**
+	 * 설명: 클럽 생성 시 공개 여부와 가입 방식이 유효한 조합인지 검증
+	 *
+	 * @param isPublic 클럽의 공개 여부
+	 * @param joinType 선택한 가입 방식
+	 * @throws BusinessException 잘못된 조합일 경우 예외를 던집니다.
+	 * @author sinyoung0403
+	 */
+
 	public void validateCreateClubRequest(boolean isPublic, JoinType joinType) {
 		if (!isPublic && joinType != JoinType.INVITE_CODE) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비공개 클럽은 초대코드 가입 방식만 가능합니다.");
@@ -285,6 +294,14 @@ public class ClubServiceImpl implements ClubService {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "공개 클럽은 초대코드 가입 방식을 선택할 수 없습니다.");
 		}
 	}
+
+	/**
+	 * 클럽 멤버의 역할이 클럽장(OWNER)인지 검증합니다.
+	 *
+	 * @param clubMemberRole 클럽 멤버의 역할
+	 * @throws BusinessException 클럽장이 아닌 경우 접근 거부 예외를 던집니다.
+	 * @author sinyoung0403
+	 */
 
 	public void validateOwnerRole(ClubMemberRole clubMemberRole) {
 		if (clubMemberRole != ClubMemberRole.OWNER) {
