@@ -89,7 +89,7 @@ public class User extends BaseTimeEntity {
 
 	/** 소프트 딜리트 여부 (boolean, NOT NULL, DEFAULT true) */
 	@Column(name = "is_deleted", nullable = false)
-	private Boolean isDeleted = true;
+	private Boolean isDeleted = false;
 
 	public User(Long id, String name, LocalDate birthday, String email, String phoneNumber, UserRole userRole,
 		Gender gender, CategoryType categoryType, String password, Integer gem, String imageUrl,
