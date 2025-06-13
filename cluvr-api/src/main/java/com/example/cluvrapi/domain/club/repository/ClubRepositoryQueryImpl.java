@@ -58,7 +58,7 @@ public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 			.from(club)
 			.leftJoin(category)
 			.on(category.targetType.eq(CategoryTargetType.CLUB).and(category.targetId.eq(club.id)))
-			.where(club.clubType.eq(clubType), ClubQueryFilter.notDeleted())
+			.where(club.clubType.eq(clubType), ClubQueryFilter.notDeleted(), ClubQueryFilter.publicOnly())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -67,7 +67,7 @@ public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 			.from(club)
 			.leftJoin(category)
 			.on(category.targetType.eq(CategoryTargetType.CLUB).and(category.targetId.eq(club.id)))
-			.where(club.clubType.eq(clubType), ClubQueryFilter.notDeleted())
+			.where(club.clubType.eq(clubType), ClubQueryFilter.notDeleted(), ClubQueryFilter.publicOnly())
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));
