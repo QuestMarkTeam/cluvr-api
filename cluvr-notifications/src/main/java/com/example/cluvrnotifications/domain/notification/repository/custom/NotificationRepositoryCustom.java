@@ -1,4 +1,4 @@
-package com.example.cluvrnotifications.domain.notification.repository;
+package com.example.cluvrnotifications.domain.notification.repository.custom;
 
 import java.util.List;
 import java.util.Optional;

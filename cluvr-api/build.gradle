@@ -97,3 +97,8 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// PathVariable 컴파일러 설정 추가
+compileJava {
+    options.compilerArgs += ['-parameters']
+}

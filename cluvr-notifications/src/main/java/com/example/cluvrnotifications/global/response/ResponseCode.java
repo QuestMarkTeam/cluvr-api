@@ -39,6 +39,7 @@ public enum ResponseCode {
 	NOTI_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
 	NOTI_DELETE_SUCCESS(HttpStatus.OK, "알림을 삭제하였습니다."),
 	NOTI_UPDATE_SUCCESS(HttpStatus.OK, "알림을 변경하였습니다."),
+	CHANNEL_NULL(HttpStatus.NOT_FOUND, "채널이 존재하지 않습니다."),
 
 	/* Club */
 	INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 입력값");

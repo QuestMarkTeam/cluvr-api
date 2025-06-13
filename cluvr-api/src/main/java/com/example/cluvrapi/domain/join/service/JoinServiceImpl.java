@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.join.service;
 
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -12,8 +14,10 @@ import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestByCodeRequestDto;
 import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestDto;
 import com.example.cluvrapi.domain.join.dto.request.UpdateJoinRequestDto;
+import com.example.cluvrapi.domain.join.dto.response.CreateJoinRequestByCodeResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.CreateJoinResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.InfoJoinRequestResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.MyClubJoinResponseDto;
@@ -48,6 +52,12 @@ public class JoinServiceImpl implements JoinService {
 	private final ProblemFormRepository problemFormRepository;
 	private final SubmissionFormRepository submissionFormRepository;
 	private final NotificationProducer notificationProducer;
+	private final JoinRedisService joinRedisService;
+
+	/**
+	 * 상수 선언
+	 */
+	private static final String INVITE_CODE_KEY_PREFIX = "ic:";
 
 	@Override
 	@Transactional
@@ -142,6 +152,33 @@ public class JoinServiceImpl implements JoinService {
 			.ifPresent(joinRequestAnswerRepository::delete);
 	}
 
+	@Override
+	@Transactional
+	public CreateJoinRequestByCodeResponseDto createJoinRequestByInviteCode(Long userId,
+		CreateJoinRequestByCodeRequestDto createJoinRequestByCodeRequestDto) {
+		// 1) Key 확인
+		String key = INVITE_CODE_KEY_PREFIX + createJoinRequestByCodeRequestDto.getInviteCode();
+		Map<Object, Object> codeData = joinRedisService.entries(key);
+
+		// 2) data 검증
+		if (codeData.isEmpty() || !codeData.containsKey("clubId")) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "존재하지 않는 초대코드 입니다.");
+		}
+
+		Long clubId = Long.valueOf(codeData.get("clubId").toString());
+		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
+		User findUser = userRepository.findByIdOrElseThrow(userId);
+
+		// 3) 클럽 가입 유무 검증
+		validateJoinRequest(clubId, userId);
+
+		// 4) Join Request Entity 생성 및 저장
+		JoinRequest joinRequest = new JoinRequest(findUser, findClub, JoinStatus.PENDING, JoinType.INVITE_CODE);
+		joinRequestRepository.save(joinRequest);
+
+		return CreateJoinRequestByCodeResponseDto.from(joinRequest.getId());
+	}
+
 	/**
 	 * 설명: Join request 가 유효한 신청인지 확인하는 검증 메서드
 	 *
@@ -226,23 +263,6 @@ public class JoinServiceImpl implements JoinService {
 
 		// 3) 저장
 		joinRequestAnswerRepository.save(joinRequestAnswer);
-
-		// 4) 알림
-		User applicant = joinRequest.getUser();
-		User clubOwner = joinRequest.getClub().getUser();
-		if (!clubOwner.getId().equals(applicant.getId())) {
-			String content = String.format("'%s'님이 제출 양식을 통해 가입 신청을 했습니다.", applicant.getName());
-
-			NotificationEvent event = NotificationEvent.from(
-				clubOwner.getId(),
-				NotificationType.SUBMISSION_FORM,
-				content,
-				NotiTargetType.CLUB,
-				clubId
-			);
-
-			notificationProducer.send(event);
-		}
 	}
 
 	/**
@@ -272,22 +292,5 @@ public class JoinServiceImpl implements JoinService {
 
 		// 3. 저장
 		joinRequestAnswerRepository.save(joinRequestAnswer);
-
-		// 4) 알림
-		User applicant = joinRequest.getUser();
-		User clubOwner = joinRequest.getClub().getUser();
-		if (!clubOwner.getId().equals(applicant.getId())) {
-			String content = String.format("'%s'님이 문제 양식을 통해 가입 신청을 했습니다.", applicant.getName());
-
-			NotificationEvent event = NotificationEvent.from(
-				clubOwner.getId(),
-				NotificationType.PROBLEM_FORM,
-				content,
-				NotiTargetType.CLUB,
-				clubId
-			);
-
-			notificationProducer.send(event);
-		}
 	}
 }

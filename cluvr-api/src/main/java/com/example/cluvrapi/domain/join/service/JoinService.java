@@ -3,8 +3,10 @@ package com.example.cluvrapi.domain.join.service;
 import org.springframework.data.domain.Pageable;
 
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestByCodeRequestDto;
 import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestDto;
 import com.example.cluvrapi.domain.join.dto.request.UpdateJoinRequestDto;
+import com.example.cluvrapi.domain.join.dto.response.CreateJoinRequestByCodeResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.CreateJoinResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.InfoJoinRequestResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.MyClubJoinResponseDto;
@@ -96,4 +98,7 @@ public interface JoinService {
 	 */
 
 	void cancelJoinRequest(Long clubId, Long joinRequestId);
+
+	CreateJoinRequestByCodeResponseDto createJoinRequestByInviteCode(Long userId,
+		CreateJoinRequestByCodeRequestDto createJoinRequestByCodeRequestDto);
 }
