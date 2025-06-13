@@ -28,7 +28,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
  */
 
 @RequiredArgsConstructor
-public class ClubRepositoryImpl implements ClubRepositoryCustom {
+public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 
 	private final JPAQueryFactory jpaQueryFactory;
 

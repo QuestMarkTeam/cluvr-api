@@ -15,7 +15,7 @@ import com.example.cluvrapi.domain.common.dto.PageResponseDto;
  * @author sinyoung0403
  */
 
-public interface ClubRepositoryCustom {
+public interface ClubRepositoryQuery {
 
 	/**
 	 * 설명: 클럽 고유 ID로 클럽 상세 정보를 조회

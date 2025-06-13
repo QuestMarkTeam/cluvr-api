@@ -12,6 +12,6 @@ import com.example.cluvrapi.domain.common.repository.BaseRepository;
  * @author sinyoung0403
  */
 
-public interface ClubRepository extends BaseRepository<Club, Long>, ClubRepositoryCustom {
+public interface ClubRepository extends BaseRepository<Club, Long>, ClubRepositoryQuery {
 
 }
