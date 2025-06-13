@@ -64,21 +64,23 @@ public interface ClubService {
 	 *
 	 * <p> 클럽의 이름, 소개말, 설명을 수정할 수 있습니다.
 	 *
+	 * @param userId               수정할 클럽의 고유 식별자
 	 * @param clubId               수정할 클럽의 고유 식별자
 	 * @param updateClubRequestDto 수정할 클럽 정보가 담긴 DTO
 	 * @author sinyoung0403
 	 */
-	void updateClub(Long clubId, UpdateClubRequestDto updateClubRequestDto);
+	void updateClub(Long userId, Long clubId, UpdateClubRequestDto updateClubRequestDto);
 
 	/**
 	 * 설명: 클럽을 삭제하는 메서드
 	 *
 	 * <p> 클럽 삭제 시 Soft Delete가 적용됩니다.
 	 *
+	 * @param userId 삭제할 클럽의 고유 식별자
 	 * @param clubId 삭제할 클럽의 고유 식별자
 	 * @author sinyoung0403
 	 */
-	void deleteClub(Long clubId);
+	void deleteClub(Long userId, Long clubId);
 
 	/**
 	 * 설명: 클럽의 제한 인원수를 추가하는 메서드

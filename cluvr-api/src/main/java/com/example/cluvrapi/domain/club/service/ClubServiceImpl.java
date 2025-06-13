@@ -66,8 +66,11 @@ public class ClubServiceImpl implements ClubService {
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 
 		// 2) 검증
+		if (clubRepository.existsByClubName(createClubRequestDto.getName())) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 존재하는 클럽명입니다.");
+		}
+
 		validateCreateClubRequest(createClubRequestDto.getIsPublic(), createClubRequestDto.getJoinType());
-		clubRepository.existsByClubName(createClubRequestDto.getName());
 
 		// 2) 클럽 Entity 생성 및 저장
 		Club newClub = new Club(
@@ -118,9 +121,22 @@ public class ClubServiceImpl implements ClubService {
 
 	@Override
 	@Transactional
-	public void updateClub(Long clubId, UpdateClubRequestDto updateClubRequestDto) {
+	public void updateClub(Long userId, Long clubId, UpdateClubRequestDto updateClubRequestDto) {
+		// 1) 클럽 조회
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
+		// 2) 클럽 맴버 조회 및 권한 검증
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
+		);
+
+		validateOwnerRole(findClubMember.getClubMemberRole());
+
+		if (clubRepository.existsByClubName(updateClubRequestDto.getName())) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 존재하는 클럽명입니다.");
+		}
+
+		// 3) 수정
 		if (updateClubRequestDto.getName() != null) {
 			findClub.updateName(updateClubRequestDto.getName());
 		}
@@ -135,9 +151,18 @@ public class ClubServiceImpl implements ClubService {
 	}
 
 	@Override
-	public void deleteClub(Long clubId) {
+	public void deleteClub(Long userId, Long clubId) {
+		// 1) 클럽 조회
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
+		// 2) 클럽 맴버 조회 및 권한 검증
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
+		);
+
+		validateOwnerRole(findClubMember.getClubMemberRole());
+
+		// 3) 삭제
 		clubRepository.delete(findClub);
 	}
 
