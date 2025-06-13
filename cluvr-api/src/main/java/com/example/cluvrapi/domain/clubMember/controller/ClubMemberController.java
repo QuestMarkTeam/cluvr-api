@@ -3,6 +3,7 @@ package com.example.cluvrapi.domain.clubMember.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +20,6 @@ import com.example.cluvrapi.domain.clubMember.dto.response.ClubMemberInfoRespons
 import com.example.cluvrapi.domain.clubMember.service.ClubMemberService;
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
-import com.example.cluvrapi.domain.join.enums.JoinStatus;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -35,45 +35,50 @@ public class ClubMemberController {
 	private final ClubMemberService clubMemberService;
 
 	@PostMapping("/join-requests/{joinRequestId}/status")
-	public ResponseEntity<Void> handleJoinStatus(
+	public ResponseEntity<BaseResponse<Void>> handleJoinStatus(
 		@PathVariable Long clubId,
 		@PathVariable Long joinRequestId,
 		@RequestBody HandleJoinStatusRequestDto dto,
 		@Auth AuthUser authUser
 	) {
-		JoinStatus status = dto.getStatus();
-		clubMemberService.handleJoinRequest(clubId, joinRequestId, status, authUser);
-		return ResponseEntity.ok().build();
+		clubMemberService.handleJoinRequest(clubId, joinRequestId, dto.getStatus(), authUser);
+		return ResponseEntity
+			.ok(BaseResponse.success(ResponseCode.OK));
 	}
 
 	@PatchMapping("/members/{memberId}/role")
-	public ResponseEntity<Void> changeRole(
+	public ResponseEntity<BaseResponse<Void>> changeRole(
 		@PathVariable Long clubId,
 		@PathVariable("memberId") Long targetMemberId,
 		@RequestBody @Valid ChangeMemberRoleRequestDto dto,
 		@Auth AuthUser authUser
 	) {
 		clubMemberService.changeMemberRole(clubId, authUser, targetMemberId, dto.getNewRole());
-		return ResponseEntity.ok().build();
+		return ResponseEntity
+			.ok(BaseResponse.success(ResponseCode.OK));
 	}
 
 	@DeleteMapping("/members/me")
-	public ResponseEntity<Void> withdrawFromClub(
+	public ResponseEntity<BaseResponse<Void>> withdrawFromClub(
 		@PathVariable Long clubId,
 		@Auth AuthUser authUser
 	) {
 		clubMemberService.withdrawFromClub(clubId, authUser);
-		return ResponseEntity.noContent().build();
+		return ResponseEntity
+			.status(HttpStatus.NO_CONTENT)
+			.body(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 	@DeleteMapping("/members/{memberId}")
-	public ResponseEntity<Void> kickMember(
+	public ResponseEntity<BaseResponse<Void>> kickMember(
 		@PathVariable Long clubId,
 		@PathVariable Long memberId,
 		@Auth AuthUser authUser
 	) {
 		clubMemberService.kickMember(clubId, authUser, memberId);
-		return ResponseEntity.noContent().build();
+		return ResponseEntity
+			.status(HttpStatus.NO_CONTENT)
+			.body(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 	@GetMapping("/members")
