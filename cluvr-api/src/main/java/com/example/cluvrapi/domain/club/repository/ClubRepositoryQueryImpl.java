@@ -2,6 +2,7 @@ package com.example.cluvrapi.domain.club.repository;
 
 import static com.example.cluvrapi.domain.category.entity.QCategory.category;
 import static com.example.cluvrapi.domain.club.entity.QClub.club;
+import static com.example.cluvrapi.domain.clubMember.entity.QClubMember.clubMember;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.QFindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.QFindClubResponseDto;
 import com.example.cluvrapi.domain.club.enums.ClubType;
+import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -53,9 +55,11 @@ public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 	@Override
 	public PageResponseDto<FindAllClubResponseDto> findAllClub(ClubType clubType, Pageable pageable) {
 		List<FindAllClubResponseDto> content = jpaQueryFactory.select(
-				new QFindAllClubResponseDto(club.id, club.user.id, club.name, club.clubType, category.categoryType,
+				new QFindAllClubResponseDto(club.id, clubMember.user.id, club.name, club.clubType, category.categoryType,
 					club.greeting, club.posterUrl, club.maxMemberCount, club.minCloverRequirement))
 			.from(club)
+			.leftJoin(clubMember)
+			.on(clubMember.club.eq(club).and(clubMember.clubMemberRole.eq(ClubMemberRole.OWNER)))
 			.leftJoin(category)
 			.on(category.targetType.eq(CategoryTargetType.CLUB).and(category.targetId.eq(club.id)))
 			.where(club.clubType.eq(clubType), ClubQueryFilter.notDeleted(), ClubQueryFilter.publicOnly())
@@ -65,6 +69,8 @@ public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 
 		Long total = jpaQueryFactory.select(club.count())
 			.from(club)
+			.leftJoin(clubMember)
+			.on(clubMember.club.eq(club).and(clubMember.clubMemberRole.eq(ClubMemberRole.OWNER)))
 			.leftJoin(category)
 			.on(category.targetType.eq(CategoryTargetType.CLUB).and(category.targetId.eq(club.id)))
 			.where(club.clubType.eq(clubType), ClubQueryFilter.notDeleted(), ClubQueryFilter.publicOnly())

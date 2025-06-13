@@ -79,8 +79,7 @@ public class ClubServiceImpl implements ClubService {
 			createClubRequestDto.getDescription(),
 			createClubRequestDto.getPosterUrl(),
 			createClubRequestDto.getIsPublic(),
-			createClubRequestDto.getJoinType(),
-			findUser
+			createClubRequestDto.getJoinType()
 		);
 
 		clubRepository.save(newClub);
@@ -148,13 +147,14 @@ public class ClubServiceImpl implements ClubService {
 		// 1) 클럽 조회
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
+		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
+		);
+
 		// 2) 로그인한 유저와 조회한 클럽의 마스터가 일치하는지 검증
-		if (findClub.getUser().getId() != userId) {
-			throw new BusinessException(ResponseCode.ACCESS_DENIED);
-		}
+		validateOwnerRole(clubMember.getClubMemberRole());
 
 		// 3) 인원 검증
-
 		int requested = memberCountRequestDto.getMemberCount();
 
 		if (requested <= 0) {
@@ -176,10 +176,12 @@ public class ClubServiceImpl implements ClubService {
 		// 1) 클럽 조회
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
+		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
+		);
+
 		// 2) 로그인한 유저와 조회한 클럽의 마스터가 일치하는지 검증
-		if (findClub.getUser().getId() != userId) {
-			throw new BusinessException(ResponseCode.ACCESS_DENIED);
-		}
+		validateOwnerRole(clubMember.getClubMemberRole());
 
 		// 3) 인원 검증
 		if (findClub.getMaxMemberCount() < FREE_LIMIT) {
@@ -198,9 +200,12 @@ public class ClubServiceImpl implements ClubService {
 		// 1) 클럽 조회 및 권한 검증
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
-		if (findClub.getUser().getId().equals(userId)) {
-			throw new BusinessException(ResponseCode.ACCESS_DENIED, "클럽장만이 초대코드를 생성할 수 있습니다.");
-		}
+		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
+		);
+
+		// 2) 로그인한 유저와 조회한 클럽의 마스터가 일치하는지 검증
+		validateOwnerRole(clubMember.getClubMemberRole());
 
 		// 2) Base64 로 초대코드 생성
 		String code;
@@ -239,9 +244,7 @@ public class ClubServiceImpl implements ClubService {
 			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 접근입니다.")
 		);
 
-		if (findClubMember.getClubMemberRole() != ClubMemberRole.OWNER) {
-			throw new BusinessException(ResponseCode.ACCESS_DENIED);
-		}
+		validateOwnerRole(findClubMember.getClubMemberRole());
 
 		// 3) JoinType 과 isPublic 수정
 		findClub.updateJoinType(isPublic ? JoinType.SIMPLE_REQUEST : JoinType.INVITE_CODE);
@@ -255,6 +258,12 @@ public class ClubServiceImpl implements ClubService {
 
 		if (isPublic && joinType == JoinType.INVITE_CODE) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "공개 클럽은 초대코드 가입 방식을 선택할 수 없습니다.");
+		}
+	}
+
+	public void validateOwnerRole(ClubMemberRole clubMemberRole) {
+		if (clubMemberRole != ClubMemberRole.OWNER) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED);
 		}
 	}
 }

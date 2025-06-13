@@ -13,6 +13,8 @@ import com.example.cluvrapi.domain.applicationForm.repository.SubmissionFormRepo
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
+import com.example.cluvrapi.domain.clubMember.entity.ClubMember;
+import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestByCodeRequestDto;
 import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestDto;
@@ -53,6 +55,7 @@ public class JoinServiceImpl implements JoinService {
 	private final SubmissionFormRepository submissionFormRepository;
 	private final NotificationProducer notificationProducer;
 	private final JoinRedisService joinRedisService;
+	private final ClubMemberRepository clubMemberRepository;
 
 	/**
 	 * 상수 선언
@@ -89,7 +92,9 @@ public class JoinServiceImpl implements JoinService {
 		}
 
 		// 6) 클럽장에게 알림 전송
-		User clubOwner = findClub.getUser();
+		ClubMember clubOwner = clubMemberRepository.findOwnerByClub(findClub).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST)
+		);
 		if (!clubOwner.getId().equals(findUser.getId())) { // 자기 자신이 아닌 경우에만
 			String content = String.format("'%s'님이 '%s' 클럽에 가입 신청을 했습니다.", findUser.getName(), findClub.getName());
 

@@ -4,12 +4,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import lombok.AccessLevel;
@@ -22,7 +19,6 @@ import org.hibernate.annotations.Where;
 import com.example.cluvrapi.domain.club.enums.ClubType;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
-import com.example.cluvrapi.domain.user.entity.User;
 
 /**
  * 클럽 도메인 엔티티입니다.
@@ -141,18 +137,11 @@ public class Club extends BaseTimeEntity {
 	private JoinType joinType;
 
 	/**
-	 * Club 을 생성한 User
-	 */
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false)
-	private User user;
-
-	/**
 	 * 기본 생성자
 	 */
 
 	public Club(String name, ClubType clubType, int maxMemberCount, int minCloverRequirement,
-		String greeting, String description, String posterUrl, Boolean isPublic, JoinType joinType, User user) {
+		String greeting, String description, String posterUrl, Boolean isPublic, JoinType joinType) {
 		this.name = name;
 		this.clubType = clubType;
 		this.maxMemberCount = maxMemberCount;
@@ -162,7 +151,6 @@ public class Club extends BaseTimeEntity {
 		this.posterUrl = posterUrl;
 		this.isPublic = isPublic;
 		this.joinType = joinType;
-		this.user = user;
 	}
 
 	/**
