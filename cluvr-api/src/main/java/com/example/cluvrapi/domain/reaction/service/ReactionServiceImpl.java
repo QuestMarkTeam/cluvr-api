@@ -51,6 +51,22 @@ public class ReactionServiceImpl implements ReactionService {
 	@Override
 	@Transactional
 	public void cancelReaction(long userId, ReactionRequestDto dto) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		Board board = boardRepository.findByIdOrElseThrow(dto.getBoardId());
+		Reply reply = null;
+		if (dto.getReplyId() != null) {
+			reply = replyRepository.findByIdOrElseThrow(dto.getReplyId());
+		}
 
+		Reaction reaction = reactionRepository.findReaction(user, board, reply).orElse(null);
+
+		if (reaction == null) {
+			throw new RuntimeException("찾을 수 없어요");
+		}
+		if (reaction.getReactionType() != dto.getReactionType()) {
+			throw new RuntimeException("취소가 아니라 실패");
+		}
+
+		reactionRepository.deleteById(reaction.getId());
 	}
 }
