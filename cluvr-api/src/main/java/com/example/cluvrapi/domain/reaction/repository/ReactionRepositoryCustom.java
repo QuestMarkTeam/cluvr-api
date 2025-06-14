@@ -1,0 +1,12 @@
+package com.example.cluvrapi.domain.reaction.repository;
+
+import java.util.Optional;
+
+import com.example.cluvrapi.domain.board.entity.Board;
+import com.example.cluvrapi.domain.reaction.entity.Reaction;
+import com.example.cluvrapi.domain.reply.entity.Reply;
+import com.example.cluvrapi.domain.user.entity.User;
+
+public interface ReactionRepositoryCustom {
+	Optional<Reaction> findReaction(User user, Board board, Reply reply);
+}
