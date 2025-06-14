@@ -32,7 +32,7 @@ public class ReadBoardResponseDto {
 			board.getCategory(),
 			board.isSelected(),
 			board.getClover(),
-			board.getView(),
+			board.getViewCount(),
 			board.getUser().getName(),
 			board.getCreatedAt(),
 			board.getModifiedAt()
