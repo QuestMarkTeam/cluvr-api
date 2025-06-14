@@ -49,17 +49,17 @@ public class Board extends BaseTimeEntity {
 	@Column(nullable = false)
 	private String content;
 
-	@Column(nullable = false)
-	private int view;
-
-	@Column(nullable = false)
+	@Column(nullable = false, name = "is_selected")
 	private boolean isSelected;
 
 	@Column(nullable = false)
 	private int clover;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "is_deleted")
 	private boolean isDeleted;
+
+	@Column(nullable = false, name = "view_count")
+	private int viewCount;
 
 	public Board(User user, BoardType boardType, CategoryType category, String title, String content, int clover) {
 		this.user = user;
@@ -67,10 +67,10 @@ public class Board extends BaseTimeEntity {
 		this.category = category;
 		this.title = title;
 		this.content = content;
-		this.view = 0;
 		this.isSelected = false;
 		this.clover = clover;
 		this.isDeleted = false;
+		this.viewCount = 0;
 	}
 
 	public void update(String title, String content, int clover) {

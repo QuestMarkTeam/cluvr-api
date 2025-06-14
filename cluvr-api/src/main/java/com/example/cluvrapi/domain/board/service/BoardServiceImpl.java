@@ -18,6 +18,7 @@ import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
+import com.example.cluvrapi.domain.reaction.repository.ReactionRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 
@@ -28,6 +29,7 @@ public class BoardServiceImpl implements BoardService {
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
 	private final NotificationProducer notificationProducer;
+	private final ReactionRepository reactionRepository;
 
 	@Override
 	@Transactional
@@ -43,8 +45,9 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional
 	public ReadBoardResponseDto readBoard(long boardId) {
+		boardRepository.incrementViewCount(boardId);
 		Board board = boardRepository.findBoardById(boardId);
 		return ReadBoardResponseDto.ofDto(board);
 	}
