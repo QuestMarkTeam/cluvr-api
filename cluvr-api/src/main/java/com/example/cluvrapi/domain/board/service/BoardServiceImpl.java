@@ -1,6 +1,7 @@
 package com.example.cluvrapi.domain.board.service;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,7 @@ import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
+import com.example.cluvrapi.domain.reaction.enums.ReactionType;
 import com.example.cluvrapi.domain.reaction.repository.ReactionRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
@@ -49,7 +51,12 @@ public class BoardServiceImpl implements BoardService {
 	public ReadBoardResponseDto readBoard(long boardId) {
 		boardRepository.incrementViewCount(boardId);
 		Board board = boardRepository.findBoardById(boardId);
-		return ReadBoardResponseDto.ofDto(board);
+		Map<ReactionType, Long> reactionCountMap = reactionRepository.countBoardReactions(board);
+
+		long likeCount = reactionCountMap.getOrDefault(ReactionType.LIKE, 0L);
+		long dislikeCount = reactionCountMap.getOrDefault(ReactionType.DISLIKE, 0L);
+
+		return ReadBoardResponseDto.ofDto(board, likeCount, dislikeCount);
 	}
 
 	@Transactional

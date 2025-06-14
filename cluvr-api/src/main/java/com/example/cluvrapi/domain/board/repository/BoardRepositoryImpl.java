@@ -51,7 +51,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 				board.id,
 				board.title,
 				board.content,
-				board.view,
+				board.viewCount,
 				user.name,
 				board.createdAt,
 				board.modifiedAt
