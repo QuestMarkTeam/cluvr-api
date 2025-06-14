@@ -26,7 +26,7 @@ public class KafkaChatConsumer {
 	// Kafka 토픽에서 메세지를 읽기
 	// 이 메세지를 MongoDB로 저장
 	// @KafkaListener 스프링이 자동으로 kafka에서 메세지가 push 해 줄 때 실행 시켜줌
-	@KafkaListener(topics = "chat-log", groupId = "chat-group")
+	@KafkaListener(topics = "chat-message", groupId = "chat-group")
 	public void consume(String message) throws JsonProcessingException {
 		try {
 			ChatMessageRequestDto dto = objectMapper.readValue(message, ChatMessageRequestDto.class);
