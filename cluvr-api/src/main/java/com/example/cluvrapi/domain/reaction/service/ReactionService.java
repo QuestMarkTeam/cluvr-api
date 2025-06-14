@@ -1,11 +1,11 @@
 package com.example.cluvrapi.domain.reaction.service;
 
-import com.example.cluvrapi.domain.reaction.dto.ReactionRequestDto;
+import com.example.cluvrapi.domain.reaction.dto.request.ReactionRequestDto;
 
 public interface ReactionService {
 	/**
 	 *
-	 * 설명: 좋아요 혹은 싫어요 선택
+	 * 설명: 좋아요 혹은 싫어요 선택을 위한 서비스 파트
 	 *
 	 * @param userId - Auth 유저
 	 * @param dto - board, reply, reaction 타입
@@ -16,7 +16,7 @@ public interface ReactionService {
 
 	/**
 	 *
-	 * 설명: 좋아요 혹은 싫어요 선택 취소
+	 * 설명: 좋아요 혹은 싫어요 선택 취소를 위한 서비스 파트
 	 *
 	 * @param userId - Auth 유저
 	 * @param dto - board, reply, reaction 타입

@@ -2,6 +2,8 @@ package com.example.cluvrapi.domain.reaction.repository;
 
 import java.util.Optional;
 
+import org.springframework.stereotype.Repository;
+
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.reaction.entity.QReaction;
 import com.example.cluvrapi.domain.reaction.entity.Reaction;
@@ -9,6 +11,7 @@ import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+@Repository
 public class ReactionRepositoryImpl implements ReactionRepositoryCustom {
 	private final JPAQueryFactory queryFactory;
 

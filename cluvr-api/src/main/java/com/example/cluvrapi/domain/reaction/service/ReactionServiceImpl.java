@@ -11,13 +11,15 @@ import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
 import com.example.cluvrapi.domain.notification.enums.NotificationType;
 import com.example.cluvrapi.domain.notification.event.NotificationEvent;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
-import com.example.cluvrapi.domain.reaction.dto.ReactionRequestDto;
+import com.example.cluvrapi.domain.reaction.dto.request.ReactionRequestDto;
 import com.example.cluvrapi.domain.reaction.entity.Reaction;
 import com.example.cluvrapi.domain.reaction.repository.ReactionRepository;
 import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.exception.SelfReactionNotAllowedException;
+import com.example.cluvrapi.global.response.ResponseCode;
 
 @Service
 @RequiredArgsConstructor
@@ -42,8 +44,7 @@ public class ReactionServiceImpl implements ReactionService {
 
 		if (reaction != null) {
 			if (reaction.getReactionType() == dto.getReactionType()) {
-				// throw new SelfReactionNotAllowedException(ResponseCode.SELF_REACTION_NOT_ALLOWED);
-				throw new RuntimeException("실패1");
+				throw new SelfReactionNotAllowedException(ResponseCode.SELF_REACTION_NOT_ALLOWED);
 			}
 
 			reaction.update(dto.getReactionType());

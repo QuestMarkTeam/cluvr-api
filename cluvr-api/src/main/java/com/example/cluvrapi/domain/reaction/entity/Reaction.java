@@ -20,9 +20,6 @@ import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.user.entity.User;
 
 @Entity
-// @Table(name = "reactions", uniqueConstraints = {
-// 	@UniqueConstraint(columnNames = {"board_id", "reply_id", "user_id"})
-// })
 @Table(name = "reactions")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
