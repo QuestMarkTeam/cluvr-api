@@ -38,24 +38,30 @@ public class ReactionServiceImpl implements ReactionService {
 		Board board = boardRepository.findByIdOrElseThrow(dto.getBoardId());
 
 		Reply reply = null;
+		// 댓글 리액션일 때
 		if (dto.getReplyId() != null) {
 			reply = replyRepository.findByIdOrElseThrow(dto.getReplyId());
 			if (!reply.getBoard().getId().equals(board.getId())) {
-				throw new IllegalArgumentException(ResponseCode.BOARD_REPLY_MISMATCH.getDefaultMessage());
+				throw new BusinessException(ResponseCode.BOARD_REPLY_MISMATCH,
+					ResponseCode.BOARD_REPLY_MISMATCH.getDefaultMessage());
 			}
 		}
 
 		Reaction reaction = reactionRepository.findReaction(user, board, reply).orElse(null);
-
+		// 리액션 존재 할 때
 		if (reaction != null) {
+			// 동일한 리액션 타입까지 가지고 있을 때
 			if (reaction.getReactionType() == dto.getReactionType()) {
 				throw new SelfReactionNotAllowedException(ResponseCode.SELF_REACTION_NOT_ALLOWED);
 			}
+			// 다른 리액션 타입을 가지고 있을 때 업데이트
 			reaction.update(dto.getReactionType());
 		} else {
+			// 리액션이 존재하지 않을 때
 			reactionRepository.save(new Reaction(user, board, reply, dto.getReactionType()));
 		}
 
+		// 알림
 		if (board.getUser() != user && reply == null) {
 			String content = String.format("'%s'님이 회원님의 게시글에 '%s'를 남겼습니다.", user.getName(),
 				dto.getReactionType().name());
@@ -80,6 +86,9 @@ public class ReactionServiceImpl implements ReactionService {
 		Reply reply = null;
 		if (dto.getReplyId() != null) {
 			reply = replyRepository.findByIdOrElseThrow(dto.getReplyId());
+			if (!reply.getBoard().getId().equals(board.getId())) {
+				throw new BusinessException(ResponseCode.BOARD_REPLY_MISMATCH);
+			}
 		}
 
 		Reaction reaction = reactionRepository.findReaction(user, board, reply).orElse(null);
