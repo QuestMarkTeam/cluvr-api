@@ -53,7 +53,7 @@ public class ReactionServiceImpl implements ReactionService {
 			}
 			reaction.update(dto.getReactionType());
 		} else {
-			reactionRepository.save(new Reaction(user, board, reply, dto.getReactionType())).getId();
+			reactionRepository.save(new Reaction(user, board, reply, dto.getReactionType()));
 		}
 
 		if (board.getUser() != user && reply == null) {
