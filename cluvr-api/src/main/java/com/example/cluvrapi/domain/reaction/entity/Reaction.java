@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import com.example.cluvrapi.domain.board.entity.Board;
-import com.example.cluvrapi.domain.board.enums.ReactionType;
+import com.example.cluvrapi.domain.reaction.enums.ReactionType;
 import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.user.entity.User;
 

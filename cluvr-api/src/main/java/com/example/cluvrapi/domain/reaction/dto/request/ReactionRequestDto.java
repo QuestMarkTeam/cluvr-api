@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import com.example.cluvrapi.domain.board.enums.ReactionType;
+import com.example.cluvrapi.domain.reaction.enums.ReactionType;
 
 @Getter
 @NoArgsConstructor
