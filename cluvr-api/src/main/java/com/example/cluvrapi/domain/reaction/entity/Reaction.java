@@ -2,6 +2,8 @@ package com.example.cluvrapi.domain.reaction.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,6 +43,7 @@ public class Reaction {
 	private Board board;
 
 	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
 	private ReactionType reactionType;
 
 	public Reaction(User user, Board board, Reply reply, ReactionType reactionType) {

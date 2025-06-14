@@ -18,6 +18,7 @@ import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.exception.SelfReactionNotAllowedException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -35,9 +36,13 @@ public class ReactionServiceImpl implements ReactionService {
 	public void selectReaction(long userId, ReactionRequestDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		Board board = boardRepository.findByIdOrElseThrow(dto.getBoardId());
+
 		Reply reply = null;
 		if (dto.getReplyId() != null) {
 			reply = replyRepository.findByIdOrElseThrow(dto.getReplyId());
+			if (!reply.getBoard().getId().equals(board.getId())) {
+				throw new IllegalArgumentException(ResponseCode.BOARD_REPLY_MISMATCH.getDefaultMessage());
+			}
 		}
 
 		Reaction reaction = reactionRepository.findReaction(user, board, reply).orElse(null);
@@ -46,20 +51,17 @@ public class ReactionServiceImpl implements ReactionService {
 			if (reaction.getReactionType() == dto.getReactionType()) {
 				throw new SelfReactionNotAllowedException(ResponseCode.SELF_REACTION_NOT_ALLOWED);
 			}
-
 			reaction.update(dto.getReactionType());
 		} else {
-			long reactionId = reactionRepository.save(new Reaction(user, board, reply, dto.getReactionType())).getId();
-			System.out.println(reactionId);
+			reactionRepository.save(new Reaction(user, board, reply, dto.getReactionType())).getId();
 		}
 
-		User boardOwner = board.getUser();
-		if (!boardOwner.getId().equals(user.getId())) {
+		if (board.getUser() != user && reply == null) {
 			String content = String.format("'%s'님이 회원님의 게시글에 '%s'를 남겼습니다.", user.getName(),
 				dto.getReactionType().name());
 
 			NotificationEvent event = NotificationEvent.from(
-				boardOwner.getId(),
+				board.getUser().getId(),
 				NotificationType.REACTION,
 				content,
 				NotiTargetType.BOARD,
@@ -83,10 +85,10 @@ public class ReactionServiceImpl implements ReactionService {
 		Reaction reaction = reactionRepository.findReaction(user, board, reply).orElse(null);
 
 		if (reaction == null) {
-			throw new RuntimeException("찾을 수 없어요");
+			throw new BusinessException(ResponseCode.NOT_FOUND, "저장된 기록이 없습니다.");
 		}
 		if (reaction.getReactionType() != dto.getReactionType()) {
-			throw new RuntimeException("취소가 아니라 실패");
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이 리액션 취소는 불가능합니다.");
 		}
 
 		reactionRepository.deleteById(reaction.getId());

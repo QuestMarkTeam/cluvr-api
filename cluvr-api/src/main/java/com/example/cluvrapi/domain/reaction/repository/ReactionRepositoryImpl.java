@@ -19,6 +19,7 @@ public class ReactionRepositoryImpl implements ReactionRepositoryCustom {
 		this.queryFactory = queryFactory;
 	}
 
+	@Override
 	public Optional<Reaction> findReaction(User user, Board board, Reply reply) {
 		QReaction reaction = QReaction.reaction;
 
