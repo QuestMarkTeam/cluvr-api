@@ -21,7 +21,6 @@ import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 import com.example.cluvrapi.domain.reply.entity.Reply;
-import com.example.cluvrapi.domain.reply.repository.ReplyReactionRepository;
 import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
@@ -34,8 +33,6 @@ public class ReplyServiceImpl implements ReplyService {
 	private final ReplyRepository replyRepository;
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
-	private final ReplyReactionRepository reactionRepository;
-	private final ReplyReactionRepository replyReactionRepository;
 	private final NotificationProducer notificationProducer;
 
 	@Transactional
