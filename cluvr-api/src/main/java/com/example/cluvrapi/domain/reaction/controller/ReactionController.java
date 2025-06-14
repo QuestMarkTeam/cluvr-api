@@ -22,7 +22,7 @@ import com.example.cluvrapi.global.response.ResponseCode;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/reaction")
+@RequestMapping("/reactions")
 public class ReactionController {
 
 	private final ReactionService reactionService;
