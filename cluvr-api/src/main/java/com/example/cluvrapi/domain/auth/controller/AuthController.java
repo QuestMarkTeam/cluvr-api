@@ -15,8 +15,6 @@ import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
 import com.example.cluvrapi.domain.auth.service.AuthService;
-import com.example.cluvrapi.domain.common.annotation.Auth;
-import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
@@ -48,11 +46,10 @@ public class AuthController {
 
 	@PostMapping("/logout")
 	public ResponseEntity<BaseResponse<String>> logout(
-		@Auth AuthUser authUser,
 		@RequestHeader("Authorization") String authorizationHeader
 	) {
 		String accessToken = resolveBearer(authorizationHeader);
-		authService.logout(authUser.id(), accessToken);
+		authService.logout(accessToken);
 		return ResponseEntity.ok(BaseResponse.success("로그아웃 되었습니다.", OK));
 	}
 

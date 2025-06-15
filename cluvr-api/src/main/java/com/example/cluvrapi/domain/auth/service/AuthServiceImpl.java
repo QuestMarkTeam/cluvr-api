@@ -120,7 +120,7 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public void logout(Long userId, String accessToken) {
+	public void logout(String accessToken) {
 
 		if (accessToken == null || accessToken.isBlank()) {
 			throw new BusinessException(
@@ -131,7 +131,9 @@ public class AuthServiceImpl implements AuthService {
 		try {
 			long expireMillis = jwtUtil.getExpirationMillis(accessToken);
 			long remainingMillis = expireMillis - System.currentTimeMillis();
-			refreshTokenService.blacklistAccessToken(accessToken, remainingMillis);
+			if (remainingMillis > 0) {
+				refreshTokenService.blacklistAccessToken(accessToken, remainingMillis);
+			}
 		} catch (io.jsonwebtoken.JwtException ex) {
 			throw new BusinessException(
 				ResponseCode.TOKEN_INVALID,
@@ -142,7 +144,8 @@ public class AuthServiceImpl implements AuthService {
 				ResponseCode.DB_FAIL,
 				"로그아웃 처리 중 오류가 발생했습니다."
 			);
-
 		}
+
 	}
 }
+
