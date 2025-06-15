@@ -61,7 +61,7 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 		);
 
 		// 5) 활성화된 문제 양식을 비활성화로 바꾸어준다.
-		Optional<ProblemForm> formOpt = problemRepository.findActiveProblemFormIdByClubId(clubId);
+		Optional<ProblemForm> formOpt = problemRepository.findActiveProblemFormByClubId(clubId);
 		formOpt.ifPresent(
 			form -> {
 				form.deactivate();
@@ -87,8 +87,9 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public InfoProblemFormResponseDto findActiveProblemFormByClubId(Long clubId) {
-		ProblemForm activeProblemForm = problemRepository.findActiveProblemFormIdByClubId(clubId).orElseThrow(
+		ProblemForm activeProblemForm = problemRepository.findActiveProblemFormByClubId(clubId).orElseThrow(
 			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "활성화된 문제양식이 없습니다.")
 		);
 		return InfoProblemFormResponseDto.from(activeProblemForm);
