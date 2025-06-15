@@ -34,9 +34,11 @@ public class ProblemFormRepositoryImpl implements ProblemFormRepositoryCustom {
 	public InfoProblemFormResponseDto findProblemFormById(Long clubId, Long problemId) {
 		InfoProblemFormResponseDto content = jpaQueryFactory
 			.select(new QInfoProblemFormResponseDto(
+				problemForm.id,
 				problemForm.problemTemplate,
 				problemForm.submissionInstructions,
-				problemForm.gradingCriteria
+				problemForm.gradingCriteria,
+				problemForm.isActive
 			))
 			.from(problemForm)
 			.where(problemForm.id.eq(problemId).and(problemForm.club.id.eq(clubId)))
@@ -48,9 +50,11 @@ public class ProblemFormRepositoryImpl implements ProblemFormRepositoryCustom {
 	public PageResponseDto<InfoProblemFormResponseDto> findByProblemFormAllById(Long clubId, Pageable pageable) {
 		List<InfoProblemFormResponseDto> content = jpaQueryFactory
 			.select(new QInfoProblemFormResponseDto(
+				problemForm.id,
 				problemForm.problemTemplate,
 				problemForm.submissionInstructions,
-				problemForm.gradingCriteria
+				problemForm.gradingCriteria,
+				problemForm.isActive
 			))
 			.from(problemForm)
 			.where(problemForm.club.id.eq(clubId))
@@ -68,9 +72,9 @@ public class ProblemFormRepositoryImpl implements ProblemFormRepositoryCustom {
 	}
 
 	@Override
-	public Optional<Long> findActiveProblemFormIdByClubId(Long clubId) {
+	public Optional<ProblemForm> findActiveProblemFormIdByClubId(Long clubId) {
 		return Optional.ofNullable(
-			jpaQueryFactory.select(problemForm.id)
+			jpaQueryFactory.select(problemForm)
 				.from(problemForm)
 				.where(
 					problemForm.club.id.eq(clubId)

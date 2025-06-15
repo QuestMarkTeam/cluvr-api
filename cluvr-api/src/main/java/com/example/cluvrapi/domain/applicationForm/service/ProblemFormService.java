@@ -50,6 +50,17 @@ public interface ProblemFormService {
 	PageResponseDto<InfoProblemFormResponseDto> findAllProblemForm(Long clubId, Pageable pageable);
 
 	/**
+	 * 설명: 클럽의 활성화된 문제양식을 조회하는 메서드
+	 *
+	 * @param clubId {설명: 클럽의 고유 식별자}
+	 * @return InfoProblemFormResponseDto {설명: 활성 문제양식 응답 DTO}
+	 * @throws BusinessException {404 NotFound} 활성 문제양식이 없을 경우
+	 * @author sinyoung0403
+	 */
+
+	InfoProblemFormResponseDto findActiveProblemFormByClubId(Long clubId);
+
+	/**
 	 * 설명: 클럽의 문제양식을 수정하는 메서드
 	 *
 	 * @param userId                      {설명: 유저의 고유 식별자}

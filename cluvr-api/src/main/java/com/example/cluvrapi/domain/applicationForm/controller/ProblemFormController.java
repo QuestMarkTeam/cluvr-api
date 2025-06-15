@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.applicationForm.dto.request.CreateProblemFormRequestDto;
@@ -68,6 +69,15 @@ public class ProblemFormController {
 		return ResponseEntity.ok(BaseResponse.success(pageProblemFormResponseDto, ResponseCode.OK));
 	}
 
+	@GetMapping("/active")
+	public ResponseEntity<BaseResponse<InfoProblemFormResponseDto>> findActiveProblemFormByClubId(
+		@PathVariable Long clubId
+	) {
+		InfoProblemFormResponseDto problemFormResponseDto = problemFormService.findActiveProblemFormByClubId(
+			clubId);
+		return ResponseEntity.ok(BaseResponse.success(problemFormResponseDto, ResponseCode.OK));
+	}
+
 	@PatchMapping("/{problemFormId}")
 	public ResponseEntity<BaseResponse<Void>> updateProblemForm(
 		@Auth AuthUser authUser,
@@ -85,10 +95,18 @@ public class ProblemFormController {
 		@PathVariable Long clubId,
 		@PathVariable Long problemFormId
 	) {
-		problemFormService.deleteProblem(clubId, problemFormId);
 		problemFormService.deleteProblem(authUser.id(), clubId, problemFormId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
+
+	@PatchMapping("/{problemFormId}/activation")
+	public ResponseEntity<BaseResponse<Void>> changeActivationState(
+		@Auth AuthUser authUser,
+		@PathVariable Long clubId,
+		@PathVariable Long problemFormId,
+		@RequestParam Boolean active
+	) {
+		problemFormService.changeActivationState(authUser.id(), clubId, problemFormId, active);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 }

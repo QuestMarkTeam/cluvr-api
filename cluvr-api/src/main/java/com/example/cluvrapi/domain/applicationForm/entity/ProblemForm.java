@@ -70,10 +70,12 @@ public class ProblemForm extends BaseTimeEntity {
 	/**
 	 * 생성자 메서드
 	 */
-	public ProblemForm(String problemTemplate, String submissionInstructions, String gradingCriteria, Club club) {
+	public ProblemForm(String problemTemplate, String submissionInstructions, String gradingCriteria, Boolean isActive,
+		Club club) {
 		this.problemTemplate = problemTemplate;
 		this.submissionInstructions = submissionInstructions;
 		this.gradingCriteria = gradingCriteria;
+		this.isActive = isActive;
 		this.club = club;
 	}
 
