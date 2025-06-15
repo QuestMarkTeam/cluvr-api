@@ -74,5 +74,17 @@ public interface BoardService {
 	 * @author yong
 	 */
 	PageResponseDto<ReadMyBoardsResponseDto> readBoardsWithUser(long userId, Pageable pageable);
+
+	/**
+	 *
+	 * 설명: 게시글의 주인은 댓글 중 하나를 채택합니다.
+	 *
+	 * @param userId
+	 * @param boardId
+	 * @param replyId
+	 *
+	 * @author yong
+	 */
+	void selectBestReply(long userId, long boardId, long replyId);
 }
 

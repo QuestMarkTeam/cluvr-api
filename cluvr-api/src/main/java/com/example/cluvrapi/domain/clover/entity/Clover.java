@@ -45,4 +45,12 @@ public class Clover {
 	public void updateScore(Integer score) {
 		this.score = score;
 	}
+
+	public void takeScore(Integer score) {
+		this.score += score;
+	}
+
+	public void spendScore(Integer score) {
+		this.score -= score;
+	}
 }

@@ -82,4 +82,7 @@ public class Board extends BaseTimeEntity {
 		this.clover = clover;
 	}
 
+	public void updateSelection() {
+		this.isSelected = true;
+	}
 }
