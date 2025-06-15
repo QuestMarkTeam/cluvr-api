@@ -3,6 +3,7 @@ package com.example.cluvrapi.domain.notice.repository;
 import static com.example.cluvrapi.domain.notice.entity.QNotice.notice;
 
 import java.util.List;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,19 +21,19 @@ public class NoticeRepositoryImpl implements NoticeRepositoryCustom {
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
-	public InfoNoticeResponseDto findNoticeById(Long clubId, Long noticeId) {
-		InfoNoticeResponseDto content = jpaQueryFactory
-			.select(new QInfoNoticeResponseDto(
-				notice.id,
-				notice.user.id,
-				notice.title,
-				notice.content
-			))
-			.from(notice)
-			.where(notice.id.eq(noticeId).and(notice.club.id.eq(clubId)))
-			.fetchOne();
-
-		return content;
+	public Optional<InfoNoticeResponseDto> findNoticeById(Long clubId, Long noticeId) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.select(new QInfoNoticeResponseDto(
+					notice.id,
+					notice.user.id,
+					notice.title,
+					notice.content
+				))
+				.from(notice)
+				.where(notice.id.eq(noticeId).and(notice.club.id.eq(clubId)))
+				.fetchOne()
+		);
 	}
 
 	@Override
