@@ -48,13 +48,20 @@ public class SubmissionForm extends BaseTimeEntity {
 		this.club = club;
 	}
 
-	/**
-	 * 가입 양식 수정
+	/****
+	 * 제출 양식 템플릿을 새로운 값으로 변경합니다.
+	 *
+	 * @param submissionTemplate 새로 설정할 제출 양식 템플릿 문자열
 	 */
 	public void updateSubmissionTemplate(String submissionTemplate) {
 		this.submissionTemplate = submissionTemplate;
 	}
 
+	/****
+	 * 이 제출 양식 엔티티와 연관된 클럽 엔티티를 설정하거나 변경합니다.
+	 *
+	 * @param club 연관시킬 클럽 엔티티
+	 */
 	public void setClub(Club club) {
 		this.club = club;
 	}

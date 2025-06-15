@@ -68,7 +68,13 @@ public class ProblemForm extends BaseTimeEntity {
 	private Boolean isDeleted = false;
 
 	/**
-	 * 생성자 메서드
+	 * 문제 폼 엔티티를 지정된 값으로 초기화하는 생성자입니다.
+	 *
+	 * @param problemTemplate 문제 템플릿 내용
+	 * @param submissionInstructions 제출 안내 사항 (nullable)
+	 * @param gradingCriteria 채점 기준 설명 (nullable)
+	 * @param isActive 문제 폼 활성화 여부
+	 * @param club 소속 클럽 엔티티
 	 */
 	public ProblemForm(String problemTemplate, String submissionInstructions, String gradingCriteria, Boolean isActive,
 		Club club) {

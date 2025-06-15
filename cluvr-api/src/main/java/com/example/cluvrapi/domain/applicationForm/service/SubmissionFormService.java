@@ -12,15 +12,14 @@ import com.example.cluvrapi.global.exception.BusinessException;
 public interface SubmissionFormService {
 
 	/**
-	 * 설명: 클럽의 제출 양식을 생성하는 메서드
-	 *
-	 * @param userId                   {설명: 클럽의 고유 식별자}
-	 * @param clubId                   {설명: 클럽의 고유 식별자}
-	 * @param submissionFormRequestDto {설명: 가입 제출 양식에 필요한 정보}
-	 * @return CreateSubmissionFormResponseDto {설명: 클럽의 id 값 반환}
-	 * @throws BusinessException {404 NotFound}
-	 * @author sinyoung0403
-	 */
+		 * 클럽에 대한 새로운 제출 양식을 생성합니다.
+		 *
+		 * @param userId 제출 양식을 생성하는 사용자의 고유 식별자
+		 * @param clubId 제출 양식을 생성할 클럽의 고유 식별자
+		 * @param submissionFormRequestDto 제출 양식 생성에 필요한 정보가 담긴 DTO
+		 * @return 생성된 제출 양식의 식별자가 포함된 DTO
+		 * @throws BusinessException 클럽 또는 사용자를 찾을 수 없는 경우 404 예외가 발생합니다.
+		 */
 
 	CreateSubmissionFormResponseDto createSubmissionForm(Long userId,
 		Long clubId, CreateSubmissionFormRequestDto submissionFormRequestDto);
@@ -48,30 +47,24 @@ public interface SubmissionFormService {
 	PageResponseDto<InfoSubmissionFormResponseDto> findAllSubmissionForm(Long clubId, Pageable pageable);
 
 	/**
-	 * 설명: 클럽의 제출 양식을 수정하는 메서드
-	 *
-	 * @param userId
-	 * @param clubId
-	 * @param submissionFormId                   {설명: ApplicationForm 의 고유 식별자}
-	 * @param updateSubmissionTemplateRequestDto {설명: 수정할 때 필요한 정보}
-	 * @throws BusinessException {404 NotFound}
-	 * @author sinyoung0403
-	 */
+		 * 클럽의 특정 제출 양식을 수정합니다.
+		 *
+		 * @param submissionFormId 수정할 제출 양식의 고유 식별자
+		 * @param updateSubmissionTemplateRequestDto 제출 양식 수정에 필요한 정보
+		 * @throws BusinessException 클럽 또는 제출 양식을 찾을 수 없는 경우 404 예외가 발생합니다.
+		 */
 
 	void updateSubmissionTemplate(Long userId, Long clubId,
 		Long submissionFormId, UpdateSubmissionTemplateRequestDto updateSubmissionTemplateRequestDto);
 
 	/**
-	 * 설명: 클럽의 제출 양식을 삭제하는 메서드
-	 *
-	 * <p> 양식을 삭제 시 SoftDeleted 처리 및 Club 의 JoinType 이 가입 신청 양식으로 변경
-	 *
-	 * @param userId           {설명: 클럽 의 고유 식별자}
-	 * @param clubId           {설명: 클럽 의 고유 식별자}
-	 * @param submissionFormId {설명: SubmissionForm 의 고유 식별자}
-	 * @throws BusinessException {404 NotFound}
-	 * @author sinyoung0403
-	 */
+ * 클럽의 제출 양식을 소프트 삭제하고, 클럽의 가입 유형을 '가입 신청 양식'으로 변경합니다.
+ *
+ * @param userId 클럽 제출 양식 삭제를 요청한 사용자의 고유 식별자
+ * @param clubId 클럽의 고유 식별자
+ * @param submissionFormId 삭제할 제출 양식의 고유 식별자
+ * @throws BusinessException 클럽 또는 제출 양식을 찾을 수 없는 경우 404 예외를 발생시킵니다.
+ */
 
 	void deleteSubmissionForm(Long userId, Long clubId, Long submissionFormId);
 }

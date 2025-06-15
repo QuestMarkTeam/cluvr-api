@@ -33,6 +33,18 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 	private final ClubValidator clubValidator;
 	private final ClubMemberRepository clubMemberRepository;
 
+	/**
+	 * 클럽에 새로운 문제 양식을 생성하고 활성화합니다.
+	 *
+	 * 사용자의 소유자 권한을 검증한 후, 클럽의 가입 방식이 문제 양식(ProblemForm)일 때만 동작합니다.
+	 * 기존에 활성화된 문제 양식이 있다면 비활성화 처리 후, 요청 정보로 새 문제 양식을 생성하여 저장하고 활성화합니다.
+	 *
+	 * @param userId 문제 양식을 생성하려는 사용자의 ID
+	 * @param clubId 문제 양식을 생성할 클럽의 ID
+	 * @param problemFormRequestDto 생성할 문제 양식의 정보가 담긴 DTO
+	 * @return 생성된 문제 양식의 ID를 포함한 응답 DTO
+	 * @throws BusinessException 사용자가 클럽 소유자가 아니거나, 클럽의 가입 방식이 문제 양식이 아닐 경우 발생
+	 */
 	@Override
 	@Transactional
 	public CreateProblemFormResponseDto createProblemForm(Long userId,
@@ -74,18 +86,40 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 		return CreateProblemFormResponseDto.from(problemForm.getId());
 	}
 
+	/**
+	 * 지정된 클럽 ID와 문제 폼 ID로 문제 폼 정보를 조회합니다.
+	 *
+	 * @param clubId 클럽의 고유 ID
+	 * @param problemId 문제 폼의 고유 ID
+	 * @return 문제 폼 정보 응답 DTO
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public InfoProblemFormResponseDto findProblemFormById(Long clubId, Long problemId) {
 		return problemRepository.findProblemFormById(clubId, problemId);
 	}
 
+	/**
+	 * 특정 클럽의 모든 문제 폼을 페이지 단위로 조회합니다.
+	 *
+	 * @param clubId 조회할 클럽의 ID
+	 * @param pageable 페이지네이션 정보
+	 * @return 문제 폼 정보의 페이지 응답 DTO
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public PageResponseDto<InfoProblemFormResponseDto> findAllProblemForm(Long clubId, Pageable pageable) {
 		return problemRepository.findByProblemFormAllById(clubId, pageable);
 	}
 
+	/**
+	 * 주어진 클럽의 현재 활성화된 문제양식을 조회합니다.
+	 *
+	 * 활성화된 문제양식이 없을 경우 비즈니스 예외를 발생시킵니다.
+	 *
+	 * @param clubId 클럽의 식별자
+	 * @return 활성화된 문제양식 정보 응답 DTO
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public InfoProblemFormResponseDto findActiveProblemFormByClubId(Long clubId) {
@@ -95,6 +129,18 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 		return InfoProblemFormResponseDto.from(activeProblemForm);
 	}
 
+	/**
+	 * 기존 문제 폼의 정보를 수정합니다.
+	 *
+	 * 사용자가 클럽의 소유자인지 검증한 후, 해당 클럽과 문제 폼 ID에 해당하는 문제 폼을 찾아 요청된 항목(문제 템플릿, 제출 안내, 채점 기준)을 각각 업데이트합니다.
+	 *
+	 * @param userId 수정 요청을 하는 사용자의 ID
+	 * @param clubId 문제 폼이 속한 클럽의 ID
+	 * @param problemFormId 수정할 문제 폼의 ID
+	 * @param updateProblemFormRequestDto 수정할 정보가 담긴 DTO
+	 *
+	 * @throws BusinessException 사용자가 클럽 멤버가 아니거나 소유자 권한이 없는 경우, 또는 해당 문제 폼이 존재하지 않는 경우 발생합니다.
+	 */
 	@Override
 	@Transactional
 	public void updateProblemForm(Long userId, Long clubId,
@@ -129,6 +175,15 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 
 	}
 
+	/**
+	 * 클럽의 문제 폼을 소프트 삭제하고 비활성화합니다.
+	 *
+	 * 사용자가 클럽의 소유자인지 검증한 후, 지정된 문제 폼을 소프트 삭제 처리하고 활성 상태를 해제합니다.
+	 *
+	 * @param userId 삭제를 요청하는 사용자 ID
+	 * @param clubId 문제 폼이 속한 클럽 ID
+	 * @param problemFormId 삭제할 문제 폼 ID
+	 */
 	@Override
 	@Transactional
 	public void deleteProblem(Long userId, Long clubId, Long problemFormId) {
@@ -152,6 +207,20 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 		findProblemForm.deactivate();
 	}
 
+	/**
+	 * 문제양식의 활성화 상태를 변경합니다.
+	 *
+	 * 사용자의 소유자 권한을 검증한 후, 지정된 문제양식의 활성화 또는 비활성화를 수행합니다.
+	 * 활성화 시 해당 클럽의 기존 활성 문제양식이 있다면 비활성화하고, 대상 문제양식을 활성화합니다.
+	 * 비활성화 시 대상 문제양식만 비활성화합니다.
+	 *
+	 * @param userId  활성화 상태를 변경하려는 사용자의 ID
+	 * @param clubId  문제양식이 속한 클럽의 ID
+	 * @param problemFormId  활성화 상태를 변경할 문제양식의 ID
+	 * @param active  true로 설정 시 활성화, false로 설정 시 비활성화
+	 *
+	 * @throws BusinessException 사용자가 클럽의 소유자가 아니거나, 이미 해당 상태인 경우 예외가 발생합니다.
+	 */
 	@Override
 	@Transactional
 	public void changeActivationState(Long userId, Long clubId, Long problemFormId, Boolean active) {

@@ -235,10 +235,10 @@ public class Club extends BaseTimeEntity {
 	}
 
 	/**
-	 * 설명: 클럽의 공개 여부를 변경
+	 * 클럽의 공개 여부를 변경합니다.
 	 *
-	 * @param isPublic 변경할 공개 여부 (true: 공개, false: 비공개)
-	 * @author sinyoung0403
+	 * @param isPublic 클럽을 공개로 설정하려면 true, 비공개로 설정하려면 false를 전달합니다.
+	 * @throws BusinessException isPublic이 null인 경우 발생합니다.
 	 */
 
 	public void updatePrivacy(Boolean isPublic) {
@@ -249,6 +249,13 @@ public class Club extends BaseTimeEntity {
 		this.isPublic = isPublic;
 	}
 
+	/**
+	 * 클럽과 연관된 지원서 양식을 설정합니다.
+	 *
+	 * 지원서 양식이 이미 다른 클럽에 연결되어 있지 않은 경우, 해당 클럽으로 연관을 설정합니다.
+	 *
+	 * @param submissionForm 연결할 SubmissionForm 객체
+	 */
 	public void setSubmissionForm(SubmissionForm submissionForm) {
 		this.submissionForm = submissionForm;
 		if (submissionForm != null && submissionForm.getClub() != this) {

@@ -18,6 +18,15 @@ public class InfoProblemFormResponseDto {
 
 	private Boolean isActive;
 
+	/**
+	 * InfoProblemFormResponseDto의 모든 필드를 초기화하는 생성자입니다.
+	 *
+	 * @param problemFormId 문제 폼의 고유 식별자
+	 * @param problemTemplate 문제 템플릿 내용
+	 * @param submissionInstructions 제출 지침
+	 * @param gradingCriteria 채점 기준
+	 * @param isActive 문제 폼의 활성화 여부
+	 */
 	@QueryProjection
 	public InfoProblemFormResponseDto(
 		Long problemFormId,
@@ -32,6 +41,12 @@ public class InfoProblemFormResponseDto {
 		this.isActive = isActive;
 	}
 
+	/**
+	 * 주어진 ProblemForm 엔티티로부터 InfoProblemFormResponseDto 인스턴스를 생성합니다.
+	 *
+	 * @param problemForm 변환할 ProblemForm 엔티티
+	 * @return ProblemForm의 정보를 담은 InfoProblemFormResponseDto 객체
+	 */
 	public static InfoProblemFormResponseDto from(ProblemForm problemForm) {
 		return new InfoProblemFormResponseDto(
 			problemForm.getId(),

@@ -34,28 +34,26 @@ public interface ProblemFormRepositoryCustom {
 
 	InfoProblemFormResponseDto findProblemFormById(Long clubId, Long problemId);
 
-	/**
-	 * 설명: 문제 양식을 다건 조회하는 쿼리문
-	 *
-	 * <p> Dto Projection 적용, 페이징 처리
-	 *
-	 * @param clubId   {설명: 클럽 고유 식별자}
-	 * @param pageable {설명: 페이징 객체}
-	 * @return PageResponseDto<InfoProblemFormResponseDto> {문제 양식 정보 페이징 객체}
-	 * @author sinyoung0403
-	 */
+	/****
+ * 특정 클럽의 모든 문제 양식 정보를 페이징하여 조회합니다.
+ *
+ * DTO 프로젝션을 사용하여 문제 양식 정보를 반환하며, 페이징 처리가 적용됩니다.
+ *
+ * @param clubId 조회할 클럽의 고유 식별자
+ * @param pageable 페이징 및 정렬 정보를 담은 객체
+ * @return 문제 양식 정보의 페이징 결과
+ */
 
 	PageResponseDto<InfoProblemFormResponseDto> findByProblemFormAllById(Long clubId, Pageable pageable);
 
 	/**
-	 * 설명: 클럽의 활성화된 문제양식 ID를 조회하는 메서드
-	 *
-	 * <p> SoftDelete가 적용된 데이터 제외, 단건 조회
-	 *
-	 * @param clubId {설명: 클럽 고유 식별자}
-	 * @return Optional<ProblemForm> {설명: 활성화된 문제양식 (없을 경우 빈 Optional)}
-	 * @author sinyoung0403
-	 */
+ * 주어진 클럽 ID에 해당하는 활성화된 문제양식 엔티티를 조회합니다.
+ *
+ * SoftDelete가 적용되지 않은(삭제되지 않은) 문제양식 중 하나를 Optional로 반환합니다.
+ *
+ * @param clubId 클럽의 고유 식별자
+ * @return 활성화된 문제양식 엔티티가 존재하면 Optional로 반환하며, 없으면 빈 Optional을 반환합니다.
+ */
 
 	Optional<ProblemForm> findActiveProblemFormByClubId(Long clubId);
 }

@@ -35,17 +35,22 @@ public interface SubmissionFormRepositoryCustom {
 	InfoSubmissionFormResponseDto findSubmissionFormById(Long clubId, Long submissionFormId);
 
 	/**
-	 * 설명: 제출 양식을 다건 조회하는 쿼리문
-	 *
-	 * <p>{Dto Projection 적용, 페이징 처리}
-	 *
-	 * @param clubId   {설명: 클럽 고유 식별자}
-	 * @param pageable {설명: 페이징 객체}
-	 * @return PageResponseDto<InfoSubmissionFormResponseDto> {제출 양식 정보 페이징 객체}
-	 * @author {sinyoung0403}
-	 */
+ * 특정 클럽의 제출 양식 목록을 페이징하여 조회합니다.
+ *
+ * DTO 프로젝션을 사용하여 제출 양식 정보를 반환하며, 페이징 처리가 적용됩니다.
+ *
+ * @param clubId 클럽의 고유 식별자
+ * @param pageable 페이징 정보를 담은 객체
+ * @return 제출 양식 정보의 페이징 결과
+ */
 
 	PageResponseDto<InfoSubmissionFormResponseDto> findAllSubmissionFormById(Long clubId, Pageable pageable);
 
-	Optional<SubmissionForm> findSubmissionFormByClubId(Long clubId);
+	/****
+ * 지정된 클럽 ID에 해당하는 제출 양식 엔티티를 조회합니다.
+ *
+ * @param clubId 제출 양식을 조회할 클럽의 ID
+ * @return 해당 클럽에 연결된 SubmissionForm 엔티티가 존재하면 Optional로 반환하며, 없으면 빈 Optional을 반환합니다.
+ */
+Optional<SubmissionForm> findSubmissionFormByClubId(Long clubId);
 }

@@ -40,6 +40,13 @@ public class SubmissionFormRepositoryImpl implements SubmissionFormRepositoryCus
 		return content;
 	}
 
+	/**
+	 * 지정된 클럽 ID에 해당하는 모든 제출 양식 정보를 페이지 단위로 조회합니다.
+	 *
+	 * @param clubId 조회할 클럽의 ID
+	 * @param pageable 페이지네이션 정보
+	 * @return 제출 양식 정보 DTO의 페이지 응답 객체
+	 */
 	@Override
 	public PageResponseDto<InfoSubmissionFormResponseDto> findAllSubmissionFormById(Long clubId, Pageable pageable) {
 		List<InfoSubmissionFormResponseDto> content = jpaQueryFactory
@@ -59,6 +66,12 @@ public class SubmissionFormRepositoryImpl implements SubmissionFormRepositoryCus
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));
 	}
 
+	/**
+	 * 주어진 클럽 ID에 해당하는 첫 번째 SubmissionForm 엔티티를 조회합니다.
+	 *
+	 * @param clubId 조회할 클럽의 ID
+	 * @return SubmissionForm 엔티티가 존재하면 Optional에 담아 반환하며, 없으면 빈 Optional을 반환합니다.
+	 */
 	@Override
 	public Optional<SubmissionForm> findSubmissionFormByClubId(Long clubId) {
 		return Optional.ofNullable(

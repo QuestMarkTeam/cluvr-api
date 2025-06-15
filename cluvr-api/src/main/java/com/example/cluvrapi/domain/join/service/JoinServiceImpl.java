@@ -249,15 +249,14 @@ public class JoinServiceImpl implements JoinService {
 	}
 
 	/**
-	 * 설명: Join Type 이 Submission 일 경우의 분기 메서드
+	 * 클럽 가입 요청이 Submission 양식일 때 답변을 저장합니다.
 	 *
-	 * <p> Form 의 가입 양식이 클럽과 일치해야한다.
+	 * 클럽에 연결된 가입 양식(SubmissionForm)이 존재해야 하며, 답변이 비어 있으면 예외가 발생합니다.
 	 *
-	 * @param clubId      {설명: 클럽 고유 식별자}
-	 * @param joinRequest {설명: JoinRequest Entity}
-	 * @param answers     {설명: 가입 양식 혹은 문제에 대한 답변}
-	 * @throws BusinessException {400 BadRequest}
-	 * @author sinyoung0403
+	 * @param clubId 클럽의 고유 식별자
+	 * @param joinRequest 가입 요청 엔티티
+	 * @param answers 가입 양식에 대한 답변
+	 * @throws BusinessException 가입 양식이 없거나 답변이 비어 있을 경우 발생
 	 */
 	private void processFormSubmission(Long clubId, JoinRequest joinRequest, String answers) {
 		if (answers == null && answers.isEmpty()) {
@@ -278,15 +277,14 @@ public class JoinServiceImpl implements JoinService {
 	}
 
 	/**
-	 * 설명: Join Type 이 Problem 일 경우의 분기 메서드
+	 * 클럽의 활성화된 문제 양식에 대한 가입 신청 답변을 처리합니다.
 	 *
-	 * <p> Active 한 문제 양식일 경우만 가입신청이 가능하다.
+	 * <p>클럽에 활성화된 문제 양식이 있을 때만 답변을 저장하며, 답변이 없거나 양식이 없으면 예외를 발생시킵니다.
 	 *
-	 * @param clubId      {설명: 클럽 고유 식별자}
-	 * @param joinRequest {설명: JoinRequest Entity}
-	 * @param answers     {설명: 가입 양식 혹은 문제에 대한 답변}
-	 * @throws BusinessException {400 BadRequest}
-	 * @author sinyoung0403
+	 * @param clubId 클럽의 고유 식별자
+	 * @param joinRequest 가입 신청 엔티티
+	 * @param answers 문제 양식에 대한 답변
+	 * @throws BusinessException 답변이 없거나 활성화된 문제 양식이 없는 경우 발생
 	 */
 
 	private void processFormProblem(Long clubId, JoinRequest joinRequest, String answers) {
