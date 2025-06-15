@@ -118,10 +118,10 @@ public class TilServiceImpl implements TilService {
 	public void deleteTil(Long userId, Long clubId, Long tilId) {
 		// 1) Til 조회, Club 조회
 		Til findTil = tilRepository.findByIdOrElseThrow(tilId);
-		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
+		clubRepository.findByIdOrElseThrow(clubId);
 
 		// 2) 멤버 조회
-		ClubMember clubMember = clubMemberRepository.findOwnerByClub(findClub).orElseThrow(
+		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
 			() -> new BusinessException(ResponseCode.INVALID_REQUEST)
 		);
 

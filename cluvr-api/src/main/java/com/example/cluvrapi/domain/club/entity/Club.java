@@ -151,8 +151,8 @@ public class Club extends BaseTimeEntity {
 	 * 기본 생성자
 	 */
 
-	public Club(String name, ClubType clubType, int maxMemberCount, int minCloverRequirement,
-		String greeting, String description, String posterUrl, Boolean isPublic, JoinType joinType) {
+	public Club(String name, ClubType clubType, int maxMemberCount, int minCloverRequirement, String greeting,
+		String description, String posterUrl, Boolean isPublic, JoinType joinType) {
 		this.name = name;
 		this.clubType = clubType;
 		this.maxMemberCount = maxMemberCount;
@@ -250,6 +250,9 @@ public class Club extends BaseTimeEntity {
 
 	public void setSubmissionForm(SubmissionForm submissionForm) {
 		this.submissionForm = submissionForm;
+		if (this.submissionForm != null && this.submissionForm.getClub() == this) {
+			this.submissionForm.setClub(null);
+		}
 		if (submissionForm != null && submissionForm.getClub() != this) {
 			submissionForm.setClub(this);
 		}
