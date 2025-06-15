@@ -72,14 +72,14 @@ public class ProblemFormRepositoryImpl implements ProblemFormRepositoryCustom {
 	}
 
 	@Override
-	public Optional<ProblemForm> findActiveProblemFormByClubId(Long clubId) {
+	public Optional<ProblemForm> findActiveProblemFormIdByClubId(Long clubId) {
 		return Optional.ofNullable(
 			jpaQueryFactory.select(problemForm)
 				.from(problemForm)
 				.where(
 					problemForm.club.id.eq(clubId)
-						.and(problemForm.isDeleted.isFalse())
-						.and(problemForm.isActive.isTrue())
+						.and(problemForm.isDeleted.eq(false))
+						.and(problemForm.isActive.eq(true))
 				)
 				.fetchOne()
 		);

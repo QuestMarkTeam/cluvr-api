@@ -75,7 +75,7 @@ public class ProblemForm extends BaseTimeEntity {
 		this.problemTemplate = problemTemplate;
 		this.submissionInstructions = submissionInstructions;
 		this.gradingCriteria = gradingCriteria;
-		this.isActive = Boolean.TRUE.equals(isActive);
+		this.isActive = isActive;
 		this.club = club;
 	}
 
