@@ -78,8 +78,8 @@ public class ProblemFormRepositoryImpl implements ProblemFormRepositoryCustom {
 				.from(problemForm)
 				.where(
 					problemForm.club.id.eq(clubId)
-						.and(problemForm.isDeleted.eq(false))
-						.and(problemForm.isActive.eq(true))
+						.and(problemForm.isDeleted.isFalse())
+						.and(problemForm.isActive.isTrue())
 				)
 				.fetchOne()
 		);
