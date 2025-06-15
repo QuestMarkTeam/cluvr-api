@@ -16,6 +16,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import org.hibernate.annotations.SQLDelete;
+
 import com.example.cluvrapi.domain.board.enums.BoardType;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
@@ -25,6 +27,7 @@ import com.example.cluvrapi.domain.user.entity.User;
 @Getter
 @Table(name = "boards")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE boards SET is_deleted = true WHERE id = ?")
 public class Board extends BaseTimeEntity {
 
 	@Id
@@ -79,7 +82,4 @@ public class Board extends BaseTimeEntity {
 		this.clover = clover;
 	}
 
-	public void delete() {
-		this.isDeleted = true;
-	}
 }

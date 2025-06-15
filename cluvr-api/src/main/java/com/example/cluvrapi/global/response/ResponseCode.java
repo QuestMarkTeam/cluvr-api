@@ -42,7 +42,8 @@ public enum ResponseCode {
 
 	/* Board, Reply */
 	SELF_REACTION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자신이 작성한 것에 좋아요/싫어요를 선택할 수 없습니다."),
-	BOARD_REPLY_MISMATCH(HttpStatus.BAD_REQUEST, "게시글의 해당하는 댓글이 아닙니다.");
+	BOARD_REPLY_MISMATCH(HttpStatus.BAD_REQUEST, "게시글의 해당하는 댓글이 아닙니다."),
+	NO_PERMISSION_DELETE(HttpStatus.NOT_ACCEPTABLE, "현재 유저는 이 게시물을 삭제할 수 있는 권한이 없습니다.");
 
 	private final HttpStatus status;
 	private final String defaultMessage;

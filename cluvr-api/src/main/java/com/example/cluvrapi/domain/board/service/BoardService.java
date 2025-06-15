@@ -17,12 +17,13 @@ public interface BoardService {
 	 *
 	 * 설명: 게시글 생성 서비스
 	 *
+	 * @param userId - 생성자
 	 * @param dto - 생성하는 게시글의 정보
 	 * @return 생성된 게시글의 id
 	 *
 	 * @author yong
 	 */
-	long createBoard(CreateBoardRequestDto dto);
+	long createBoard(long userId, CreateBoardRequestDto dto);
 
 	/**
 	 * 설명: 특정 카테고리에 해당하는 게시글 목록을 페이징 처리하여 조회
@@ -57,10 +58,11 @@ public interface BoardService {
 	/**
 	 * 설명: 특정 게시글 삭제
 	 *
+	 * @param userId 게시글 만든 유저 ID
 	 * @param boardId 삭제할 게시글 ID
 	 * @author yong
 	 */
-	void deleteBoard(long boardId);
+	void deleteBoard(long userId, long boardId);
 
 	/**
 	 * 설명: 자신이 작성했던 게시글 목록 확인
