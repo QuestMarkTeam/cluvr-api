@@ -52,7 +52,7 @@ public class NotificationStreamService {
 		sseEmitterRepository.save(userId, emitter);
 
 		Runnable cleanUp = () -> {
-			log.info("SSE 연결 종료 -> 리스너 중단 및 Emitter 제거: user.{}", userId);
+			log.debug("SSE 연결 종료 -> 리스너 중단 및 Emitter 제거: user.{}", userId);
 			notificationListenerManager.stop(userId);
 			sseEmitterRepository.delete(userId, emitter);
 		};
@@ -62,11 +62,14 @@ public class NotificationStreamService {
 
 		emitter.onTimeout(cleanUp);
 		emitter.onError(ex ->
-			log.warn("SSE 오류 발생 : 사용자 ID = {} , 오류 = {}", userId, ex.toString()));
-		cleanUp.run();
+		{
+			log.warn("SSE 오류 발생 : 사용자 ID = {} , 오류 = {}", userId, ex.toString());
+			cleanUp.run();
+		});
 
 		//MongoDB에 저장된 알림 꺼내기
 		List<NotificationDocument> cachedList = notificationCacheRepository.findAllByReceiverId(userId);
+		log.debug("Mongo에서 꺼낸 알림 개수: {}", cachedList.size());
 
 		//전송실패한 알림 리스트
 		List<NotificationDocument> failedToSend = new ArrayList<>();
@@ -82,6 +85,9 @@ public class NotificationStreamService {
 						doc.getTargetType(),
 						doc.getTargetId()
 					)));
+
+				log.debug("SSE로 전송할 알림: {}", doc.getContent());
+
 			} catch (IOException e) {
 				log.warn("알림 전송 실패 -> 보존 대상: {}", doc.getContent());
 				failedToSend.add(doc);

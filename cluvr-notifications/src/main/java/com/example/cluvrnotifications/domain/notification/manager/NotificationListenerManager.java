@@ -22,6 +22,7 @@ import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
 import org.springframework.stereotype.Service;
 
 import com.example.cluvrnotifications.domain.notification.dto.event.NotificationEvent;
+import com.example.cluvrnotifications.domain.notification.service.NotificationReceiveService;
 import com.example.cluvrnotifications.global.exception.BusinessException;
 import com.example.cluvrnotifications.global.response.ResponseCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +43,8 @@ public class NotificationListenerManager {
 	private final ConnectionFactory connectionFactory;
 	private final ObjectMapper objectMapper;
 
+	private final NotificationReceiveService notificationReceiveService;
+
 	private final Map<Long, SimpleMessageListenerContainer> listenerContainers = new ConcurrentHashMap<>();
 
 	/**
@@ -59,7 +62,7 @@ public class NotificationListenerManager {
 
 		//중복생성방지
 		if (listenerContainers.containsKey(userId)) {
-			log.info("이미 존재하는 컨테이너 있음: user.{}", userId);
+			log.debug("이미 존재하는 컨테이너 있음: user.{}", userId);
 			return;
 		}
 
@@ -71,7 +74,7 @@ public class NotificationListenerManager {
 			createQueueAndBinding(queueName);
 			SimpleMessageListenerContainer c = createContainer(queueName);
 			c.start();
-			log.info("user.{} 컨테이너 생성 및 시작", userId);
+			log.debug("user.{} 컨테이너 생성 및 시작", userId);
 			return c;    //여기서 put까지 일어나서 메모리에 저장이됨.
 
 		});
@@ -88,7 +91,7 @@ public class NotificationListenerManager {
 		if (container != null) {
 			container.stop();
 			container.destroy();
-			log.info("user.{} 컨테이너 중단", userId);
+			log.debug("user.{} 컨테이너 중단", userId);
 		}
 	}
 
@@ -108,7 +111,7 @@ public class NotificationListenerManager {
 
 		String queueName = "user." + userId;
 		amqpAdmin.deleteQueue(queueName);
-		log.info("user.{} 큐 삭제 완료", userId);
+		log.debug("user.{} 큐 삭제 완료", userId);
 	}
 
 	/**
@@ -167,10 +170,10 @@ public class NotificationListenerManager {
 
 			try {
 				String raw = new String(message.getBody(), StandardCharsets.UTF_8);
-				log.info("!!!!!!!!!!!!!!!! RAW 메시지: {} ", raw);
+				log.debug("!!!!!!!!!!!!!!!! RAW 메시지: {} ", raw);
 				NotificationEvent event = objectMapper.readValue(raw, NotificationEvent.class);
-				log.info("{} 알림 수신 : {} ", queueName, event.getContent());
-
+				log.debug("{} 알림 수신 : {} ", queueName, event.getContent());
+				notificationReceiveService.receive(event);
 				channel.basicAck(tag, false);
 			} catch (Exception e) {
 				log.error("메시지 파싱 실패", e);

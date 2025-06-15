@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.TestPropertySource;
 
 import com.example.cluvrnotifications.domain.notification.manager.NotificationListenerManager;
+import com.example.cluvrnotifications.domain.notification.repository.base.NotificationCacheRepository;
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application-test.yml")
@@ -21,17 +22,20 @@ public class NotificationReceiveTest {
 
 	@Autowired
 	private NotificationListenerManager listenerManager;
+	@Autowired
+	private NotificationCacheRepository notificationCacheRepository;
 
 	@Test
 	void MQ_메시지를_Notification_모듈이_정상_수신한다() throws InterruptedException {
 		// given
 		Long userId = 9999L;
 
-		// 🎯 핵심: 리스너 시작 → MQ에 이미 들어있는 메시지를 소비함
+		// 핵심: 리스너 시작 → MQ에 이미 들어있는 메시지를 소비함
 		listenerManager.start(userId);
 
 		// 수신 대기 (리스너가 컨테이너 생성 + consume할 시간)
 		Thread.sleep(2000);
+
 	}
 
 	@TestConfiguration
