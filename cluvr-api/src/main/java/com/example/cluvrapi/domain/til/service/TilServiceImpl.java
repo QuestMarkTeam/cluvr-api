@@ -98,7 +98,7 @@ public class TilServiceImpl implements TilService {
 		Til findTil = tilRepository.findByIdOrElseThrow(tilId);
 
 		// 2) 권한 검증. 작성자만 수정 가능하다.
-		if (findTil.getUser().getId().equals(userId)) {
+		if (!findTil.getUser().getId().equals(userId)) {
 			throw new BusinessException(ResponseCode.ACCESS_DENIED, "작성자만 수정 가능합니다.");
 		}
 
