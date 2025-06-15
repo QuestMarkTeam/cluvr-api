@@ -54,4 +54,8 @@ public class SubmissionForm extends BaseTimeEntity {
 	public void updateSubmissionTemplate(String submissionTemplate) {
 		this.submissionTemplate = submissionTemplate;
 	}
+
+	public void setClub(Club club) {
+		this.club = club;
+	}
 }
