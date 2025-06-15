@@ -251,5 +251,8 @@ public class Club extends BaseTimeEntity {
 
 	public void setSubmissionForm(SubmissionForm submissionForm) {
 		this.submissionForm = submissionForm;
+		if (submissionForm != null && submissionForm.getClub() != this) {
+			submissionForm.setClub(this);
+		}
 	}
 }

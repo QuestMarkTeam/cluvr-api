@@ -34,6 +34,7 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 	private final ClubMemberRepository clubMemberRepository;
 
 	@Override
+	@Transactional
 	public CreateProblemFormResponseDto createProblemForm(Long userId,
 		Long clubId, CreateProblemFormRequestDto problemFormRequestDto) {
 		// 1) Club 조회
@@ -47,7 +48,7 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 
 		// 3) Club 의 JoinType 이 ProblemForm 인지 검증
 		if (findClub.getJoinType() != JoinType.PROBLEM_FORM) {
-			new BusinessException(ResponseCode.INVALID_REQUEST);
+			throw new BusinessException(ResponseCode.INVALID_REQUEST);
 		}
 
 		// 4) Form Entity 생성
@@ -60,7 +61,7 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 		);
 
 		// 5) 활성화된 문제 양식을 비활성화로 바꾸어준다.
-		Optional<ProblemForm> formOpt = problemRepository.findActiveProblemFormIdByClubId(clubId);
+		Optional<ProblemForm> formOpt = problemRepository.findActiveProblemFormByClubId(clubId);
 		formOpt.ifPresent(
 			form -> {
 				form.deactivate();
@@ -74,18 +75,21 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public InfoProblemFormResponseDto findProblemFormById(Long clubId, Long problemId) {
 		return problemRepository.findProblemFormById(clubId, problemId);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public PageResponseDto<InfoProblemFormResponseDto> findAllProblemForm(Long clubId, Pageable pageable) {
 		return problemRepository.findByProblemFormAllById(clubId, pageable);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public InfoProblemFormResponseDto findActiveProblemFormByClubId(Long clubId) {
-		ProblemForm activeProblemForm = problemRepository.findActiveProblemFormIdByClubId(clubId).orElseThrow(
+		ProblemForm activeProblemForm = problemRepository.findActiveProblemFormByClubId(clubId).orElseThrow(
 			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "활성화된 문제양식이 없습니다.")
 		);
 		return InfoProblemFormResponseDto.from(activeProblemForm);
@@ -167,7 +171,7 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 		// 3) 활성화 및 비활성화
 		if (active) {
 			// 활성화를 한다고 할 경우, 기존 문제양식 비활성화
-			Optional<ProblemForm> formOpt = problemRepository.findActiveProblemFormIdByClubId(clubId);
+			Optional<ProblemForm> formOpt = problemRepository.findActiveProblemFormByClubId(clubId);
 			formOpt.ifPresent(
 				form -> {
 					form.deactivate();

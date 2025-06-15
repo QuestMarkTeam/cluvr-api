@@ -57,5 +57,5 @@ public interface ProblemFormRepositoryCustom {
 	 * @author sinyoung0403
 	 */
 
-	Optional<ProblemForm> findActiveProblemFormIdByClubId(Long clubId);
+	Optional<ProblemForm> findActiveProblemFormByClubId(Long clubId);
 }
