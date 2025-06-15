@@ -69,7 +69,7 @@ public class NoticeServiceImpl implements NoticeService {
 	@Override
 	@Transactional
 	public void updateNotice(Long userId, Long clubId, Long noticeId, UpdateNoticeRequestDto updateNoticeRequestDto) {
-		Notice findNotice = noticeRepository.findByIdOrElseThrow(userId);
+		Notice findNotice = noticeRepository.findByIdOrElseThrow(noticeId);
 
 		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
 			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
