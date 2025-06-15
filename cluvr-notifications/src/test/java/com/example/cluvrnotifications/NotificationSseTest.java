@@ -9,10 +9,16 @@ import java.net.URL;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+
+import com.example.cluvrnotifications.global.config.TestSecurityConfig;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestPropertySource(locations = "classpath:application-test.yml")
+@Import(TestSecurityConfig.class)
+@ActiveProfiles("test")
 public class NotificationSseTest {
 
 	@Test

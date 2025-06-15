@@ -55,6 +55,7 @@ public class NotificationStreamService {
 			log.debug("SSE 연결 종료 -> 리스너 중단 및 Emitter 제거: user.{}", userId);
 			notificationListenerManager.stop(userId);
 			sseEmitterRepository.delete(userId, emitter);
+			emitter.complete();
 		};
 
 		//sse연결종료시(+ 타임아웃)에 , 자동으로 컨테이너도 중단됨.

@@ -54,13 +54,12 @@ public class SecurityConfig {
 
 		http.httpBasic((auth) -> auth.disable());
 
-		http.authorizeHttpRequests(
-			(auth) -> auth.requestMatchers("/", "/users/signup", "/users/login", "/api/notifications/subscribe")
-				.permitAll()
-				.requestMatchers("/admin")
-				.hasRole("ADMIN")
-				.anyRequest()
-				.authenticated());
+		http.authorizeHttpRequests((auth) -> auth.requestMatchers("/users/signup", "/users/login", "/")
+			.permitAll()
+			.requestMatchers("/admin")
+			.hasRole("ADMIN")
+			.anyRequest()
+			.authenticated());
 
 		http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		http.userDetailsService(customUserDetailsService);
