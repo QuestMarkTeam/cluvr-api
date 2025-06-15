@@ -19,9 +19,6 @@ import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.clover.entity.Clover;
 import com.example.cluvrapi.domain.clover.repository.CloverRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
-import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
-import com.example.cluvrapi.domain.notification.enums.NotificationType;
-import com.example.cluvrapi.domain.notification.event.NotificationEvent;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.reaction.enums.ReactionType;
 import com.example.cluvrapi.domain.reaction.repository.ReactionRepository;
@@ -138,20 +135,20 @@ public class BoardServiceImpl implements BoardService {
 
 		// 알림
 		// 은세님 알림 이런 식으로 만들면 되는지 확인해주세요.
-		if (board.getUser() != user) {
-			String content = String.format("'%s'님이 '%s' 게시글에서 회원님의 댓글을 채택하셨습니다. /n 보상으로 '%s' clover를 지급해드립니다.",
-				user.getName(),
-				board.getTitle(), board.getClover());
-
-			NotificationEvent event = NotificationEvent.from(
-				board.getUser().getId(),
-				NotificationType.REACTION,
-				content,
-				NotiTargetType.BOARD,
-				board.getId()
-			);
-
-			notificationProducer.send(event);
-		}
+		// if (board.getUser() != user) {
+		// 	String content = String.format("'%s'님이 '%s' 게시글에서 회원님의 댓글을 채택하셨습니다. /n 보상으로 '%s' clover를 지급해드립니다.",
+		// 		user.getName(),
+		// 		board.getTitle(), board.getClover());
+		//
+		// 	NotificationEvent event = NotificationEvent.from(
+		// 		board.getUser().getId(),
+		// 		NotificationType.REACTION,
+		// 		content,
+		// 		NotiTargetType.BOARD,
+		// 		board.getId()
+		// 	);
+		//
+		// 	notificationProducer.send(event);
+		// }
 	}
 }

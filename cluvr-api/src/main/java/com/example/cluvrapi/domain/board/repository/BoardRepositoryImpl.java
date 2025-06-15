@@ -84,6 +84,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 			.select(new QReadMyBoardsResponseDto(board.id, board.title, board.content, board.createdAt))
 			.from(board)
 			.where(board.user.id.eq(userId))
+			.orderBy(board.createdAt.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
