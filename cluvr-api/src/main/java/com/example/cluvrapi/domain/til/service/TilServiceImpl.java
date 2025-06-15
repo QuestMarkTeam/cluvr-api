@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
 import com.example.cluvrapi.domain.clubMember.entity.ClubMember;
+import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
 import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
@@ -42,8 +43,9 @@ public class TilServiceImpl implements TilService {
 		// 1) 유저 및 클럽 조회
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
-		ClubMember clubMember = clubMemberRepository.findOwnerByClub(findClub).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST)
+
+		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.ACCESS_DENIED, "해당 클랜의 멤버가 아닙니다.")
 		);
 
 		// 2) Til Entity 생성
@@ -91,9 +93,14 @@ public class TilServiceImpl implements TilService {
 
 	@Override
 	@Transactional
-	public void updateTil(Long tilId, UpdateTilRequestDto updateTilRequestDto) {
+	public void updateTil(Long userId, Long tilId, UpdateTilRequestDto updateTilRequestDto) {
 		// 1) Til 조회
 		Til findTil = tilRepository.findByIdOrElseThrow(tilId);
+
+		// 2) 권한 검증. 작성자만 수정 가능하다.
+		if (findTil.getUser().getId().equals(userId)) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED, "작성자만 수정 가능합니다.");
+		}
 
 		// 2) 제목 업데이트
 		if (updateTilRequestDto.getTitle() != null) {
@@ -108,11 +115,25 @@ public class TilServiceImpl implements TilService {
 
 	@Override
 	@Transactional
-	public void deleteTil(Long tilId) {
-		// 1) Til 조회
+	public void deleteTil(Long userId, Long clubId, Long tilId) {
+		// 1) Til 조회, Club 조회
 		Til findTil = tilRepository.findByIdOrElseThrow(tilId);
+		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
-		// 2) Til 삭제
+		// 2) 멤버 조회
+		ClubMember clubMember = clubMemberRepository.findOwnerByClub(findClub).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST)
+		);
+
+		// 3) 권한 검증. 작성자와 클랜 관리자만 삭제 가능하다.
+		if (!findTil.getUser().getId().equals(userId)
+			&& clubMember.getClubMemberRole() != ClubMemberRole.OWNER
+			&& clubMember.getClubMemberRole() != ClubMemberRole.ADMIN
+		) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED, "작성자와 클랜 관리자만이 삭제 가능합니다.");
+		}
+
+		// 3) Til 삭제
 		tilRepository.delete(findTil);
 	}
 }

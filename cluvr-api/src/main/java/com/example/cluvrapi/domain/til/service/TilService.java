@@ -50,6 +50,7 @@ public interface TilService {
 	 *
 	 * <p> 값이 없을 시, 업데이트하지 않는다.
 	 *
+	 * @param userId              {설명: 유저 고유 식별자}
 	 * @param tilId               {설명: Til 고유 식별자}
 	 * @param updateTilRequestDto {설명: 클럽 업데이트시 필요한 정보}
 	 * @return
@@ -57,15 +58,16 @@ public interface TilService {
 	 * @author {sinyoung0403}
 	 */
 
-	void updateTil(Long tilId, UpdateTilRequestDto updateTilRequestDto);
+	void updateTil(Long userId, Long tilId, UpdateTilRequestDto updateTilRequestDto);
 
 	/**
 	 * 설명: Til 삭제하는 메서드
 	 *
-	 * @param tilId {설명: Til 고유 식별자}
+	 * @param userId {설명: 유저 고유 식별자}
+	 * @param tilId  {설명: Til 고유 식별자}
 	 * @return
 	 * @throws BusinessException {404 NotFound}
 	 * @author {sinyoung0403}
 	 */
-	void deleteTil(Long tilId);
+	void deleteTil(Long userId, Long clubId, Long tilId);
 }
