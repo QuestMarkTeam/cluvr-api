@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.cluvrapi.domain.common.annotation.Auth;
+import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.notice.dto.reqeust.CreateNoticeRequestDto;
 import com.example.cluvrapi.domain.notice.dto.reqeust.UpdateNoticeRequestDto;
@@ -34,10 +36,11 @@ public class NoticeController {
 
 	@PostMapping
 	public ResponseEntity<BaseResponse<CreateNoticeResponseDto>> createNotice(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@RequestBody CreateNoticeRequestDto createNoticeRequestDto
 	) {
-		CreateNoticeResponseDto createNoticeResponseDto = noticeService.createNotice(1L, clubId,
+		CreateNoticeResponseDto createNoticeResponseDto = noticeService.createNotice(authUser.id(), clubId,
 			createNoticeRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(createNoticeResponseDto, ResponseCode.CREATED));
 	}
@@ -62,18 +65,22 @@ public class NoticeController {
 
 	@PatchMapping("/{noticeId}")
 	public ResponseEntity<BaseResponse<Void>> updateNotice(
+		@Auth AuthUser authUser,
+		@PathVariable Long clubId,
 		@PathVariable Long noticeId,
 		@Valid @RequestBody UpdateNoticeRequestDto updateNoticeRequestDto
 	) {
-		noticeService.updateNotice(noticeId, updateNoticeRequestDto);
+		noticeService.updateNotice(authUser.id(), clubId, noticeId, updateNoticeRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
 	}
 
 	@DeleteMapping("/{noticeId}")
 	public ResponseEntity<BaseResponse<Void>> deleteNotice(
+		@Auth AuthUser authUser,
+		@PathVariable Long clubId,
 		@PathVariable Long noticeId
 	) {
-		noticeService.deleteNotice(noticeId);
+		noticeService.deleteNotice(authUser.id(), clubId, noticeId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
 	}
 
