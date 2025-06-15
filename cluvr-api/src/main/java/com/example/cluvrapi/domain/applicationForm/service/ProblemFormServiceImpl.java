@@ -161,11 +161,15 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 		);
 		clubValidator.validateOwnerRole(findClubMember.getClubMemberRole());
 
-		// 2) 문제양식 조회
+		// 2) 문제양식 조회 및 권한 검증
 		ProblemForm findProblemForm = problemRepository.findByIdOrElseThrow(problemFormId);
 
 		if (findProblemForm.getIsActive() == active) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 해당 상태입니다.");
+		}
+
+		if (!findProblemForm.getClub().getId().equals(clubId)) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "클럽과 문제양식의 소속이 일치하지 않습니다.");
 		}
 
 		// 3) 활성화 및 비활성화
