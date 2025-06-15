@@ -28,7 +28,7 @@ public class TilRepositoryImpl implements TilRepositoryCustom {
 				til.title,        // title 제목
 				til.content))    // content 내용
 			.from(til)
-			.where(til.id.eq(tilId))
+			.where(til.id.eq(tilId).and(til.isDeleted.isFalse()))
 			.fetchOne();
 		return content;
 	}
@@ -42,7 +42,7 @@ public class TilRepositoryImpl implements TilRepositoryCustom {
 				til.title,        // title 제목
 				til.content))    // content 내용
 			.from(til)
-			.where(til.club.id.eq(clubId))
+			.where(til.club.id.eq(clubId).and(til.isDeleted.isFalse()))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -50,7 +50,7 @@ public class TilRepositoryImpl implements TilRepositoryCustom {
 		Long total = jpaQueryFactory
 			.select(til.count())
 			.from(til)
-			.where(til.club.id.eq(clubId))
+			.where(til.club.id.eq(clubId).and(til.isDeleted.isFalse()))
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));

@@ -72,7 +72,7 @@ public class TilController {
 	}
 
 	@DeleteMapping("/{tilId}")
-	public ResponseEntity<BaseResponse<Void>> updateTil(
+	public ResponseEntity<BaseResponse<Void>> deleteTil(
 		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@PathVariable Long tilId

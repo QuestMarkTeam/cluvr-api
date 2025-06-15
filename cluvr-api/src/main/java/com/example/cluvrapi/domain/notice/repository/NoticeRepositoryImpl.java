@@ -31,7 +31,9 @@ public class NoticeRepositoryImpl implements NoticeRepositoryCustom {
 					notice.content
 				))
 				.from(notice)
-				.where(notice.id.eq(noticeId).and(notice.club.id.eq(clubId)))
+				.where(notice.id.eq(noticeId)
+					.and(notice.club.id.eq(clubId))
+					.and(notice.isDeleted).isFalse())
 				.fetchOne()
 		);
 	}
@@ -46,7 +48,8 @@ public class NoticeRepositoryImpl implements NoticeRepositoryCustom {
 				notice.content
 			))
 			.from(notice)
-			.where(notice.club.id.eq(clubId))
+			.where(notice.club.id.eq(clubId)
+				.and(notice.isDeleted).isFalse())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -54,7 +57,8 @@ public class NoticeRepositoryImpl implements NoticeRepositoryCustom {
 		Long total = jpaQueryFactory
 			.select(notice.count())
 			.from(notice)
-			.where(notice.club.id.eq(clubId))
+			.where(notice.club.id.eq(clubId)
+				.and(notice.isDeleted).isFalse())
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));
