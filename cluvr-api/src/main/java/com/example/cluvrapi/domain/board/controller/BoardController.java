@@ -80,8 +80,10 @@ public class BoardController {
 			BaseResponse.success(boardService.readBoardsWithUser(user.id(), pageable), ResponseCode.OK));
 	}
 
-	@PostMapping()
-	public ResponseEntity<BaseResponse<Void>> selectReply() {
-		
+	@PostMapping("/{boardId}/replies/{replyId}/best-recommendation")
+	public ResponseEntity<BaseResponse<Void>> selectBestReply(@Auth AuthUser user, @PathVariable long boardId,
+		@PathVariable long replyId) {
+		boardService.selectBestReply(user.id(), boardId, replyId);
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
 	}
 }
