@@ -167,6 +167,7 @@ public class NotificationListenerManager {
 
 			try {
 				String raw = new String(message.getBody(), StandardCharsets.UTF_8);
+				log.info("!!!!!!!!!!!!!!!! RAW 메시지: {} ", raw);
 				NotificationEvent event = objectMapper.readValue(raw, NotificationEvent.class);
 				log.info("{} 알림 수신 : {} ", queueName, event.getContent());
 

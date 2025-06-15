@@ -44,5 +44,6 @@ public class NotificationReceiveService {
 		} else {
 			log.info(" SSE 연결됨 -> 알림 전송 완료: 받을 사람: {}, 내용 : {}  ", event.getReceiverId(), event.getContent());
 		}
+
 	}
 }
