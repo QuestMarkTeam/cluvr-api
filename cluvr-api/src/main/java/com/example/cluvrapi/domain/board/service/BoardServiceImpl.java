@@ -23,6 +23,8 @@ import com.example.cluvrapi.domain.reaction.enums.ReactionType;
 import com.example.cluvrapi.domain.reaction.repository.ReactionRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.exception.NoPermissionException;
+import com.example.cluvrapi.global.response.ResponseCode;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +37,8 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	@Transactional
-	public long createBoard(CreateBoardRequestDto dto) {
-		User user = userRepository.findByIdOrElseThrow(1L);
+	public long createBoard(long userId, CreateBoardRequestDto dto) {
+		User user = userRepository.findByIdOrElseThrow(userId);
 		return boardRepository.save(dto.fromDto(user)).getId();
 	}
 
@@ -69,9 +71,15 @@ public class BoardServiceImpl implements BoardService {
 
 	@Transactional
 	@Override
-	public void deleteBoard(long boardId) {
+	public void deleteBoard(long userId, long boardId) {
+		User user = userRepository.findByIdOrElseThrow(userId);
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
-		board.delete();
+
+		if (user.equals(board.getUser())) {
+			throw new NoPermissionException(ResponseCode.NO_PERMISSION_DELETE,
+				ResponseCode.NO_PERMISSION_DELETE.getDefaultMessage());
+		}
+		boardRepository.delete(board);
 	}
 
 	@Override
