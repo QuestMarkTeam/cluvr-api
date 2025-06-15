@@ -63,7 +63,7 @@ public class SubmissionFormRepositoryImpl implements SubmissionFormRepositoryCus
 	public Long findSubmissionFormIdByClubId(Long clubId) {
 		Long formId = jpaQueryFactory.select(submissionForm.id)
 			.from(submissionForm)
-			.where(submissionForm.club.id.eq(clubId).and(submissionForm.isDeleted.eq(false)))
+			.where(submissionForm.club.id.eq(clubId))
 			.fetchFirst();
 		return formId;
 	}
