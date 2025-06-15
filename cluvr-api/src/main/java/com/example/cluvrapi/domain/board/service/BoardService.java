@@ -1,7 +1,5 @@
 package com.example.cluvrapi.domain.board.service;
 
-import java.util.List;
-
 import org.springframework.data.domain.Pageable;
 
 import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
@@ -28,13 +26,12 @@ public interface BoardService {
 	/**
 	 * 설명: 특정 카테고리에 해당하는 게시글 목록을 페이징 처리하여 조회
 	 *
-	 * @param category 게시글 카테고리
-	 * @param pageNumber 페이지 번호 (1부터 시작)
-	 * @param pageSize 페이지당 게시글 수
+	 * @param category - 게시글 카테고리
+	 * @param pageable - 페이지 번호, 페이지당 게시글 수
 	 * @return 조회된 게시글 목록
 	 * @author yong
 	 */
-	List<ReadBoardsResponseDto> readBoards(CategoryType category, int pageNumber, int pageSize);
+	PageResponseDto<ReadBoardsResponseDto> readBoards(CategoryType category, Pageable pageable);
 
 	/**
 	 * 설명: 특정 게시글 상세 조회

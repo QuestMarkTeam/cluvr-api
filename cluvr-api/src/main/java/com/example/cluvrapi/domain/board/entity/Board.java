@@ -62,7 +62,7 @@ public class Board extends BaseTimeEntity {
 	private boolean isDeleted;
 
 	@Column(nullable = false, name = "view_count")
-	private int viewCount;
+	private long viewCount;
 
 	public Board(User user, BoardType boardType, CategoryType category, String title, String content, int clover) {
 		this.user = user;

@@ -1,7 +1,5 @@
 package com.example.cluvrapi.domain.board.controller;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
@@ -48,10 +46,11 @@ public class BoardController {
 	}
 
 	@GetMapping
-	public ResponseEntity<BaseResponse<List<ReadBoardsResponseDto>>> readBoards(@RequestParam CategoryType category,
-		@RequestParam int pageNumber, @RequestParam int pageSize) {
+	public ResponseEntity<BaseResponse<PageResponseDto<ReadBoardsResponseDto>>> readBoards(
+		@RequestParam CategoryType category,
+		@PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
 		return ResponseEntity.ok(
-			BaseResponse.success(boardService.readBoards(category, pageNumber, pageSize), ResponseCode.OK));
+			BaseResponse.success(boardService.readBoards(category, pageable), ResponseCode.OK));
 	}
 
 	@GetMapping("/{boardId}")

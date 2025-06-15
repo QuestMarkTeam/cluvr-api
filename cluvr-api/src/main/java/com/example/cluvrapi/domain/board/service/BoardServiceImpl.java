@@ -1,6 +1,5 @@
 package com.example.cluvrapi.domain.board.service;
 
-import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
@@ -48,17 +47,17 @@ public class BoardServiceImpl implements BoardService {
 	@Transactional
 	public long createBoard(long userId, CreateBoardRequestDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		Clover clover = cloverRepository.findByUserId(userId)
-			.orElseThrow(() -> new IllegalStateException(ResponseCode.INVALID_REQUEST.getDefaultMessage()));
-
-		clover.spendScore(dto.getClover());
+		// Clover clover = cloverRepository.findByUserId(userId)
+		// 	.orElseThrow(() -> new IllegalStateException(ResponseCode.INVALID_REQUEST.getDefaultMessage()));
+		//
+		// clover.spendScore(dto.getClover());
 		return boardRepository.save(dto.fromDto(user)).getId();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ReadBoardsResponseDto> readBoards(CategoryType category, int pageNumber, int pageSize) {
-		return boardRepository.findAllBoardsByCategory(category, pageNumber, pageSize);
+	public PageResponseDto<ReadBoardsResponseDto> readBoards(CategoryType category, Pageable pageable) {
+		return boardRepository.findAllBoardsByCategory(category, pageable);
 	}
 
 	@Override
@@ -88,7 +87,7 @@ public class BoardServiceImpl implements BoardService {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
 
-		if (user.equals(board.getUser())) {
+		if (!user.equals(board.getUser())) {
 			throw new NoPermissionException(ResponseCode.NO_PERMISSION_DELETE,
 				ResponseCode.NO_PERMISSION_DELETE.getDefaultMessage());
 		}

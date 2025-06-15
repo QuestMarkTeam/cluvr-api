@@ -17,7 +17,7 @@ public class ReadBoardResponseDto {
 	private CategoryType category;
 	private boolean isSelected;
 	private int clover;
-	private int view;
+	private long viewCount;
 	private String userName;
 	private long like;
 	private long dislike;
