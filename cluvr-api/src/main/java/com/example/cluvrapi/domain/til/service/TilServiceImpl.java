@@ -98,7 +98,7 @@ public class TilServiceImpl implements TilService {
 		Til findTil = tilRepository.findByIdOrElseThrow(tilId);
 
 		// 2) 권한 검증. 작성자만 수정 가능하다.
-		if (!findTil.getUser().getId().equals(userId)) {
+		if (findTil.getUser().getId().equals(userId)) {
 			throw new BusinessException(ResponseCode.ACCESS_DENIED, "작성자만 수정 가능합니다.");
 		}
 
@@ -118,10 +118,10 @@ public class TilServiceImpl implements TilService {
 	public void deleteTil(Long userId, Long clubId, Long tilId) {
 		// 1) Til 조회, Club 조회
 		Til findTil = tilRepository.findByIdOrElseThrow(tilId);
-		clubRepository.findByIdOrElseThrow(clubId);
+		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
 		// 2) 멤버 조회
-		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+		ClubMember clubMember = clubMemberRepository.findOwnerByClub(findClub).orElseThrow(
 			() -> new BusinessException(ResponseCode.INVALID_REQUEST)
 		);
 
