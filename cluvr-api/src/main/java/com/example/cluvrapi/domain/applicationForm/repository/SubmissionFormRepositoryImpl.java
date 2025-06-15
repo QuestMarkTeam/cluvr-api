@@ -60,12 +60,11 @@ public class SubmissionFormRepositoryImpl implements SubmissionFormRepositoryCus
 	}
 
 	@Override
-	public Optional<SubmissionForm> findSubmissionFormByClubId(Long clubId) {
-		return Optional.ofNullable(
-			jpaQueryFactory.select(submissionForm)
-				.from(submissionForm)
-				.where(submissionForm.club.id.eq(clubId))
-				.fetchFirst()
-		);
+	public Long findSubmissionFormIdByClubId(Long clubId) {
+		Long formId = jpaQueryFactory.select(submissionForm.id)
+			.from(submissionForm)
+			.where(submissionForm.club.id.eq(clubId))
+			.fetchFirst();
+		return formId;
 	}
 }
