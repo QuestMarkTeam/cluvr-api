@@ -14,6 +14,7 @@ public interface ProblemFormService {
 	/**
 	 * 설명: 클럽의 문제양식을 생성하는 메서드
 	 *
+	 * @param userId                      {설명: 유저의 고유 식별자}
 	 * @param clubId                      {설명: 클럽의 고유 식별자}
 	 * @param createProblemFormRequestDto {설명: 문제 양식에 필요한 정보}
 	 * @return CreateProblemFormResponseDto {설명: 클럽의 id 값 반환}
@@ -21,8 +22,8 @@ public interface ProblemFormService {
 	 * @author sinyoung0403
 	 */
 
-	CreateProblemFormResponseDto createProblemForm(Long clubId,
-		CreateProblemFormRequestDto createProblemFormRequestDto);
+	CreateProblemFormResponseDto createProblemForm(Long userId,
+		Long clubId, CreateProblemFormRequestDto createProblemFormRequestDto);
 
 	/**
 	 * 설명: 클럽의 문제양식을 단건조회하는 메서드
@@ -51,6 +52,7 @@ public interface ProblemFormService {
 	/**
 	 * 설명: 클럽의 문제양식을 수정하는 메서드
 	 *
+	 * @param userId                      {설명: 유저의 고유 식별자}
 	 * @param clubId                      {설명: 클럽의 고유 식별자}
 	 * @param problemFormId               {설명: problemForm 의 고유 식별자}
 	 * @param updateProblemFormRequestDto {설명: 수정할 때 필요한 정보}
@@ -58,19 +60,33 @@ public interface ProblemFormService {
 	 * @author sinyoung0403
 	 */
 
-	void updateProblemForm(Long clubId, Long problemFormId,
-		UpdateProblemFormRequestDto updateProblemFormRequestDto);
+	void updateProblemForm(Long userId, Long clubId,
+		Long problemFormId, UpdateProblemFormRequestDto updateProblemFormRequestDto);
 
 	/**
 	 * 설명: 클럽의 문제양식을 삭제하는 메서드
 	 *
 	 * <p> 양식을 삭제 시 SoftDeleted 처리 및 Club 의 JoinType 이 가입 신청 양식으로 변경
 	 *
+	 * @param userId        {설명: 유저의 고유 식별자}
 	 * @param clubId        {설명: 클럽의 고유 식별자}
 	 * @param problemFormId {설명: problemForm 의 고유 식별자}
 	 * @throws BusinessException {404 NotFound}
 	 * @author sinyoung0403
 	 */
 
-	void deleteProblem(Long clubId, Long problemFormId);
+	void deleteProblem(Long userId, Long clubId, Long problemFormId);
+
+	/**
+	 * 설명: 클럽 문제양식의 활성화 상태를 변경하는 메서드
+	 *
+	 * @param id            {설명: 요청자(사용자)의 고유 식별자}
+	 * @param clubId        {설명: 클럽의 고유 식별자}
+	 * @param problemFormId {설명: 문제양식의 고유 식별자}
+	 * @param active        {설명: 활성화 여부 (true: 활성화, false: 비활성화)}
+	 * @throws BusinessException {404 NotFound} 문제양식 또는 클럽을 찾지 못했을 경우
+	 * @author sinyoung0403
+	 */
+
+	void changeActivationState(Long id, Long clubId, Long problemFormId, Boolean active);
 }

@@ -15,7 +15,10 @@ import com.example.cluvrapi.domain.applicationForm.repository.ProblemFormReposit
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
+import com.example.cluvrapi.domain.clubMember.entity.ClubMember;
+import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.common.validator.ClubValidator;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -25,14 +28,22 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 
 	private final ClubRepository clubRepository;
 	private final ProblemFormRepository problemRepository;
+	private final ClubValidator clubValidator;
+	private final ClubMemberRepository clubMemberRepository;
 
 	@Override
-	public CreateProblemFormResponseDto createProblemForm(Long clubId,
-		CreateProblemFormRequestDto problemFormRequestDto) {
+	public CreateProblemFormResponseDto createProblemForm(Long userId,
+		Long clubId, CreateProblemFormRequestDto problemFormRequestDto) {
 		// 1) Club 조회
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
-		// 2) Club 의 JoinType 이 ProblemForm 인지 검증
+		// 2) 권한 검증
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
+		);
+		clubValidator.validateOwnerRole(findClubMember.getClubMemberRole());
+
+		// 3) Club 의 JoinType 이 ProblemForm 인지 검증
 		if (findClub.getJoinType() != JoinType.PROBLEM_FORM) {
 			new BusinessException(ResponseCode.INVALID_REQUEST);
 		}
@@ -63,9 +74,16 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 
 	@Override
 	@Transactional
-	public void updateProblemForm(Long clubId, Long problemFormId,
-		UpdateProblemFormRequestDto updateProblemFormRequestDto) {
-		// 1) Problem Form 조회
+	public void updateProblemForm(Long userId, Long clubId,
+		Long problemFormId, UpdateProblemFormRequestDto updateProblemFormRequestDto) {
+
+		// 1) 권한 검증
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
+		);
+		clubValidator.validateOwnerRole(findClubMember.getClubMemberRole());
+
+		// 2) Problem Form 조회
 		ProblemForm findProblemForm = problemRepository.findByClubIdAndProblemFormId(clubId, problemFormId)
 			.orElseThrow(() ->
 				new BusinessException(ResponseCode.NOT_FOUND, "Club 과 Problem Form 이 일치하는 Entity 가 존재하지 않습니다.")
@@ -90,17 +108,29 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 
 	@Override
 	@Transactional
-	public void deleteProblem(Long clubId, Long problemFormId) {
-		// 1) Problem Form 조회
+	public void deleteProblem(Long userId, Long clubId, Long problemFormId) {
+
+		// 1) 권한 검증
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
+		);
+		clubValidator.validateOwnerRole(findClubMember.getClubMemberRole());
+
+		// 2) Problem Form 조회
 		ProblemForm findProblemForm = problemRepository.findByClubIdAndProblemFormId(clubId, problemFormId)
 			.orElseThrow(() ->
 				new BusinessException(ResponseCode.NOT_FOUND, "Club 과 Problem Form 이 일치하는 Entity 가 존재하지 않습니다.")
 			);
 
-		// 2) 삭제 - soft Delete 적용
+		// 3) 삭제 - soft Delete 적용
 		problemRepository.delete(findProblemForm);
 
 		// 3) 비활성화
 		findProblemForm.deactivate();
+		// 1) 권한 검증
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
+		);
+		clubValidator.validateOwnerRole(findClubMember.getClubMemberRole());
 	}
 }
