@@ -76,7 +76,7 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 				joinRequest.joinStatus,
 				joinRequest.joinType))
 			.from(joinRequest)
-			.where(joinRequest.club.id.eq(userId))
+			.where(joinRequest.user.id.eq(userId))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
