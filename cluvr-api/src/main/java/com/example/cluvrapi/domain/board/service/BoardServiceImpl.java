@@ -75,7 +75,18 @@ public class BoardServiceImpl implements BoardService {
 	public void updateBoard(long userId, UpdateBoardRequestDto dto, long boardId) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
-		board.update(dto.getTitle(), dto.getContent(), dto.getClover());
+
+		if (!board.getUser().equals(user)) {
+			throw new NoPermissionException(ResponseCode.NO_PERMISSION_DELETE,
+				ResponseCode.NO_PERMISSION_DELETE.getDefaultMessage());
+		}
+
+		if (board.getClover() + dto.getClover() > 110) {
+			throw new IllegalArgumentException("클로버는 110 아래로만 걸 수 있습니다.");
+		}
+
+		// board.update(dto.getTitle(), dto.getContent(), dto.getClover());
+		boardRepository.updateBoard(dto.getTitle(), dto.getContent(), dto.getClover());
 	}
 
 	@Transactional

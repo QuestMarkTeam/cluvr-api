@@ -79,7 +79,7 @@ public class Board extends BaseTimeEntity {
 	public void update(String title, String content, int clover) {
 		this.title = title;
 		this.content = content;
-		this.clover = clover;
+		this.clover += clover;
 	}
 
 	public void updateSelection() {

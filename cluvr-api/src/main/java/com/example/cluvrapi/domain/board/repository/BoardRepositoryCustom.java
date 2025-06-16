@@ -33,4 +33,6 @@ public interface BoardRepositoryCustom {
 	PageResponseDto<ReadBoardsResponseDto> findAllBoardsByCategory(CategoryType category, Pageable pageable);
 
 	PageResponseDto<ReadMyBoardsResponseDto> findBoardsByUser(long userId, Pageable pageable);
+
+	void updateBoard(String getTitle, String getContent, int getClover);
 }

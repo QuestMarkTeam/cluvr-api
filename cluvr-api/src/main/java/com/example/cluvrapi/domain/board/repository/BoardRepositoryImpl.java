@@ -97,4 +97,9 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 
 		return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, total));
 	}
+
+	@Override
+	public void updateBoard(String getTitle, String getContent, int getClover) {
+		
+	}
 }
