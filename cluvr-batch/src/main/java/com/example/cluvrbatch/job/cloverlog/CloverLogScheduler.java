@@ -22,6 +22,7 @@ public class CloverLogScheduler {
 		} catch (Exception e) {
 			// 로깅 or 슬랙 알림
 			throw new IllegalStateException("runCloverLogJob 실행 실패", e);
+
 		}
 	}
 }

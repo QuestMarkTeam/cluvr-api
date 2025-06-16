@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.clubMember.entity.ClubMember;
+import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberStatus;
 import com.example.cluvrapi.domain.user.entity.User;
 
 public interface ClubMemberRepositoryCustom {
@@ -17,5 +18,7 @@ public interface ClubMemberRepositoryCustom {
 	Optional<ClubMember> findByClubIdAndUserId(Long clubId, Long userId);
 
 	Page<ClubMember> findActiveMembersByClubId(Long clubId, Pageable pageable);
+
+	long countByClubIdAndStatus(Long clubId, ClubMemberStatus status);
 
 }

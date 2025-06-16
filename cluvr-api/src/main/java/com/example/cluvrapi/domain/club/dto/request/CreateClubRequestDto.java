@@ -12,6 +12,18 @@ import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.club.enums.ClubType;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 
+/**
+ * 클럽 생성 요청에 필요한 데이터를 담는 DTO
+ *
+ * <p> 클럽 생성 시 필수 및 선택 정보를 포함합니다.
+ * - 클럽 이름, 타입, 카테고리
+ * - 점수 제한, 최대 인원수
+ * - 소개말, 설명, 포스터 이미지 URL
+ * - 공개 여부 및 가입 방식
+ * <p>
+ * 각 필드는 유효성 검사를 통해 적절한 값이 입력되도록 제한합니다.
+ */
+
 @Getter
 public class CreateClubRequestDto {
 	@Size(min = 2, max = 20, message = "클럽 이름은 2~20 글자 사이만 가능합니다.")
@@ -23,9 +35,9 @@ public class CreateClubRequestDto {
 	@NotNull(message = "카테고리 타입은 필수값입니다.")
 	private CategoryType categoryDetail;
 
-	@Min(value = 0, message = "점수 제한은 0점 이상이어야 합니다.")
-	@Max(value = 10000, message = "점수 제한은 10,000점 이하여야 합니다.")
-	private int minScoreRequirement;
+	@Min(value = 0, message = "클로버 제한은 0점 이상이어야 합니다.")
+	@Max(value = 10000, message = "클로버 제한은 10,000점 이하여야 합니다.")
+	private int minCloverRequirement;
 
 	@Min(value = 2, message = "인원수는 2명 이상이어야 합니다.")
 	@Max(value = 10, message = "인원수는 10명 이하여야 합니다.")
