@@ -68,7 +68,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 		Long cnt = queryFactory
 			.select(user.count())
 			.from(user)
-			.where(user.email.eq(email))
+			.where(user.email.eq(email)
+				.and(user.isDeleted.eq(false))
+			)
 			.fetchOne();
 		return requireNonNullElse(cnt, 0L) > 0;
 	}
@@ -78,7 +80,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 		Long cnt = queryFactory
 			.select(user.count())
 			.from(user)
-			.where(user.phoneNumber.eq(phoneNumber))
+			.where(user.phoneNumber.eq(phoneNumber)
+				.and(user.isDeleted.eq(false))
+			)
 			.fetchOne();
 		return requireNonNullElse(cnt, 0L) > 0;
 	}

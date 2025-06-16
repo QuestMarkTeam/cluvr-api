@@ -55,6 +55,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public GetUserMeResponseDto updateMyProfile(Long userId, UpdateUserRequestDto updateDto) {
 		User user = userRepository.findByIdNotDeleted(userId)
 			.orElseThrow(() -> new BusinessException(
