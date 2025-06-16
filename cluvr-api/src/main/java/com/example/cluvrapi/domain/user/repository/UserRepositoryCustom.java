@@ -13,4 +13,8 @@ public interface UserRepositoryCustom {
 	Optional<User> findByIdNotDeleted(Long userId);
 
 	List<User> findAllNotDeleted();
+
+	boolean existsByEmail(String email);
+	
+	boolean existsByPhoneNumber(String phoneNumber);
 }

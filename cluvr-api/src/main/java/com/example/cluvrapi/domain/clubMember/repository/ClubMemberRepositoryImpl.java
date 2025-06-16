@@ -1,6 +1,9 @@
 package com.example.cluvrapi.domain.clubMember.repository;
 
+import static com.example.cluvrapi.domain.clubMember.entity.QClubMember.*;
+
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -26,13 +29,13 @@ public class ClubMemberRepositoryImpl implements ClubMemberRepositoryCustom {
 
 	@Override
 	public Optional<ClubMember> findByClubAndUserWithAnyStatus(Club club, User user) {
-		QClubMember cm = QClubMember.clubMember;
+		QClubMember cm = clubMember;
 		return Optional.ofNullable(queryFactory.selectFrom(cm).where(cm.club.eq(club), cm.user.eq(user)).fetchOne());
 	}
 
 	@Override
 	public Optional<ClubMember> findOwnerByClub(Club club) {
-		QClubMember cm = QClubMember.clubMember;
+		QClubMember cm = clubMember;
 		return Optional.ofNullable(queryFactory.selectFrom(cm)
 			.where(cm.club.eq(club), cm.clubMemberRole.eq(ClubMemberRole.OWNER),
 				cm.clubMemberStatus.eq(ClubMemberStatus.ACTIVE))
@@ -41,14 +44,14 @@ public class ClubMemberRepositoryImpl implements ClubMemberRepositoryCustom {
 
 	@Override
 	public Optional<ClubMember> findByClubIdAndUserId(Long clubId, Long userId) {
-		QClubMember cm = QClubMember.clubMember;
+		QClubMember cm = clubMember;
 		return Optional.ofNullable(
 			queryFactory.selectFrom(cm).where(cm.club.id.eq(clubId), cm.user.id.eq(userId)).fetchOne());
 	}
 
 	@Override
 	public Page<ClubMember> findActiveMembersByClubId(Long clubId, Pageable pageable) {
-		QClubMember cm = QClubMember.clubMember;
+		QClubMember cm = clubMember;
 
 		List<ClubMember> content = queryFactory.selectFrom(cm)
 			.where(cm.club.id.eq(clubId), cm.clubMemberStatus.eq(ClubMemberStatus.ACTIVE))
@@ -62,5 +65,18 @@ public class ClubMemberRepositoryImpl implements ClubMemberRepositoryCustom {
 			.fetchOne();
 
 		return new PageImpl<>(content, pageable, total);
+	}
+
+	@Override
+	public long countByClubIdAndStatus(Long clubId, ClubMemberStatus status) {
+		Long cnt = queryFactory
+			.select(clubMember.count())
+			.from(clubMember)
+			.where(
+				clubMember.club.id.eq(clubId),
+				clubMember.clubMemberStatus.eq(status)
+			)
+			.fetchOne();
+		return Objects.requireNonNullElse(cnt, 0L);
 	}
 }

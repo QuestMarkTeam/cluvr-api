@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.example.cluvrapi.domain.clubMember.dto.response.ClubMemberInfoResponseDto;
+import com.example.cluvrapi.domain.clubMember.dto.response.GetMemberRoleResponseDto;
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.join.enums.JoinStatus;
@@ -22,4 +23,5 @@ public interface ClubMemberService {
 
 	Page<ClubMemberInfoResponseDto> listMembers(Long clubId, AuthUser authUser, Pageable pageable);
 
+	GetMemberRoleResponseDto getMemberRole(Long clubId, Long targetUserId);
 }
