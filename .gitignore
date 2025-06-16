@@ -39,5 +39,10 @@ out/
 .vscode/
 
 ### Spring ###
-*.yml
 *.properties
+
+# application-local.yml만 무시
+/src/main/resources/application-local.yml
+
+# 나머지 yml 파일은 추적
+!*.yml
