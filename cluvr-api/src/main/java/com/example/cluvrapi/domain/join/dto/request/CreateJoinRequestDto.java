@@ -1,10 +1,9 @@
 package com.example.cluvrapi.domain.join.dto.request;
 
-import com.example.cluvrapi.domain.club.enums.JoinType;
-
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import com.example.cluvrapi.domain.club.enums.JoinType;
 
 /**
  * Join Request 에 필요한 정보
@@ -21,6 +20,5 @@ public class CreateJoinRequestDto {
 	/**
 	 * 가입 신청 답변
 	 */
-	@NotBlank
 	private String answer;
 }

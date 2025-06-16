@@ -180,6 +180,7 @@ public class JoinServiceImpl implements JoinService {
 
 		// 2) Join Status 를 Cancel 로 수정
 		findJoinRequest.updateJoinStatus();
+		joinRequestRepository.delete(findJoinRequest);
 
 		// 3) JoinRequest Answer 이 존재한다면, 삭제
 		joinRequestRepository.findJoinRequestAnswerByIdAndClubId(clubId, joinRequestId)
