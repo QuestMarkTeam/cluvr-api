@@ -85,8 +85,8 @@ public class BoardServiceImpl implements BoardService {
 			throw new IllegalArgumentException("클로버는 110 아래로만 걸 수 있습니다.");
 		}
 
-		// board.update(dto.getTitle(), dto.getContent(), dto.getClover());
-		boardRepository.updateBoard(dto.getTitle(), dto.getContent(), dto.getClover());
+		board.update(dto.getTitle(), dto.getContent(), dto.getClover());
+		// boardRepository.updateBoard(dto.getTitle(), dto.getContent(), dto.getClover());
 	}
 
 	@Transactional
