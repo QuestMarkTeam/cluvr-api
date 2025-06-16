@@ -40,13 +40,14 @@ public interface JoinService {
 	 *
 	 * <p> 클럽 운영자를 기준으로 조회하는 메서드
 	 *
+	 * @param userId   {설명: 유저 고유 식별자}
 	 * @param clubId   {설명: 클럽 고유 식별자}
 	 * @param pageable {설명: 페이징 객체}
 	 * @return PageResponseDto<MyClubJoinResponseDto> {Join Request 정보 페이징 객체 -  클랜 운영진 기준}
 	 * @author sinyoung0403
 	 */
 
-	PageResponseDto<MyClubJoinResponseDto> findJoinRequestByClubId(Long clubId, Pageable pageable);
+	PageResponseDto<MyClubJoinResponseDto> findJoinRequestByClubId(Long userId, Long clubId, Pageable pageable);
 
 	/**
 	 * 설명: 유저의 고유 식별자를 통해 Join Request 조회하는 메서드
@@ -75,8 +76,9 @@ public interface JoinService {
 	InfoJoinRequestResponseDto findJoinRequestById(Long clubId, Long joinRequestId);
 
 	/**
-	 * 설명: Join Request 의 고유 식별자를 통해 조회하는 메서드
+	 * 설명: Join Request 를 수정하는 메서드
 	 *
+	 * @param userId               {설명: 유저 고유 식별자}
 	 * @param clubId               {설명: 클럽 고유 식별자}
 	 * @param joinRequestId        {설명: Join Request 고유 식별자}
 	 * @param updateJoinRequestDto {설명: Join Request 에 필요한 정보 }
@@ -84,20 +86,22 @@ public interface JoinService {
 	 * @author sinyoung0403
 	 */
 
-	void updateJoinRequestAnswer(Long clubId, Long joinRequestId, UpdateJoinRequestDto updateJoinRequestDto);
+	void updateJoinRequestAnswer(Long userId, Long clubId, Long joinRequestId,
+		UpdateJoinRequestDto updateJoinRequestDto);
 
 	/**
 	 * 설명: Join Request Status 를 Cancel 상태로 변경해주는 메서드
 	 *
 	 * <p> Join Type 이 Form Type 일 경우, Cancel 과 동시에 Answer Data 를 Soft Deleted 처리한다.
 	 *
+	 * @param userId        {설명: 유저 고유 식별자}
 	 * @param clubId        {설명: 클럽 고유 식별자}
 	 * @param joinRequestId {설명: Join Request 고유 식별자}
 	 * @throws BusinessException {ResponseCode.NOT_FOUND}
 	 * @author sinyoung0403
 	 */
 
-	void cancelJoinRequest(Long clubId, Long joinRequestId);
+	void cancelJoinRequest(Long userId, Long clubId, Long joinRequestId);
 
 	CreateJoinRequestByCodeResponseDto createJoinRequestByInviteCode(Long userId,
 		CreateJoinRequestByCodeRequestDto createJoinRequestByCodeRequestDto);
