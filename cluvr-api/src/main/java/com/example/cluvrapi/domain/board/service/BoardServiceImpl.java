@@ -14,20 +14,12 @@ import com.example.cluvrapi.domain.board.dto.response.ReadBoardResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
-import com.example.cluvrapi.domain.board.entity.BoardReaction;
-import com.example.cluvrapi.domain.board.enums.ReactionType;
-import com.example.cluvrapi.domain.board.repository.BoardReactionRepository;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
-import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
-import com.example.cluvrapi.domain.notification.enums.NotificationType;
-import com.example.cluvrapi.domain.notification.event.NotificationEvent;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
-import com.example.cluvrapi.global.exception.SelfReactionNotAllowedException;
-import com.example.cluvrapi.global.response.ResponseCode;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +27,6 @@ public class BoardServiceImpl implements BoardService {
 
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
-	private final BoardReactionRepository boardReactionRepository;
 	private final NotificationProducer notificationProducer;
 
 	@Override
@@ -71,46 +62,6 @@ public class BoardServiceImpl implements BoardService {
 	public void deleteBoard(long boardId) {
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
 		board.delete();
-	}
-
-	@Override
-	public void selectReaction(long userId, long boardId, long replyId, ReactionType reaction) {
-		User user = userRepository.findByIdOrElseThrow(userId);
-		Board board = boardRepository.findByIdOrElseThrow(boardId);
-
-		if (user == board.getUser()) {
-			throw new SelfReactionNotAllowedException(ResponseCode.SELF_REACTION_NOT_ALLOWED);
-		}
-
-		BoardReaction boardReaction = new BoardReaction(user, board, reaction);
-		boardReactionRepository.save(boardReaction);
-
-		User boardOwner = board.getUser();
-		if (!boardOwner.getId().equals(user.getId())) {
-			String content = String.format("'%s'님이 회원님의 게시글에 '%s'를 남겼습니다.", user.getName(), reaction.name());
-
-			NotificationEvent event = NotificationEvent.from(
-				boardOwner.getId(),
-				NotificationType.REACTION,
-				content,
-				NotiTargetType.BOARD,
-				board.getId()
-			);
-
-			notificationProducer.send(event);
-		}
-	}
-
-	@Override
-	public void cancelReaction(long userId, long boardId, long replyId, ReactionType reaction) {
-		User user = userRepository.findByIdOrElseThrow(userId);
-		Board board = boardRepository.findByIdOrElseThrow(replyId);
-
-		if (user == board.getUser()) {
-			throw new SelfReactionNotAllowedException(ResponseCode.SELF_REACTION_NOT_ALLOWED);
-		}
-
-		boardReactionRepository.deleteByUserAndBoard(user, board);
 	}
 
 	@Override
