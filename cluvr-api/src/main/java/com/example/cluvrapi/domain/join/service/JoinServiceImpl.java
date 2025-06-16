@@ -16,8 +16,11 @@ import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
 import com.example.cluvrapi.domain.clubMember.entity.ClubMember;
+import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
+import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberStatus;
 import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.common.validator.ClubValidator;
 import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestByCodeRequestDto;
 import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestDto;
 import com.example.cluvrapi.domain.join.dto.request.UpdateJoinRequestDto;
@@ -58,6 +61,7 @@ public class JoinServiceImpl implements JoinService {
 	private final NotificationProducer notificationProducer;
 	private final JoinRedisService joinRedisService;
 	private final ClubMemberRepository clubMemberRepository;
+	private final ClubValidator clubValidator;
 
 	/**
 	 * 상수 선언
@@ -68,9 +72,9 @@ public class JoinServiceImpl implements JoinService {
 	@Transactional
 	public CreateJoinResponseDto createJoin(Long userId, Long clubId, CreateJoinRequestDto joinRequestDto) {
 		// 1) 검증
-		validateJoinRequest(clubId, userId);
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
+		validateJoinRequest(findClub, findUser);
 
 		// 2) 현재 Club 의 가입 방식과 가입 신청의 가입 방식이 같은지 확인
 		if (findClub.getJoinType() != joinRequestDto.getJoinType()) {
@@ -87,29 +91,23 @@ public class JoinServiceImpl implements JoinService {
 
 		// 5) 가입 양식에 따라, 분리된 로직 실행
 		switch (findClub.getJoinType()) {
-			case DIRECT_JOIN -> processDirectJoin();
+			case DIRECT_JOIN -> processDirectJoin(findClub, findUser);
 			case SIMPLE_REQUEST -> processSimpleRequest();
 			case SUBMISSION_FORM -> processFormSubmission(clubId, joinRequest, joinRequestDto.getAnswer());
 			case PROBLEM_FORM -> processFormProblem(clubId, joinRequest, joinRequestDto.getAnswer());
 		}
 
 		// 6) 클럽장에게 알림 전송
-		ClubMember clubOwner = clubMemberRepository.findOwnerByClub(findClub).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "클럽장의 정보를 찾을 수 없습니다.")
-		);
+		ClubMember clubOwner = clubMemberRepository.findOwnerByClub(findClub)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "클럽장의 정보를 찾을 수 없습니다."));
 
 		Long ownerUserId = clubOwner.getUser().getId();
 
 		if (!ownerUserId.equals(findUser.getId())) { // 자기 자신이 아닌 경우에만
 			String content = String.format("'%s'님이 '%s' 클럽에 가입 신청을 했습니다.", findUser.getName(), findClub.getName());
 
-			NotificationEvent event = NotificationEvent.from(
-				ownerUserId,                 // 클럽장에게
-				NotificationType.JOIN_REQUEST,
-				content,
-				NotiTargetType.CLUB,
-				clubId
-			);
+			NotificationEvent event = NotificationEvent.from(ownerUserId,                 // 클럽장에게
+				NotificationType.JOIN_REQUEST, content, NotiTargetType.CLUB, clubId);
 
 			notificationProducer.send(event);
 		}
@@ -119,7 +117,12 @@ public class JoinServiceImpl implements JoinService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PageResponseDto<MyClubJoinResponseDto> findJoinRequestByClubId(Long clubId, Pageable pageable) {
+	public PageResponseDto<MyClubJoinResponseDto> findJoinRequestByClubId(Long userId, Long clubId, Pageable pageable) {
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다."));
+
+		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
+
 		return joinRequestRepository.findJoinRequestByClubId(clubId, pageable);
 	}
 
@@ -131,28 +134,49 @@ public class JoinServiceImpl implements JoinService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public InfoJoinRequestResponseDto findJoinRequestById(Long clubId, Long joinRequestId) {
-		return joinRequestRepository.findJoinRequestById(clubId, joinRequestId);
+	public InfoJoinRequestResponseDto findJoinRequestById(Long userId, Long joinRequestId, Long clubId) {
+		InfoJoinRequestResponseDto infoJoinRequestResponseDto = joinRequestRepository.findJoinRequestById(clubId,
+			joinRequestId).orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당 가입요청이 존재하지 않습니다.")
+		);
+
+		// 작성자라면 바로 반환
+		if (infoJoinRequestResponseDto.getUserId() == userId) {
+			return infoJoinRequestResponseDto;
+		}
+
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.ACCESS_DENIED, "접근할 수 없습니다."));
+
+		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
+
+		return infoJoinRequestResponseDto;
 	}
 
 	@Override
 	@Transactional
-	public void updateJoinRequestAnswer(Long clubId, Long joinRequestId, UpdateJoinRequestDto updateJoinRequestDto) {
+	public void updateJoinRequestAnswer(Long userId, Long clubId, Long joinRequestId,
+		UpdateJoinRequestDto updateJoinRequestDto) {
 		JoinRequestAnswer findJoinRequestAnswer = joinRequestRepository.findJoinRequestAnswerByIdAndClubId(clubId,
-				joinRequestId)
-			.orElseThrow(
-				() -> new BusinessException(ResponseCode.NOT_FOUND)
-			);
+			joinRequestId).orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND));
+
+		if (!findJoinRequestAnswer.getJoinRequest().getUser().getId().equals(userId)) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED, "신청한 본인만 수정할 수 있습니다.");
+		}
 
 		findJoinRequestAnswer.updateAnswer(updateJoinRequestDto.getAnswer());
 	}
 
 	@Override
 	@Transactional
-	public void cancelJoinRequest(Long clubId, Long joinRequestId) {
+	public void cancelJoinRequest(Long userId, Long clubId, Long joinRequestId) {
 		// 1) Request 찾기
 		JoinRequest findJoinRequest = joinRequestRepository.joinRequestByIdAndClubId(clubId, joinRequestId)
 			.orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND));
+
+		if (!findJoinRequest.getUser().getId().equals(userId)) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED, "신청한 본인만 취소할 수 있습니다.");
+		}
 
 		// 2) Join Status 를 Cancel 로 수정
 		findJoinRequest.updateJoinStatus();
@@ -180,7 +204,7 @@ public class JoinServiceImpl implements JoinService {
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 
 		// 3) 클럽 가입 유무 검증
-		validateJoinRequest(clubId, userId);
+		validateJoinRequest(findClub, findUser);
 
 		// 4) Join Request Entity 생성 및 저장
 		JoinRequest joinRequest = new JoinRequest(findUser, findClub, JoinStatus.PENDING, JoinType.INVITE_CODE);
@@ -194,23 +218,28 @@ public class JoinServiceImpl implements JoinService {
 	 *
 	 * <p> 중복신청과 이미 가입된 유저인지 확인한다.
 	 *
-	 * @param clubId {설명: 클럽 고유 식별자}
-	 * @param userId {설명: 유저 고유 식별자}
+	 * @param club {설명: 클럽}
+	 * @param user {설명: 유저}
 	 * @throws BusinessException {400 BadRequest}
 	 * @author sinyoung0403
 	 */
-	private void validateJoinRequest(Long clubId, Long userId) {
+	private void validateJoinRequest(Club club, User user) {
 		// 1. 중복 신청 조회
-		boolean alreadyRequested = joinRequestRepository.existsJoinByClubIdAndUserId(clubId, userId);
-		if (alreadyRequested != false) {
+		boolean alreadyRequested = joinRequestRepository.existsJoinByClubIdAndUserId(club.getId(), user.getId());
+		if (alreadyRequested) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입 신청한 클럽입니다.");
 		}
 
 		// 2. 이미 가입된 유저인지 조회
-		// 추후 추가 예정
+		if (clubMemberRepository.findByClubIdAndUserId(club.getId(), user.getId()).isPresent()) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입된 클럽입니다.");
+		}
 
 		// 3. 클럽원 다 찼는지 확인
-		// 추후 추가 예정
+		if (clubMemberRepository.countByClubIdAndStatus(club.getId(), ClubMemberStatus.ACTIVE)
+			>= club.getMaxMemberCount()) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 회원이 꽉 찼습니다.");
+		}
 	}
 
 	/**
@@ -231,8 +260,9 @@ public class JoinServiceImpl implements JoinService {
 	 *
 	 * @author sinyoung0403
 	 */
-	private void processDirectJoin() {
-		// 클럽 유저 추가 Service 메서드 호출
+	private void processDirectJoin(Club club, User user) {
+		ClubMember clubMember = new ClubMember(club, user, ClubMemberRole.MEMBER, ClubMemberStatus.ACTIVE);
+		clubMemberRepository.save(clubMember);
 	}
 
 	/**
@@ -265,9 +295,8 @@ public class JoinServiceImpl implements JoinService {
 		}
 
 		// 1) Form 의 id 값 추출
-		SubmissionForm submissionForm = submissionFormRepository.findSubmissionFormByClubId(clubId).orElseThrow(
-			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당하는 클럽의 가입양식은 현재 존재하지 않습니다.")
-		);
+		SubmissionForm submissionForm = submissionFormRepository.findSubmissionFormByClubId(clubId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND, "해당하는 클럽의 가입양식은 현재 존재하지 않습니다."));
 
 		// 2) Entity 생성
 		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(joinRequest, submissionForm.getId(),
@@ -300,8 +329,7 @@ public class JoinServiceImpl implements JoinService {
 
 		// 2) Entity 생성
 		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(joinRequest, problemForm.getId(),
-			FormFieldType.PROBLEM,
-			answers);
+			FormFieldType.PROBLEM, answers);
 
 		// 3. 저장
 		joinRequestAnswerRepository.save(joinRequestAnswer);

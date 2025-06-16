@@ -1,5 +1,9 @@
 package com.example.cluvrapi.domain.join.controller;
 
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -26,9 +30,6 @@ import com.example.cluvrapi.domain.join.dto.response.MyJoinRequestResponseDto;
 import com.example.cluvrapi.domain.join.service.JoinService;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 /**
  * 가입 요청 관련 API 를 처리하는 컨트롤러입니다.
@@ -75,10 +76,12 @@ public class JoinController {
 
 	@GetMapping("/clubs/{clubId}/join")
 	public ResponseEntity<BaseResponse<PageResponseDto<MyClubJoinResponseDto>>> findAllJoinRequestByClubId(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@PageableDefault Pageable pageable
 	) {
-		PageResponseDto<MyClubJoinResponseDto> joinResponseDto = joinService.findJoinRequestByClubId(clubId, pageable);
+		PageResponseDto<MyClubJoinResponseDto> joinResponseDto = joinService.findJoinRequestByClubId(authUser.id(),
+			clubId, pageable);
 		return ResponseEntity.ok(BaseResponse.success(joinResponseDto, ResponseCode.OK));
 	}
 
@@ -96,7 +99,7 @@ public class JoinController {
 		@Auth AuthUser authUser,
 		@PageableDefault Pageable pageable
 	) {
-		PageResponseDto<MyJoinRequestResponseDto> joinResponseDto = joinService.findMyJoinRequests(1L,
+		PageResponseDto<MyJoinRequestResponseDto> joinResponseDto = joinService.findMyJoinRequests(authUser.id(),
 			pageable);
 		return ResponseEntity.ok(BaseResponse.success(joinResponseDto, ResponseCode.OK));
 	}
@@ -114,11 +117,12 @@ public class JoinController {
 
 	@GetMapping("/clubs/{clubId}/join/{joinRequestId}")
 	public ResponseEntity<BaseResponse<InfoJoinRequestResponseDto>> findJoinRequestById(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@PathVariable Long joinRequestId
 	) {
-		InfoJoinRequestResponseDto joinResponseDto = joinService.findJoinRequestById(clubId,
-			joinRequestId);
+		InfoJoinRequestResponseDto joinResponseDto = joinService.findJoinRequestById(
+			authUser.id(), clubId, joinRequestId);
 		return ResponseEntity.ok(BaseResponse.success(joinResponseDto, ResponseCode.OK));
 	}
 
@@ -134,11 +138,12 @@ public class JoinController {
 
 	@PatchMapping("/clubs/{clubId}/join/{joinRequestId}")
 	public ResponseEntity<BaseResponse<Void>> updateJoinRequestAnswer(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@PathVariable Long joinRequestId,
-		@RequestBody UpdateJoinRequestDto updateJoinRequestDto
+		@Valid @RequestBody UpdateJoinRequestDto updateJoinRequestDto
 	) {
-		joinService.updateJoinRequestAnswer(clubId, joinRequestId, updateJoinRequestDto);
+		joinService.updateJoinRequestAnswer(authUser.id(), clubId, joinRequestId, updateJoinRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
@@ -153,10 +158,11 @@ public class JoinController {
 
 	@DeleteMapping("/clubs/{clubId}/join/{joinRequestId}")
 	public ResponseEntity<BaseResponse<Void>> cancelJoinRequest(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@PathVariable Long joinRequestId
 	) {
-		joinService.cancelJoinRequest(clubId, joinRequestId);
+		joinService.cancelJoinRequest(authUser.id(), clubId, joinRequestId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 

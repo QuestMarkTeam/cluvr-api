@@ -21,6 +21,7 @@ import com.example.cluvrapi.domain.join.dto.response.QMyJoinRequestResponseDto;
 import com.example.cluvrapi.domain.join.entity.JoinRequest;
 import com.example.cluvrapi.domain.join.entity.JoinRequestAnswer;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 /**
@@ -92,27 +93,27 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 	}
 
 	@Override
-	public InfoJoinRequestResponseDto findJoinRequestById(Long clubId, Long joinRequestId) {
-		InfoJoinRequestResponseDto content = jpaQueryFactory
-			.select(
-				new QInfoJoinRequestResponseDto(
-					joinRequest.id,
-					joinRequest.club.id,
-					joinRequest.user.id,
-					joinRequest.joinType,
-					new CaseBuilder()
-						.when(joinRequestAnswer.answer.isNotNull())
-						.then(joinRequestAnswer.answer)
-						.otherwise("null")
+	public Optional<InfoJoinRequestResponseDto> findJoinRequestById(Long clubId, Long joinRequestId) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.select(
+					new QInfoJoinRequestResponseDto(
+						joinRequest.id,
+						joinRequest.club.id,
+						joinRequest.user.id,
+						joinRequest.joinType,
+						new CaseBuilder()
+							.when(joinRequestAnswer.answer.isNotNull())
+							.then(joinRequestAnswer.answer)
+							.otherwise(Expressions.nullExpression(String.class))
+					)
 				)
-			)
-			.from(joinRequest)
-			.leftJoin(joinRequestAnswer)
-			.on(joinRequest.id.eq(joinRequestAnswer.joinRequest.id))
-			.where(joinRequest.club.id.eq(clubId).and(joinRequest.id.eq(joinRequestId)))
-			.fetchOne();
-
-		return content;
+				.from(joinRequest)
+				.leftJoin(joinRequestAnswer)
+				.on(joinRequest.id.eq(joinRequestAnswer.joinRequest.id))
+				.where(joinRequest.club.id.eq(clubId).and(joinRequest.id.eq(joinRequestId)))
+				.fetchOne()
+		);
 	}
 
 	@Override
