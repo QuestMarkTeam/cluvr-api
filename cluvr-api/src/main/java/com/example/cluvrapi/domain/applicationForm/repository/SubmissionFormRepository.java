@@ -7,7 +7,7 @@ import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.common.repository.BaseRepository;
 
 public interface SubmissionFormRepository
-	extends BaseRepository<SubmissionForm, Long>, SubmissionFormRepositoryCustom {
+	extends BaseRepository<SubmissionForm, Long>, SubmissionFormRepositoryQuery {
 
 	List<SubmissionForm> club(Club club);
 }

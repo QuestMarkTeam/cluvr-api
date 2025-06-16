@@ -2,6 +2,8 @@ package com.example.cluvrapi.domain.clubMember.service;
 
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,8 +24,6 @@ import com.example.cluvrapi.domain.join.repository.JoinRequestRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
 @RequiredArgsConstructor
 public class ClubMemberServiceImpl implements ClubMemberService {
@@ -35,7 +35,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 	@Transactional
 	@Override
 	public void handleJoinRequest(Long clubId, Long joinRequestId, JoinStatus status, AuthUser approver) {
-		JoinRequest jr = joinRequestRepository.joinRequestByIdAndClubId(joinRequestId, clubId)
+		JoinRequest jr = joinRequestRepository.joinRequestByIdAndClubId(clubId, joinRequestId)
 			.orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND, "가입 요청을 찾을 수 없습니다."));
 
 		if (jr.getJoinStatus() != JoinStatus.PENDING) {

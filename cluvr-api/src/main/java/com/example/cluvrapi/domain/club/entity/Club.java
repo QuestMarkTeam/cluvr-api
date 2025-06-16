@@ -1,15 +1,12 @@
 package com.example.cluvrapi.domain.club.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import lombok.AccessLevel;
@@ -19,7 +16,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import com.example.cluvrapi.domain.applicationForm.entity.SubmissionForm;
 import com.example.cluvrapi.domain.club.enums.ClubType;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
@@ -128,12 +124,6 @@ public class Club extends BaseTimeEntity {
 
 	@Column(name = "is_deleted", nullable = false)
 	private Boolean isDeleted = false;
-
-	/**
-	 * SubmissionForm 연관관계
-	 */
-	@OneToOne(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-	private SubmissionForm submissionForm;
 
 	/**
 	 * 가입 방식:
@@ -249,13 +239,7 @@ public class Club extends BaseTimeEntity {
 		this.isPublic = isPublic;
 	}
 
-	public void setSubmissionForm(SubmissionForm submissionForm) {
-		this.submissionForm = submissionForm;
-		if (this.submissionForm != null && this.submissionForm.getClub() == this) {
-			this.submissionForm.setClub(null);
-		}
-		if (submissionForm != null && submissionForm.getClub() != this) {
-			submissionForm.setClub(this);
-		}
+	public void delete() {
+		this.isDeleted = Boolean.TRUE;
 	}
 }

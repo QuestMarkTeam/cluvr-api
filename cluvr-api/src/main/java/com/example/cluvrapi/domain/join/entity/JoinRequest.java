@@ -1,12 +1,5 @@
 package com.example.cluvrapi.domain.join.entity;
 
-import org.hibernate.annotations.SQLDelete;
-
-import com.example.cluvrapi.domain.club.entity.Club;
-import com.example.cluvrapi.domain.club.enums.JoinType;
-import com.example.cluvrapi.domain.join.enums.JoinStatus;
-import com.example.cluvrapi.domain.user.entity.User;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,9 +11,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
+import com.example.cluvrapi.domain.club.entity.Club;
+import com.example.cluvrapi.domain.club.enums.JoinType;
+import com.example.cluvrapi.domain.join.enums.JoinStatus;
+import com.example.cluvrapi.domain.user.entity.User;
 
 /**
  * 신청의 본체, 메타 정보를 담고 있습니다.
@@ -30,6 +32,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "join_requests")
 @SQLDelete(sql = "UPDATE join_requests SET is_deleted = true WHERE id = ?")
+@Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class JoinRequest {
 

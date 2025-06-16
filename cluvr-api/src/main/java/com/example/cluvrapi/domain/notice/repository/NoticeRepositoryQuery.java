@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.notice.dto.response.InfoNoticeResponseDto;
 
-public interface NoticeRepositoryCustom {
+public interface NoticeRepositoryQuery {
 
 	/**
 	 * 설명: 공지사항 단건 조회하는 쿼리문

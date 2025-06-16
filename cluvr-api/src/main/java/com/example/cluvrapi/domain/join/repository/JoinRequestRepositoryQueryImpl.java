@@ -38,7 +38,9 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 		return jpaQueryFactory
 			.selectOne()
 			.from(joinRequest)
-			.where(joinRequest.club.id.eq(clubId).and(joinRequest.user.id.eq(userId)))
+			.where(joinRequest.club.id.eq(clubId)
+				.and(joinRequest.user.id.eq(userId))
+				.and(joinRequest.isDeleted.isFalse()))
 			.fetchFirst() != null;
 	}
 
@@ -51,7 +53,7 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 				joinRequest.joinStatus,
 				joinRequest.joinType))
 			.from(joinRequest)
-			.where(joinRequest.club.id.eq(clubId))
+			.where(joinRequest.club.id.eq(clubId).and(joinRequest.isDeleted.isFalse()))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -59,9 +61,7 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 		Long total = jpaQueryFactory
 			.select(joinRequest.count())
 			.from(joinRequest)
-			.where(joinRequest.club.id.eq(clubId))
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
+			.where(joinRequest.club.id.eq(clubId).and(joinRequest.isDeleted.isFalse()))
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));
@@ -76,7 +76,7 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 				joinRequest.joinStatus,
 				joinRequest.joinType))
 			.from(joinRequest)
-			.where(joinRequest.club.id.eq(userId))
+			.where(joinRequest.user.id.eq(userId).and(joinRequest.isDeleted.isFalse()))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -84,9 +84,7 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 		Long total = jpaQueryFactory
 			.select(joinRequest.count())
 			.from(joinRequest)
-			.where(joinRequest.user.id.eq(userId))
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
+			.where(joinRequest.user.id.eq(userId).and(joinRequest.isDeleted.isFalse()))
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));
@@ -111,7 +109,9 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 				.from(joinRequest)
 				.leftJoin(joinRequestAnswer)
 				.on(joinRequest.id.eq(joinRequestAnswer.joinRequest.id))
-				.where(joinRequest.club.id.eq(clubId).and(joinRequest.id.eq(joinRequestId)))
+				.where(joinRequest.club.id.eq(clubId)
+					.and(joinRequest.id.eq(joinRequestId))
+					.and(joinRequest.isDeleted.isFalse()))
 				.fetchOne()
 		);
 	}
@@ -120,15 +120,18 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 	public Optional<JoinRequestAnswer> findJoinRequestAnswerByIdAndClubId(Long clubId, Long joinRequestId) {
 		return Optional.ofNullable(jpaQueryFactory.selectFrom(joinRequestAnswer)
 			.where(joinRequestAnswer.joinRequest.club.id.eq(clubId)
-				.and(joinRequestAnswer.joinRequest.id.eq(joinRequestId)))
+				.and(joinRequestAnswer.joinRequest.id.eq(joinRequestId))
+				.and(joinRequestAnswer.joinRequest.isDeleted.isFalse()))
 			.fetchOne());
 	}
 
 	@Override
 	public Optional<JoinRequest> joinRequestByIdAndClubId(Long clubId, Long joinRequestId) {
-		return Optional.ofNullable(jpaQueryFactory.selectFrom(joinRequest)
-			.where(joinRequest.club.id.eq(clubId)
-				.and(joinRequest.id.eq(joinRequestId)))
-			.fetchOne());
+		return Optional.ofNullable(
+			jpaQueryFactory.selectFrom(joinRequest)
+				.where(joinRequest.club.id.eq(clubId)
+					.and(joinRequest.id.eq(joinRequestId))
+					.and(joinRequest.isDeleted.isFalse()))
+				.fetchOne());
 	}
 }

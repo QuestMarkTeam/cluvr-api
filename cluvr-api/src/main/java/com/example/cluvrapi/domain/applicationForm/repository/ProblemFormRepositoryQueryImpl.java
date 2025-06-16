@@ -17,7 +17,7 @@ import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @RequiredArgsConstructor
-public class ProblemFormRepositoryImpl implements ProblemFormRepositoryCustom {
+public class ProblemFormRepositoryQueryImpl implements ProblemFormRepositoryQuery {
 
 	private final JPAQueryFactory jpaQueryFactory;
 

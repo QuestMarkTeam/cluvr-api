@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.til.dto.response.InfoTilResponseDto;
 
-public interface TilRepositoryCustom {
+public interface TilRepositoryQuery {
 
 	/**
 	 * 설명: Til 를 단건 조회하는 쿼리문

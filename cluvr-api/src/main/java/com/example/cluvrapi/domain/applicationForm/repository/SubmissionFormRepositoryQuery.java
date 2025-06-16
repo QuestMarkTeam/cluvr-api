@@ -8,7 +8,7 @@ import com.example.cluvrapi.domain.applicationForm.dto.response.InfoSubmissionFo
 import com.example.cluvrapi.domain.applicationForm.entity.SubmissionForm;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 
-public interface SubmissionFormRepositoryCustom {
+public interface SubmissionFormRepositoryQuery {
 
 	/**
 	 * 설명: 클럽 정보와 제출 양식 정보가 일치하는 SubmissionForm 객체를 반환하는 쿼리문
@@ -47,5 +47,22 @@ public interface SubmissionFormRepositoryCustom {
 
 	PageResponseDto<InfoSubmissionFormResponseDto> findAllSubmissionFormById(Long clubId, Pageable pageable);
 
+	/**
+	 * 설명: 클럽 ID로 제출 양식 단건 조회
+	 *
+	 * @param clubId 클럽 고유 식별자
+	 * @return 제출 양식 엔티티 Optional 래핑
+	 * @author sinyoung0403
+	 */
+
 	Optional<SubmissionForm> findSubmissionFormByClubId(Long clubId);
+
+	/**
+	 * 설명: 클럽 ID로 제출 양식을 삭제
+	 *
+	 * @param clubId 클럽 고유 식별자
+	 * @author sinyoung0403
+	 */
+
+	void deleteByClubId(Long clubId);
 }
