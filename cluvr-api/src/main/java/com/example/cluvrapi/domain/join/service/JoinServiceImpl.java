@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.cluvrapi.domain.applicationForm.entity.ProblemForm;
+import com.example.cluvrapi.domain.applicationForm.entity.SubmissionForm;
 import com.example.cluvrapi.domain.applicationForm.repository.ProblemFormRepository;
 import com.example.cluvrapi.domain.applicationForm.repository.SubmissionFormRepository;
 import com.example.cluvrapi.domain.club.entity.Club;
@@ -263,10 +265,12 @@ public class JoinServiceImpl implements JoinService {
 		}
 
 		// 1) Form 의 id 값 추출
-		Long submissionFormId = submissionFormRepository.findSubmissionFormIdByClubId(clubId);
+		SubmissionForm submissionForm = submissionFormRepository.findSubmissionFormByClubId(clubId).orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당하는 클럽의 가입양식은 현재 존재하지 않습니다.")
+		);
 
 		// 2) Entity 생성
-		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(joinRequest, submissionFormId,
+		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(joinRequest, submissionForm.getId(),
 			FormFieldType.SUBMISSION, answers);
 
 		// 3) 저장
@@ -291,11 +295,12 @@ public class JoinServiceImpl implements JoinService {
 		}
 
 		// 1) Form id 값 추출 - Active 한 Id 값을 가져온다.
-		Long problemFormId = problemFormRepository.findActiveProblemFormIdByClubId(clubId)
+		ProblemForm problemForm = problemFormRepository.findActiveProblemFormByClubId(clubId)
 			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "잘못된 요청입니다."));
 
 		// 2) Entity 생성
-		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(joinRequest, problemFormId, FormFieldType.PROBLEM,
+		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(joinRequest, problemForm.getId(),
+			FormFieldType.PROBLEM,
 			answers);
 
 		// 3. 저장

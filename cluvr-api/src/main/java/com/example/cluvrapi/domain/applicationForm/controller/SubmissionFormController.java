@@ -21,6 +21,8 @@ import com.example.cluvrapi.domain.applicationForm.dto.request.UpdateSubmissionT
 import com.example.cluvrapi.domain.applicationForm.dto.response.CreateSubmissionFormResponseDto;
 import com.example.cluvrapi.domain.applicationForm.dto.response.InfoSubmissionFormResponseDto;
 import com.example.cluvrapi.domain.applicationForm.service.SubmissionFormService;
+import com.example.cluvrapi.domain.common.annotation.Auth;
+import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
@@ -34,11 +36,15 @@ public class SubmissionFormController {
 
 	@PostMapping
 	public ResponseEntity<BaseResponse<CreateSubmissionFormResponseDto>> createSubmissionForm(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@Valid @RequestBody CreateSubmissionFormRequestDto submissionFormRequestDto
 	) {
-		CreateSubmissionFormResponseDto submissionFormResponseDto = submissionFormService.createSubmissionForm(clubId,
-			submissionFormRequestDto);
+		CreateSubmissionFormResponseDto submissionFormResponseDto = submissionFormService.createSubmissionForm(
+			authUser.id(),
+			clubId,
+			submissionFormRequestDto
+		);
 		return ResponseEntity.ok(BaseResponse.success(submissionFormResponseDto, ResponseCode.CREATED));
 	}
 
@@ -65,20 +71,23 @@ public class SubmissionFormController {
 
 	@PatchMapping("/{submissionFormId}")
 	public ResponseEntity<BaseResponse<Void>> updateSubmissionForm(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@PathVariable Long submissionFormId,
 		@Valid @RequestBody UpdateSubmissionTemplateRequestDto submissionTemplateRequestDto
 	) {
-		submissionFormService.updateSubmissionTemplate(clubId, submissionFormId, submissionTemplateRequestDto);
+		submissionFormService.updateSubmissionTemplate(authUser.id(), clubId, submissionFormId,
+			submissionTemplateRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 	@DeleteMapping("/{submissionFormId}")
 	public ResponseEntity<BaseResponse<Void>> deleteSubmissionForm(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@PathVariable Long submissionFormId
 	) {
-		submissionFormService.deleteSubmissionForm(clubId, submissionFormId);
+		submissionFormService.deleteSubmissionForm(authUser.id(), clubId, submissionFormId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 }

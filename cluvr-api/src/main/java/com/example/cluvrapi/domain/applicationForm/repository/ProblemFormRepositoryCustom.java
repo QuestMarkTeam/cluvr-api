@@ -47,5 +47,15 @@ public interface ProblemFormRepositoryCustom {
 
 	PageResponseDto<InfoProblemFormResponseDto> findByProblemFormAllById(Long clubId, Pageable pageable);
 
-	Optional<Long> findActiveProblemFormIdByClubId(Long clubId);
+	/**
+	 * 설명: 클럽의 활성화된 문제양식 ID를 조회하는 메서드
+	 *
+	 * <p> SoftDelete가 적용된 데이터 제외, 단건 조회
+	 *
+	 * @param clubId {설명: 클럽 고유 식별자}
+	 * @return Optional<ProblemForm> {설명: 활성화된 문제양식 (없을 경우 빈 Optional)}
+	 * @author sinyoung0403
+	 */
+
+	Optional<ProblemForm> findActiveProblemFormByClubId(Long clubId);
 }

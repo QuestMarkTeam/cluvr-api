@@ -14,6 +14,7 @@ public interface SubmissionFormService {
 	/**
 	 * 설명: 클럽의 제출 양식을 생성하는 메서드
 	 *
+	 * @param userId                   {설명: 클럽의 고유 식별자}
 	 * @param clubId                   {설명: 클럽의 고유 식별자}
 	 * @param submissionFormRequestDto {설명: 가입 제출 양식에 필요한 정보}
 	 * @return CreateSubmissionFormResponseDto {설명: 클럽의 id 값 반환}
@@ -21,8 +22,8 @@ public interface SubmissionFormService {
 	 * @author sinyoung0403
 	 */
 
-	CreateSubmissionFormResponseDto createSubmissionForm(Long clubId,
-		CreateSubmissionFormRequestDto submissionFormRequestDto);
+	CreateSubmissionFormResponseDto createSubmissionForm(Long userId,
+		Long clubId, CreateSubmissionFormRequestDto submissionFormRequestDto);
 
 	/**
 	 * 설명: 클럽의 제출양식을 단건조회하는 메서드
@@ -49,6 +50,7 @@ public interface SubmissionFormService {
 	/**
 	 * 설명: 클럽의 제출 양식을 수정하는 메서드
 	 *
+	 * @param userId
 	 * @param clubId
 	 * @param submissionFormId                   {설명: ApplicationForm 의 고유 식별자}
 	 * @param updateSubmissionTemplateRequestDto {설명: 수정할 때 필요한 정보}
@@ -56,19 +58,20 @@ public interface SubmissionFormService {
 	 * @author sinyoung0403
 	 */
 
-	void updateSubmissionTemplate(Long clubId, Long submissionFormId,
-		UpdateSubmissionTemplateRequestDto updateSubmissionTemplateRequestDto);
+	void updateSubmissionTemplate(Long userId, Long clubId,
+		Long submissionFormId, UpdateSubmissionTemplateRequestDto updateSubmissionTemplateRequestDto);
 
 	/**
 	 * 설명: 클럽의 제출 양식을 삭제하는 메서드
 	 *
 	 * <p> 양식을 삭제 시 SoftDeleted 처리 및 Club 의 JoinType 이 가입 신청 양식으로 변경
 	 *
+	 * @param userId           {설명: 클럽 의 고유 식별자}
 	 * @param clubId           {설명: 클럽 의 고유 식별자}
 	 * @param submissionFormId {설명: SubmissionForm 의 고유 식별자}
 	 * @throws BusinessException {404 NotFound}
 	 * @author sinyoung0403
 	 */
 
-	void deleteSubmissionForm(Long clubId, Long submissionFormId);
+	void deleteSubmissionForm(Long userId, Long clubId, Long submissionFormId);
 }
