@@ -5,14 +5,18 @@ import lombok.Getter;
 
 @Getter
 public class JoinRequestDto {
+	@NotNull(message = "CLUB ID는 필수입니다")
+	private Long clubId;
+
 	@NotNull(message = "사용자 ID는 필수입니다")
 	private Long userId;
 
-	public JoinRequestDto(Long userId) {
+	public JoinRequestDto(Long userId, Long clubId) {
 		this.userId = userId;
+		this.clubId = clubId;
 	}
 
-	public static JoinRequestDto from(Long userId) {
-		return new JoinRequestDto(userId);
+	public static JoinRequestDto from(Long userId, Long clubId) {
+		return new JoinRequestDto(userId, clubId);
 	}
 }
