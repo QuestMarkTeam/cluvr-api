@@ -42,24 +42,38 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 	}
 
 	@Override
-	public List<ReadBoardsResponseDto> findAllBoardsByCategory(CategoryType category, int pageNumber, int pageSize) {
+	public PageResponseDto<ReadBoardsResponseDto> findAllBoardsByCategory(CategoryType category, Pageable pageable) {
 		QBoard board = QBoard.board;
 		QUser user = QUser.user;
 
-		return queryFactory
+		List<ReadBoardsResponseDto> dtos = queryFactory
 			.select(new QReadBoardsResponseDto(
 				board.id,
 				board.title,
 				board.content,
 				board.viewCount,
-				user.name,
+				board.user.name,
 				board.createdAt,
 				board.modifiedAt
 			))
-			.where(board.isSelected.isFalse().and(board.category.eq(category)))
-			.offset(pageNumber - 1)
-			.limit(pageSize)
+			.from(board)
+			// .join(board.user, user).fetchJoin() // -이거 요청 계속 실패하네요  ㅠㅠ N+1 문제 때문에 조인해야할거같은데
+			.where(
+				board.isDeleted.isFalse()
+					.and(category != null ? board.category.eq(category) : null)
+			)
+			.orderBy(board.createdAt.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
 			.fetch();
+
+		Long total = queryFactory
+			.select(board.count())
+			.from(board)
+			.where(board.isDeleted.isFalse().and(board.category.eq(category)))
+			.fetchOne();
+
+		return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, total));
 	}
 
 	@Override
@@ -70,6 +84,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 			.select(new QReadMyBoardsResponseDto(board.id, board.title, board.content, board.createdAt))
 			.from(board)
 			.where(board.user.id.eq(userId))
+			.orderBy(board.createdAt.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -81,5 +96,11 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, total));
+	}
+
+	@Override
+	public void updateBoard(String getTitle, String getContent, int getClover) {
+		// 나중에 수정할게요
+		// 앗...
 	}
 }

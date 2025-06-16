@@ -11,19 +11,19 @@ public class ReadBoardsResponseDto {
 	private long id;
 	private String title;
 	private String content;
-	private int view;
+	private long viewCount;
 	private String userName;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
 	@QueryProjection
-	public ReadBoardsResponseDto(long id, String title, String content, int view, String userName,
+	public ReadBoardsResponseDto(long id, String title, String content, long viewCount, String userName,
 		LocalDateTime createdAt,
 		LocalDateTime updatedAt) {
 		this.id = id;
 		this.title = title;
 		this.content = content;
-		this.view = view;
+		this.viewCount = viewCount;
 		this.userName = userName;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
