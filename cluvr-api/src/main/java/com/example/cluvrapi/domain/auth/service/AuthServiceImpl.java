@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.auth.service;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +17,9 @@ import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
 import com.example.cluvrapi.domain.category.entity.Category;
 import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
 import com.example.cluvrapi.domain.category.repository.CategoryRepository;
+import com.example.cluvrapi.domain.clover.dto.request.CreateCloverRequestDto;
+import com.example.cluvrapi.domain.clover.enums.Tier;
+import com.example.cluvrapi.domain.clover.service.CloverService;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.entity.enums.UserRole;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
@@ -23,8 +28,6 @@ import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.jwt.JwtUtil;
 import com.example.cluvrapi.global.jwt.RefreshTokenServiceImpl;
 import com.example.cluvrapi.global.response.ResponseCode;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
 	private final JwtUtil jwtUtil;
 	private final RefreshTokenServiceImpl refreshTokenService;
 	private final CategoryRepository categoryRepository;
+	private final CloverService cloverService;
 
 	@Override
 	@Transactional
@@ -84,6 +88,7 @@ public class AuthServiceImpl implements AuthService {
 			CategoryTargetType.USER           // targetType = USER
 		);
 		categoryRepository.save(newCategory);
+		cloverService.createClover(CreateCloverRequestDto.from(0, Tier.SPROUT, savedUser.getId()));
 
 		return SignUpUserResponseDto.from(savedUser);
 	}

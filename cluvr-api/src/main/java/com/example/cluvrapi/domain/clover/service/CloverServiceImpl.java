@@ -49,7 +49,7 @@ public class CloverServiceImpl implements CloverService {
 	@Override
 	public void createClover(CreateCloverRequestDto requestDto) {
 		User user = userRepository.findByIdOrElseThrow(requestDto.getUserId());
-		Clover clover = new Clover(requestDto.getTier(), requestDto.getScore(), user);
+		Clover clover = new Clover(requestDto.getTier(), requestDto.getClover(), user);
 		cloverRepository.save(clover);
 	}
 
