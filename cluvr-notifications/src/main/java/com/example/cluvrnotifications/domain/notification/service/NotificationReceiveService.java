@@ -39,10 +39,11 @@ public class NotificationReceiveService {
 				event.getTargetId()
 			);
 			notificationCacheRepository.save(doc);
-			log.info(" SSE 끊김 -> 알림 저장됨: 받는 사람: {}, 내용 : {}  ", event.getReceiverId(), event.getContent());
+			log.debug(" SSE 끊김 -> 알림 저장됨: 받는 사람: {}, 내용 : {}  ", event.getReceiverId(), event.getContent());
 
 		} else {
-			log.info(" SSE 연결됨 -> 알림 전송 완료: 받을 사람: {}, 내용 : {}  ", event.getReceiverId(), event.getContent());
+			log.debug(" SSE 연결됨 -> 알림 전송 완료: 받을 사람: {}, 내용 : {}  ", event.getReceiverId(), event.getContent());
 		}
+
 	}
 }

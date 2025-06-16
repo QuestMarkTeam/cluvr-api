@@ -52,6 +52,7 @@ public class NotificationSendService {
 					.name("notification")
 					.data(event));
 				success = true;
+				log.debug("전송 대상 emitter 수: {}", emitters.size());
 			} catch (Exception e) {
 				log.warn("SSE 전송 실패 - 사용자 Id :{}, 사유 : {}, 내용 : {}", event.getReceiverId(), e, e.getMessage());
 				sseEmitterRepository.delete(event.getReceiverId(), emitter);

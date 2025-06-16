@@ -68,7 +68,7 @@ public class SseEmitterRepository {
 		List<SseEmitter> emitters = emitterMap.get(userId);
 		if (emitters != null) {
 			emitters.remove(emitter);
-			log.info("Emitter 삭제: userId={}, 남은 연결 수={}", userId, emitters.size());
+			log.debug("Emitter 삭제: userId={}, 남은 연결 수={}", userId, emitters.size());
 			if (emitters.isEmpty()) {
 				emitterMap.remove(userId);
 			}
@@ -85,6 +85,6 @@ public class SseEmitterRepository {
 
 	public void deleteAll(Long userId) {
 		emitterMap.remove(userId);
-		log.info("Emitter 전체 삭제: userId={}", userId);
+		log.debug("Emitter 전체 삭제: userId={}", userId);
 	}
 }

@@ -13,6 +13,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 
 import com.example.cluvrnotifications.global.response.BaseResponse;
 import com.example.cluvrnotifications.global.response.ResponseCode;
@@ -116,6 +117,17 @@ public class GlobalExceptionHandler {
 		log.error("Exception URI : {}", request.getRequestURI());
 		// 예외 메시지와 스택 트레이스 로깅
 		log.error("{} : {}", label, ex.getMessage(), ex);
+	}
+
+	/**
+	 * 설명 : SSE 타임아웃 발생 시 아무 응답도 하지 않고 무시 (기존 emitter에서 정리됨)
+	 *
+	 * @author : escomputer
+	 */
+	@ExceptionHandler(AsyncRequestTimeoutException.class)
+	public void handleSseTimeout(AsyncRequestTimeoutException ex) {
+		log.debug("SSE 타임아웃 예외 무시: {}", ex.toString());
+		// 응답안하면 , emitter.onTimeout()에서 이미 정리됨
 	}
 
 }

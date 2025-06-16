@@ -11,6 +11,7 @@ import com.example.cluvrnotifications.domain.notification.enums.NotificationType
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationEvent {
+
 	private Long receiverId;
 	private NotificationType type;
 	private String content;
