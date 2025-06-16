@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.notice.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Pageable;
 
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
@@ -17,7 +19,7 @@ public interface NoticeRepositoryCustom {
 	 * @return InfoNoticeResponseDto {공지사항 정보}
 	 * @author sinyoung0403
 	 */
-	InfoNoticeResponseDto findNoticeById(Long clubId, Long noticeId);
+	Optional<InfoNoticeResponseDto> findNoticeById(Long clubId, Long noticeId);
 
 	/**
 	 * 설명: 공지사항 다건 조회하는 쿼리문

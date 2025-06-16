@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.cluvrapi.domain.common.annotation.Auth;
+import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.til.dto.reqeust.CreateTilRequestDto;
 import com.example.cluvrapi.domain.til.dto.reqeust.UpdateTilRequestDto;
@@ -34,10 +36,11 @@ public class TilController {
 
 	@PostMapping
 	public ResponseEntity<BaseResponse<CreateTilResponseDto>> createTil(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@Valid @RequestBody CreateTilRequestDto createTilRequestDto
 	) {
-		CreateTilResponseDto createTilResponseDto = tilService.createTil(1L, clubId, createTilRequestDto);
+		CreateTilResponseDto createTilResponseDto = tilService.createTil(authUser.id(), clubId, createTilRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(createTilResponseDto, ResponseCode.CREATED));
 	}
 
@@ -60,18 +63,21 @@ public class TilController {
 
 	@PatchMapping("/{tilId}")
 	public ResponseEntity<BaseResponse<Void>> updateTil(
+		@Auth AuthUser authUser,
 		@PathVariable Long tilId,
 		@Valid @RequestBody UpdateTilRequestDto updateTilRequestDto
 	) {
-		tilService.updateTil(tilId, updateTilRequestDto);
+		tilService.updateTil(authUser.id(), tilId, updateTilRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
 	@DeleteMapping("/{tilId}")
-	public ResponseEntity<BaseResponse<Void>> updateTil(
+	public ResponseEntity<BaseResponse<Void>> deleteTil(
+		@Auth AuthUser authUser,
+		@PathVariable Long clubId,
 		@PathVariable Long tilId
 	) {
-		tilService.deleteTil(tilId);
+		tilService.deleteTil(authUser.id(), clubId, tilId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 }
