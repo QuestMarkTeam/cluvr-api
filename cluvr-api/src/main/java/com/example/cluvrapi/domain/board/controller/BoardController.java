@@ -42,8 +42,9 @@ public class BoardController {
 	private final BoardService boardService;
 
 	@PostMapping
-	public ResponseEntity<BaseResponse<Long>> createBoard(@Valid @RequestBody CreateBoardRequestDto dto) {
-		return ResponseEntity.ok(BaseResponse.success(boardService.createBoard(dto), ResponseCode.CREATED));
+	public ResponseEntity<BaseResponse<Long>> createBoard(@Auth AuthUser user,
+		@Valid @RequestBody CreateBoardRequestDto dto) {
+		return ResponseEntity.ok(BaseResponse.success(boardService.createBoard(user.id(), dto), ResponseCode.CREATED));
 	}
 
 	@GetMapping
@@ -59,25 +60,30 @@ public class BoardController {
 	}
 
 	@PatchMapping("/{boardId}")
-	public ResponseEntity<BaseResponse<Void>> updateBoard(@Valid @RequestBody UpdateBoardRequestDto dto,
+	public ResponseEntity<BaseResponse<Void>> updateBoard(@Auth AuthUser user,
+		@Valid @RequestBody UpdateBoardRequestDto dto,
 		@PathVariable long boardId) {
-		long userId = 1;
-		boardService.updateBoard(userId, dto, boardId);
+		boardService.updateBoard(user.id(), dto, boardId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
 	}
 
 	@DeleteMapping("/{boardId}")
-	public ResponseEntity<BaseResponse<Void>> deleteBoard(@PathVariable long boardId) {
-		boardService.deleteBoard(boardId);
+	public ResponseEntity<BaseResponse<Void>> deleteBoard(@Auth AuthUser user, @PathVariable long boardId) {
+		boardService.deleteBoard(user.id(), boardId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
 	}
 
 	@GetMapping("/me")
 	public ResponseEntity<BaseResponse<PageResponseDto<ReadMyBoardsResponseDto>>> readBoardsWithUser(
 		@Auth AuthUser user, @PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
-
-		long id = 1;
 		return ResponseEntity.ok(
-			BaseResponse.success(boardService.readBoardsWithUser(id, pageable), ResponseCode.OK));
+			BaseResponse.success(boardService.readBoardsWithUser(user.id(), pageable), ResponseCode.OK));
+	}
+
+	@PostMapping("/{boardId}/replies/{replyId}/best-recommendation")
+	public ResponseEntity<BaseResponse<Void>> selectBestReply(@Auth AuthUser user, @PathVariable long boardId,
+		@PathVariable long replyId) {
+		boardService.selectBestReply(user.id(), boardId, replyId);
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.OK));
 	}
 }

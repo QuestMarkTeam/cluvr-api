@@ -1,6 +1,5 @@
 package com.example.cluvrapi.domain.reply.controller;
 
-import java.util.List;
 import java.util.Map;
 
 import jakarta.validation.Valid;
@@ -30,7 +29,6 @@ import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 import com.example.cluvrapi.domain.reply.service.ReplyService;
-import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -47,9 +45,8 @@ public class ReplyController {
 	@PostMapping
 	public ResponseEntity<BaseResponse<Long>> createReply(@Auth AuthUser user, @PathVariable long boardId,
 		@Valid @RequestBody CreateReplyRequestDto dto) {
-		long id = 3;
 		return ResponseEntity.ok(
-			BaseResponse.success(replyService.createReply(id, boardId, dto), ResponseCode.CREATED));
+			BaseResponse.success(replyService.createReply(user.id(), boardId, dto), ResponseCode.CREATED));
 	}
 
 	/**
@@ -72,8 +69,7 @@ public class ReplyController {
 	public ResponseEntity<BaseResponse<Void>> updateReply(@Auth AuthUser user, @PathVariable long boardId,
 		@PathVariable long replyId,
 		@RequestBody UpdateReplyRequestDto dto) {
-		long id = 3;
-		replyService.updateReply(id, boardId, replyId, dto);
+		replyService.updateReply(user.id(), boardId, replyId, dto);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
@@ -81,10 +77,9 @@ public class ReplyController {
 	 * 댓글 내용 삭제 상태로 변경
 	 */
 	@DeleteMapping("/{replyId}")
-	public ResponseEntity<BaseResponse<Void>> deleteReply(@Auth User user, @PathVariable long boardId,
+	public ResponseEntity<BaseResponse<Void>> deleteReply(@Auth AuthUser user, @PathVariable long boardId,
 		@PathVariable long replyId) {
-		long id = 3;
-		replyService.deleteReply(id, boardId, replyId);
+		replyService.deleteReply(user.id(), boardId, replyId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
@@ -95,18 +90,15 @@ public class ReplyController {
 	@GetMapping("/me")
 	public ResponseEntity<BaseResponse<PageResponseDto<ReadMyReplyResponseDto>>> readRepliesWithUser(
 		@Auth AuthUser user, @PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
-
-		long id = 1;
 		return ResponseEntity.ok(
-			BaseResponse.success(replyService.readRepliesWithUser(id, pageable), ResponseCode.OK));
+			BaseResponse.success(replyService.readRepliesWithUser(user.id(), pageable), ResponseCode.OK));
 	}
 
 	@GetMapping("/me/count-by-category")
 	public ResponseEntity<BaseResponse<Map<CategoryType, Long>>> readReplyCountPerCategoryByUser(
 		@Auth AuthUser user) {
 
-		long id = 3;
 		return ResponseEntity.ok(
-			BaseResponse.success(replyService.readReplyCountPerCategoryByUser(id), ResponseCode.OK));
+			BaseResponse.success(replyService.readReplyCountPerCategoryByUser(user.id()), ResponseCode.OK));
 	}
 }

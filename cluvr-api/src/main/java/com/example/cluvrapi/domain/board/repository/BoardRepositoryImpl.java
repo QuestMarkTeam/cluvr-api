@@ -34,7 +34,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 
 		return queryFactory
 			.selectFrom(board)
-			.leftJoin(board.user, user)
+			.leftJoin(board.user, user).fetchJoin()
 			.where(
 				board.id.eq(id)
 			)
@@ -51,7 +51,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 				board.id,
 				board.title,
 				board.content,
-				board.view,
+				board.viewCount,
 				user.name,
 				board.createdAt,
 				board.modifiedAt

@@ -19,12 +19,12 @@ public class ReadBoardResponseDto {
 	private int clover;
 	private int view;
 	private String userName;
-	// private int like;
-	// private int dislike;
+	private long like;
+	private long dislike;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
-	public static ReadBoardResponseDto ofDto(Board board) {
+	public static ReadBoardResponseDto ofDto(Board board, long likeCount, long dislikeCount) {
 		return new ReadBoardResponseDto(
 			board.getId(),
 			board.getTitle(),
@@ -32,8 +32,10 @@ public class ReadBoardResponseDto {
 			board.getCategory(),
 			board.isSelected(),
 			board.getClover(),
-			board.getView(),
+			board.getViewCount(),
 			board.getUser().getName(),
+			likeCount,
+			dislikeCount,
 			board.getCreatedAt(),
 			board.getModifiedAt()
 		);

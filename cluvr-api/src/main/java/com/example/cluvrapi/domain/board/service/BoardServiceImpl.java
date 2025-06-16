@@ -1,6 +1,7 @@
 package com.example.cluvrapi.domain.board.service;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,10 +17,21 @@ import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.clover.entity.Clover;
+import com.example.cluvrapi.domain.clover.repository.CloverRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
+import com.example.cluvrapi.domain.notification.enums.NotificationType;
+import com.example.cluvrapi.domain.notification.event.NotificationEvent;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
+import com.example.cluvrapi.domain.reaction.enums.ReactionType;
+import com.example.cluvrapi.domain.reaction.repository.ReactionRepository;
+import com.example.cluvrapi.domain.reply.entity.Reply;
+import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.exception.NoPermissionException;
+import com.example.cluvrapi.global.response.ResponseCode;
 
 @Service
 @RequiredArgsConstructor
@@ -28,11 +40,18 @@ public class BoardServiceImpl implements BoardService {
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
 	private final NotificationProducer notificationProducer;
+	private final ReactionRepository reactionRepository;
+	private final ReplyRepository replyRepository;
+	private final CloverRepository cloverRepository;
 
 	@Override
 	@Transactional
-	public long createBoard(CreateBoardRequestDto dto) {
-		User user = userRepository.findByIdOrElseThrow(1L);
+	public long createBoard(long userId, CreateBoardRequestDto dto) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		Clover clover = cloverRepository.findByUserId(userId)
+			.orElseThrow(() -> new IllegalStateException(ResponseCode.INVALID_REQUEST.getDefaultMessage()));
+
+		clover.spendScore(dto.getClover());
 		return boardRepository.save(dto.fromDto(user)).getId();
 	}
 
@@ -43,10 +62,16 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional
 	public ReadBoardResponseDto readBoard(long boardId) {
+		boardRepository.incrementViewCount(boardId);
 		Board board = boardRepository.findBoardById(boardId);
-		return ReadBoardResponseDto.ofDto(board);
+		Map<ReactionType, Long> reactionCountMap = reactionRepository.countBoardReactions(board);
+
+		long likeCount = reactionCountMap.getOrDefault(ReactionType.LIKE, 0L);
+		long dislikeCount = reactionCountMap.getOrDefault(ReactionType.DISLIKE, 0L);
+
+		return ReadBoardResponseDto.ofDto(board, likeCount, dislikeCount);
 	}
 
 	@Transactional
@@ -59,14 +84,75 @@ public class BoardServiceImpl implements BoardService {
 
 	@Transactional
 	@Override
-	public void deleteBoard(long boardId) {
+	public void deleteBoard(long userId, long boardId) {
+		User user = userRepository.findByIdOrElseThrow(userId);
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
-		board.delete();
+
+		if (user.equals(board.getUser())) {
+			throw new NoPermissionException(ResponseCode.NO_PERMISSION_DELETE,
+				ResponseCode.NO_PERMISSION_DELETE.getDefaultMessage());
+		}
+		boardRepository.delete(board);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public PageResponseDto<ReadMyBoardsResponseDto> readBoardsWithUser(long userId, Pageable pageable) {
 		return boardRepository.findBoardsByUser(userId, pageable);
+	}
+
+	@Override
+	@Transactional
+	public void selectBestReply(long userId, long boardId, long replyId) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		Board board = boardRepository.findByIdOrElseThrow(boardId);
+		Reply reply = replyRepository.findByIdOrElseThrow(replyId);
+		Clover clover = cloverRepository.findByUserIdOrElseThrow(reply.getUser().getId());
+
+		// 보드의 isSelected가 true일 경우 사용 불가능
+		if (board.isSelected()) {
+			throw new NoPermissionException(ResponseCode.ACCESS_DENIED, ResponseCode.ACCESS_DENIED.getDefaultMessage());
+		}
+		// 게시글을 작성한 유저가 아닐 경우 채택 불가능
+		if (!user.equals(board.getUser())) {
+			throw new NoPermissionException(ResponseCode.ACCESS_DENIED, ResponseCode.ACCESS_DENIED.getDefaultMessage());
+		}
+
+		// 게시글 유저와 댓글 유저가 동일하면 채택 불가능
+		if (board.getUser().equals(reply.getUser())) {
+			throw new NoPermissionException(ResponseCode.ACCESS_DENIED, ResponseCode.ACCESS_DENIED.getDefaultMessage());
+		}
+
+		// 댓글이 게시글 소속의 댓글이 아니면 채택 불가능
+		if (!board.equals(reply.getBoard())) {
+			throw new NoPermissionException(ResponseCode.ACCESS_DENIED, ResponseCode.ACCESS_DENIED.getDefaultMessage());
+		}
+		//
+		// 게시글에 있던 클로버를 댓글의 주인에게 클로버를 지급한다.
+		clover.takeScore(board.getClover());
+
+		// 보드 엔티티에서 is_selected가 true가 된다.
+		board.updateSelection();
+
+		// 댓글 엔티티에서 is_selected가 true가 된다.
+		reply.updateSelection();
+
+		// 알림
+		// 은세님 알림 이런 식으로 만들면 되는지 확인해주세요.
+		if (board.getUser() != user) {
+			String content = String.format("'%s'님이 '%s' 게시글에서 회원님의 댓글을 채택하셨습니다. /n 보상으로 '%s' clover를 지급해드립니다.",
+				user.getName(),
+				board.getTitle(), board.getClover());
+
+			NotificationEvent event = NotificationEvent.from(
+				board.getUser().getId(),
+				NotificationType.REACTION,
+				content,
+				NotiTargetType.BOARD,
+				board.getId()
+			);
+
+			notificationProducer.send(event);
+		}
 	}
 }
