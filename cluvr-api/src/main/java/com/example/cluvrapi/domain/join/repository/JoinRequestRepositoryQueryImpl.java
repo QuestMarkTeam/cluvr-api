@@ -92,27 +92,27 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 	}
 
 	@Override
-	public InfoJoinRequestResponseDto findJoinRequestById(Long clubId, Long joinRequestId) {
-		InfoJoinRequestResponseDto content = jpaQueryFactory
-			.select(
-				new QInfoJoinRequestResponseDto(
-					joinRequest.id,
-					joinRequest.club.id,
-					joinRequest.user.id,
-					joinRequest.joinType,
-					new CaseBuilder()
-						.when(joinRequestAnswer.answer.isNotNull())
-						.then(joinRequestAnswer.answer)
-						.otherwise("null")
+	public Optional<InfoJoinRequestResponseDto> findJoinRequestById(Long clubId, Long joinRequestId) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.select(
+					new QInfoJoinRequestResponseDto(
+						joinRequest.id,
+						joinRequest.club.id,
+						joinRequest.user.id,
+						joinRequest.joinType,
+						new CaseBuilder()
+							.when(joinRequestAnswer.answer.isNotNull())
+							.then(joinRequestAnswer.answer)
+							.otherwise("null")
+					)
 				)
-			)
-			.from(joinRequest)
-			.leftJoin(joinRequestAnswer)
-			.on(joinRequest.id.eq(joinRequestAnswer.joinRequest.id))
-			.where(joinRequest.club.id.eq(clubId).and(joinRequest.id.eq(joinRequestId)))
-			.fetchOne();
-
-		return content;
+				.from(joinRequest)
+				.leftJoin(joinRequestAnswer)
+				.on(joinRequest.id.eq(joinRequestAnswer.joinRequest.id))
+				.where(joinRequest.club.id.eq(clubId).and(joinRequest.id.eq(joinRequestId)))
+				.fetchOne()
+		);
 	}
 
 	@Override

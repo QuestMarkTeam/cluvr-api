@@ -98,22 +98,16 @@ public class JoinServiceImpl implements JoinService {
 		}
 
 		// 6) 클럽장에게 알림 전송
-		ClubMember clubOwner = clubMemberRepository.findOwnerByClub(findClub).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "클럽장의 정보를 찾을 수 없습니다.")
-		);
+		ClubMember clubOwner = clubMemberRepository.findOwnerByClub(findClub)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "클럽장의 정보를 찾을 수 없습니다."));
 
 		Long ownerUserId = clubOwner.getUser().getId();
 
 		if (!ownerUserId.equals(findUser.getId())) { // 자기 자신이 아닌 경우에만
 			String content = String.format("'%s'님이 '%s' 클럽에 가입 신청을 했습니다.", findUser.getName(), findClub.getName());
 
-			NotificationEvent event = NotificationEvent.from(
-				ownerUserId,                 // 클럽장에게
-				NotificationType.JOIN_REQUEST,
-				content,
-				NotiTargetType.CLUB,
-				clubId
-			);
+			NotificationEvent event = NotificationEvent.from(ownerUserId,                 // 클럽장에게
+				NotificationType.JOIN_REQUEST, content, NotiTargetType.CLUB, clubId);
 
 			notificationProducer.send(event);
 		}
@@ -124,9 +118,8 @@ public class JoinServiceImpl implements JoinService {
 	@Override
 	@Transactional(readOnly = true)
 	public PageResponseDto<MyClubJoinResponseDto> findJoinRequestByClubId(Long userId, Long clubId, Pageable pageable) {
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
-		);
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다."));
 
 		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
 
@@ -141,8 +134,22 @@ public class JoinServiceImpl implements JoinService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public InfoJoinRequestResponseDto findJoinRequestById(Long clubId, Long joinRequestId) {
-		return joinRequestRepository.findJoinRequestById(clubId, joinRequestId);
+	public InfoJoinRequestResponseDto findJoinRequestById(Long userId, Long joinRequestId, Long clubId) {
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다."));
+
+		InfoJoinRequestResponseDto infoJoinRequestResponseDto = joinRequestRepository.findJoinRequestById(clubId,
+			joinRequestId).orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당 가입요청이 존재하지 않습니다.")
+		);
+
+		if (infoJoinRequestResponseDto.getUserId() != userId
+			&& findClubMember.getClubMemberRole() != ClubMemberRole.OWNER
+			&& findClubMember.getClubMemberRole() != ClubMemberRole.ADMIN) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED, "작성자와 클랜 관리자만이 조회 가능합니다.");
+		}
+
+		return infoJoinRequestResponseDto;
 	}
 
 	@Override
@@ -150,10 +157,7 @@ public class JoinServiceImpl implements JoinService {
 	public void updateJoinRequestAnswer(Long userId, Long clubId, Long joinRequestId,
 		UpdateJoinRequestDto updateJoinRequestDto) {
 		JoinRequestAnswer findJoinRequestAnswer = joinRequestRepository.findJoinRequestAnswerByIdAndClubId(clubId,
-				joinRequestId)
-			.orElseThrow(
-				() -> new BusinessException(ResponseCode.NOT_FOUND)
-			);
+			joinRequestId).orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND));
 
 		if (!findJoinRequestAnswer.getJoinRequest().getUser().getId().equals(userId)) {
 			throw new BusinessException(ResponseCode.ACCESS_DENIED, "신청한 본인만 수정할 수 있습니다.");
@@ -221,7 +225,7 @@ public class JoinServiceImpl implements JoinService {
 	private void validateJoinRequest(Club club, User user) {
 		// 1. 중복 신청 조회
 		boolean alreadyRequested = joinRequestRepository.existsJoinByClubIdAndUserId(club.getId(), user.getId());
-		if (alreadyRequested != false) {
+		if (alreadyRequested) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입 신청한 클럽입니다.");
 		}
 
@@ -290,9 +294,8 @@ public class JoinServiceImpl implements JoinService {
 		}
 
 		// 1) Form 의 id 값 추출
-		SubmissionForm submissionForm = submissionFormRepository.findSubmissionFormByClubId(clubId).orElseThrow(
-			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당하는 클럽의 가입양식은 현재 존재하지 않습니다.")
-		);
+		SubmissionForm submissionForm = submissionFormRepository.findSubmissionFormByClubId(clubId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND, "해당하는 클럽의 가입양식은 현재 존재하지 않습니다."));
 
 		// 2) Entity 생성
 		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(joinRequest, submissionForm.getId(),
@@ -325,8 +328,7 @@ public class JoinServiceImpl implements JoinService {
 
 		// 2) Entity 생성
 		JoinRequestAnswer joinRequestAnswer = new JoinRequestAnswer(joinRequest, problemForm.getId(),
-			FormFieldType.PROBLEM,
-			answers);
+			FormFieldType.PROBLEM, answers);
 
 		// 3. 저장
 		joinRequestAnswerRepository.save(joinRequestAnswer);

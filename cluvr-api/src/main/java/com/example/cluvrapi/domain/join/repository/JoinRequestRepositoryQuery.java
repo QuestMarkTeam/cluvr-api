@@ -61,7 +61,7 @@ public interface JoinRequestRepositoryQuery {
 	 * @author sinyoung0403
 	 */
 
-	InfoJoinRequestResponseDto findJoinRequestById(Long clubId, Long joinRequestId);
+	Optional<InfoJoinRequestResponseDto> findJoinRequestById(Long clubId, Long joinRequestId);
 
 	/**
 	 * 설명: 클럽 ID와 가입 요청 ID에 해당하는 가입 요청 응답(Answer)을 조회하는 쿼리문

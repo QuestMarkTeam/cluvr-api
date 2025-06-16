@@ -117,11 +117,12 @@ public class JoinController {
 
 	@GetMapping("/clubs/{clubId}/join/{joinRequestId}")
 	public ResponseEntity<BaseResponse<InfoJoinRequestResponseDto>> findJoinRequestById(
+		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@PathVariable Long joinRequestId
 	) {
-		InfoJoinRequestResponseDto joinResponseDto = joinService.findJoinRequestById(clubId,
-			joinRequestId);
+		InfoJoinRequestResponseDto joinResponseDto = joinService.findJoinRequestById(
+			authUser.id(), clubId, joinRequestId);
 		return ResponseEntity.ok(BaseResponse.success(joinResponseDto, ResponseCode.OK));
 	}
 
@@ -140,7 +141,7 @@ public class JoinController {
 		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
 		@PathVariable Long joinRequestId,
-		@RequestBody UpdateJoinRequestDto updateJoinRequestDto
+		@Valid @RequestBody UpdateJoinRequestDto updateJoinRequestDto
 	) {
 		joinService.updateJoinRequestAnswer(authUser.id(), clubId, joinRequestId, updateJoinRequestDto);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
