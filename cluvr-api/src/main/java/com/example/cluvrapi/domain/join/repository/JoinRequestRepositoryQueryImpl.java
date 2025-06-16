@@ -21,6 +21,7 @@ import com.example.cluvrapi.domain.join.dto.response.QMyJoinRequestResponseDto;
 import com.example.cluvrapi.domain.join.entity.JoinRequest;
 import com.example.cluvrapi.domain.join.entity.JoinRequestAnswer;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 /**
@@ -104,7 +105,7 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 						new CaseBuilder()
 							.when(joinRequestAnswer.answer.isNotNull())
 							.then(joinRequestAnswer.answer)
-							.otherwise("null")
+							.otherwise(Expressions.nullExpression(String.class))
 					)
 				)
 				.from(joinRequest)

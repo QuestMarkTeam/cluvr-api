@@ -135,19 +135,20 @@ public class JoinServiceImpl implements JoinService {
 	@Override
 	@Transactional(readOnly = true)
 	public InfoJoinRequestResponseDto findJoinRequestById(Long userId, Long joinRequestId, Long clubId) {
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
-			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다."));
-
 		InfoJoinRequestResponseDto infoJoinRequestResponseDto = joinRequestRepository.findJoinRequestById(clubId,
 			joinRequestId).orElseThrow(
 			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당 가입요청이 존재하지 않습니다.")
 		);
 
-		if (infoJoinRequestResponseDto.getUserId() != userId
-			&& findClubMember.getClubMemberRole() != ClubMemberRole.OWNER
-			&& findClubMember.getClubMemberRole() != ClubMemberRole.ADMIN) {
-			throw new BusinessException(ResponseCode.ACCESS_DENIED, "작성자와 클랜 관리자만이 조회 가능합니다.");
+		// 작성자라면 바로 반환
+		if (infoJoinRequestResponseDto.getUserId() == userId) {
+			return infoJoinRequestResponseDto;
 		}
+
+		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
+			.orElseThrow(() -> new BusinessException(ResponseCode.ACCESS_DENIED, "접근할 수 없습니다."));
+
+		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
 
 		return infoJoinRequestResponseDto;
 	}
