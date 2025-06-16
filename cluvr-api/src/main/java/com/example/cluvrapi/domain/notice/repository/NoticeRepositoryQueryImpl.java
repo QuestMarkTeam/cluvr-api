@@ -16,7 +16,7 @@ import com.example.cluvrapi.domain.notice.dto.response.QInfoNoticeResponseDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @RequiredArgsConstructor
-public class NoticeRepositoryImpl implements NoticeRepositoryCustom {
+public class NoticeRepositoryQueryImpl implements NoticeRepositoryQuery {
 
 	private final JPAQueryFactory jpaQueryFactory;
 

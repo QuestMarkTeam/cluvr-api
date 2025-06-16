@@ -15,7 +15,7 @@ import com.example.cluvrapi.domain.til.dto.response.QInfoTilResponseDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @RequiredArgsConstructor
-public class TilRepositoryImpl implements TilRepositoryCustom {
+public class TilRepositoryQueryImpl implements TilRepositoryQuery {
 
 	private final JPAQueryFactory jpaQueryFactory;
 
