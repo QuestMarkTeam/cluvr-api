@@ -52,7 +52,7 @@ public class SubmissionFormServiceImpl implements SubmissionFormService {
 		}
 
 		// 4) 이미 존재하고 있다면, 생성 불가
-		if (findClub.getSubmissionForm() != null) {
+		if (submissionFormRepository.findSubmissionFormByClubId(clubId).isPresent()) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 양식 존재합니다.");
 		}
 
@@ -62,10 +62,7 @@ public class SubmissionFormServiceImpl implements SubmissionFormService {
 			findClub
 		);
 
-		// 6) 연관관계 주입
-		findClub.setSubmissionForm(submissionForm);
-
-		// 7) 저장
+		// 6) 저장
 		submissionFormRepository.save(submissionForm);
 
 		return CreateSubmissionFormResponseDto.from(submissionForm.getId());
@@ -130,7 +127,6 @@ public class SubmissionFormServiceImpl implements SubmissionFormService {
 			);
 
 		// 4) 삭제
-		club.setSubmissionForm(null);
 		submissionFormRepository.delete(findSubmissionForm);
 	}
 }

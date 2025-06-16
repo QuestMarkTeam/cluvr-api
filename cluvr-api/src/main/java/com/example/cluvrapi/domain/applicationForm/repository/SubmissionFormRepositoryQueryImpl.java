@@ -17,7 +17,7 @@ import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @RequiredArgsConstructor
-public class SubmissionFormRepositoryImpl implements SubmissionFormRepositoryCustom {
+public class SubmissionFormRepositoryQueryImpl implements SubmissionFormRepositoryQuery {
 
 	private final JPAQueryFactory jpaQueryFactory;
 
@@ -67,5 +67,11 @@ public class SubmissionFormRepositoryImpl implements SubmissionFormRepositoryCus
 				.where(submissionForm.club.id.eq(clubId))
 				.fetchFirst()
 		);
+	}
+
+	public void deleteByClubId(Long clubId) {
+		jpaQueryFactory.delete(submissionForm)
+			.where(submissionForm.club.id.eq(clubId))
+			.execute();
 	}
 }

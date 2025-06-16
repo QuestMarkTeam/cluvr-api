@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.cluvrapi.domain.applicationForm.repository.SubmissionFormRepository;
+import com.example.cluvrapi.domain.applicationForm.service.SubmissionFormService;
 import com.example.cluvrapi.domain.category.entity.Category;
 import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
 import com.example.cluvrapi.domain.category.repository.CategoryRepository;
@@ -58,6 +60,8 @@ public class ClubServiceImpl implements ClubService {
 	private static final int GEM_INCREMENT = 5;
 	private static final String INVITE_CODE_KEY_PREFIX = "ic:";
 	private static final Duration EXPIRE_TTL_TIME = Duration.ofDays(3);
+	private final SubmissionFormService submissionFormService;
+	private final SubmissionFormRepository submissionFormRepository;
 
 	@Override
 	@Transactional
@@ -152,8 +156,11 @@ public class ClubServiceImpl implements ClubService {
 
 		validateOwnerRole(findClubMember.getClubMemberRole());
 
-		// 3) 삭제
-		clubRepository.delete(findClub);
+		// 3) 삭제 - 입력양식 같이 삭제
+		submissionFormRepository.deleteByClubId(clubId);
+
+		// 4) 그 다음에 Club 삭제
+		findClub.delete();
 	}
 
 	@Override
