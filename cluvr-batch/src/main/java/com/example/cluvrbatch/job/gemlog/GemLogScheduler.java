@@ -16,12 +16,13 @@ public class GemLogScheduler {
 	private final Job gemLogJob;
 
 	@Scheduled(cron = "0 0 3 * * *") // 매일 새벽 3시
-	public void runPointLogJob() {
+	public void runGemLogJob() {
 		try {
 			gemJobService.runJob();
 		} catch (Exception e) {
 			// 로깅 or 슬랙 알림
-			throw new IllegalStateException("PointLogJob 실행 실패", e);
+			throw new IllegalStateException("runGemLogJob 실행 실패", e);
+
 		}
 	}
 }

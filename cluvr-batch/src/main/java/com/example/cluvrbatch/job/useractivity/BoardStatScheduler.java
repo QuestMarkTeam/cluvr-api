@@ -1,4 +1,4 @@
-package com.example.cluvrbatch.job.cloverlog;
+package com.example.cluvrbatch.job.useractivity;
 
 import lombok.RequiredArgsConstructor;
 
@@ -9,20 +9,19 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class CloverLogScheduler {
+public class BoardStatScheduler {
 
 	private final JobLauncher jobLauncher;
-	private final Job cloverLogJob;
-	private final CloverJobService cloverJobService;
+	private final Job boardLogJob;
+	private final BoardStatJobService boardStatJobService;
 
 	@Scheduled(cron = "0 0 3 * * *") // 매일 새벽 3시
-	public void runCloverLogJob() {
+	public void runBoardStatJob() {
 		try {
-			cloverJobService.runJob();
+			boardStatJobService.runJob();
 		} catch (Exception e) {
 			// 로깅 or 슬랙 알림
-			throw new IllegalStateException("runCloverLogJob 실행 실패", e);
-
+			throw new IllegalStateException("runBoardStatJob 실행 실패", e);
 		}
 	}
 }
