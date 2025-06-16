@@ -8,7 +8,7 @@ import com.example.cluvrapi.domain.applicationForm.dto.response.InfoProblemFormR
 import com.example.cluvrapi.domain.applicationForm.entity.ProblemForm;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 
-public interface ProblemFormRepositoryCustom {
+public interface ProblemFormRepositoryQuery {
 
 	/**
 	 * 설명: 클럽 정보와 문제 양식 정보가 일치하는 ProblemForm 객체를 반환하는 쿼리문
