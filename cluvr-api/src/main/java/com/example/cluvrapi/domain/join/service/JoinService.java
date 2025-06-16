@@ -68,13 +68,13 @@ public interface JoinService {
 	 * <p> 단일 Request 를 조회하는 메서드이다. 이때, Answer 또한 조회되며 존재하지 않을 시 "null"로 반환된다.
 	 *
 	 * @param userId        {설명: 유저 고유 식별자}
-	 * @param joinRequestId {설명: Join Request 고유 식별자}
 	 * @param clubId        {설명: 클럽 고유 식별자}
+	 * @param joinRequestId {설명: Join Request 고유 식별자}
 	 * @return 가입 요청 상세 정보
 	 * @author sinyoung0403
 	 */
 
-	InfoJoinRequestResponseDto findJoinRequestById(Long userId, Long joinRequestId, Long clubId);
+	InfoJoinRequestResponseDto findJoinRequestById(Long userId, Long clubId, Long joinRequestId);
 
 	/**
 	 * 설명: Join Request 를 수정하는 메서드

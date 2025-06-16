@@ -134,7 +134,7 @@ public class JoinServiceImpl implements JoinService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public InfoJoinRequestResponseDto findJoinRequestById(Long userId, Long joinRequestId, Long clubId) {
+	public InfoJoinRequestResponseDto findJoinRequestById(Long userId, Long clubId, Long joinRequestId) {
 		InfoJoinRequestResponseDto infoJoinRequestResponseDto = joinRequestRepository.findJoinRequestById(clubId,
 			joinRequestId).orElseThrow(
 			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당 가입요청이 존재하지 않습니다.")

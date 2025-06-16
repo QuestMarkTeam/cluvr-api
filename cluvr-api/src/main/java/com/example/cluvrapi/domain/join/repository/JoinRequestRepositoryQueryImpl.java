@@ -121,16 +121,17 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 		return Optional.ofNullable(jpaQueryFactory.selectFrom(joinRequestAnswer)
 			.where(joinRequestAnswer.joinRequest.club.id.eq(clubId)
 				.and(joinRequestAnswer.joinRequest.id.eq(joinRequestId))
-				.and(joinRequest.isDeleted.isFalse()))
+				.and(joinRequestAnswer.joinRequest.isDeleted.isFalse()))
 			.fetchOne());
 	}
 
 	@Override
 	public Optional<JoinRequest> joinRequestByIdAndClubId(Long clubId, Long joinRequestId) {
-		return Optional.ofNullable(jpaQueryFactory.selectFrom(joinRequest)
-			.where(joinRequest.club.id.eq(clubId)
-				.and(joinRequest.id.eq(joinRequestId))
-				.and(joinRequest.isDeleted.isFalse()))
-			.fetchOne());
+		return Optional.ofNullable(
+			jpaQueryFactory.selectFrom(joinRequest)
+				.where(joinRequest.club.id.eq(clubId)
+					.and(joinRequest.id.eq(joinRequestId))
+					.and(joinRequest.isDeleted.isFalse()))
+				.fetchOne());
 	}
 }
