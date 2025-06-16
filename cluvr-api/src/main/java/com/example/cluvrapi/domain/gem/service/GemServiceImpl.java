@@ -67,7 +67,7 @@ public class GemServiceImpl implements GemService {
 		String redisKey = RedisKey.GEM_GET_LIMIT.getKey() + userId;
 
 		Duration ttl = getDurationUntilMidnight();
-		Long count = gemRedisService.setIfAbsent(redisKey, 1, ttl) ? 1L : gemRedisService.incrementValue(redisKey);
+		Long count = gemRedisService.setIfAbsent(redisKey, 1L, ttl) ? 1L : gemRedisService.incrementValue(redisKey);
 
 		// 하루 제한 이하면 적립
 		if (gemUserActivityType.getTodayLimit() >= count) {
