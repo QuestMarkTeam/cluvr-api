@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.example.cluvrbatch.job.cloverlog.dto.CloverEventDto;
+import com.example.cluvrbatch.job.cloverlog.dto.CloverEventResponseDto;
 
 @RequiredArgsConstructor
 @Repository
@@ -19,7 +19,7 @@ public class CloverLogJdbcRepository {
 
 	private final JdbcTemplate jdbcTemplate;
 
-	public void batchInsert(List<? extends CloverEventDto> items) {
+	public void batchInsert(List<? extends CloverEventResponseDto> items) {
 		String sql = "INSERT INTO clover_log " +
 			"(user_id, amount, created_at, deleted_at, description, action, flow_type) " +
 			"VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -28,7 +28,7 @@ public class CloverLogJdbcRepository {
 
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				CloverEventDto dto = items.get(i);
+				CloverEventResponseDto dto = items.get(i);
 				ps.setLong(1, dto.getUserId());
 				ps.setInt(2, dto.getAmount());
 				ps.setTimestamp(3, Timestamp.valueOf(dto.getCreatedAt()));

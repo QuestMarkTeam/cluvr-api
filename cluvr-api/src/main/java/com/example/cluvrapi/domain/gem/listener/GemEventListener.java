@@ -2,9 +2,9 @@ package com.example.cluvrapi.domain.gem.listener;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.example.cluvrapi.domain.gem.service.GemEvent;
 import com.example.cluvrapi.domain.gem.service.GemEventRedisService;
@@ -15,7 +15,8 @@ public class GemEventListener {
 
 	private final GemEventRedisService redisService;
 
-	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	@Async
+	@EventListener
 	public void handleUserActivity(GemEvent event) {
 		Long userId = event.getUserId();
 		String redisKey = event.getRedisKey().buildKey(userId);

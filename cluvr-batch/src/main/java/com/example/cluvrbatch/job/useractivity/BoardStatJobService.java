@@ -12,13 +12,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class BoardStatJobService {
 	private final JobLauncher jobLauncher;
-	private final Job cloverLogJob;
+	private final Job boardLogJob;
 
 	public void runJob() throws Exception {
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addLong("time", System.currentTimeMillis())
 			.toJobParameters();
 
-		jobLauncher.run(cloverLogJob, jobParameters);
+		jobLauncher.run(boardLogJob, jobParameters);
 	}
 }

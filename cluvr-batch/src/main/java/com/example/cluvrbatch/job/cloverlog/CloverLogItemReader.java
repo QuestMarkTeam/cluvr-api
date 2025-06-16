@@ -11,28 +11,28 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.example.cluvrbatch.job.cloverlog.dto.CloverEventDto;
+import com.example.cluvrbatch.job.cloverlog.dto.CloverEventResponseDto;
 import com.example.cluvrbatch.job.enums.RedisKey;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
-public class CloverLogItemReader implements ItemReader<CloverEventDto> {
+public class CloverLogItemReader implements ItemReader<CloverEventResponseDto> {
 
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 
-	private Queue<CloverEventDto> cached = new LinkedList<>();
+	private Queue<CloverEventResponseDto> cached = new LinkedList<>();
 
 	@Override
-	public CloverEventDto read() throws Exception {
+	public CloverEventResponseDto read() throws Exception {
 		if (cached.isEmpty()) {
 			Set<String> keys = redisTemplate.keys(RedisKey.CLOVER_LOG.getKey() + "*");
 
 			for (String key : keys) {
 				List<String> logs = redisTemplate.opsForList().range(key, 0, -1);
 				for (String json : logs) {
-					cached.add(objectMapper.readValue(json, CloverEventDto.class));
+					cached.add(objectMapper.readValue(json, CloverEventResponseDto.class));
 				}
 				redisTemplate.delete(key); // 삭제
 			}
