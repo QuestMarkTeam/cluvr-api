@@ -60,8 +60,6 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 			.select(joinRequest.count())
 			.from(joinRequest)
 			.where(joinRequest.club.id.eq(clubId))
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));
@@ -85,8 +83,6 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 			.select(joinRequest.count())
 			.from(joinRequest)
 			.where(joinRequest.user.id.eq(userId))
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));
