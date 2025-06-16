@@ -15,27 +15,27 @@ public enum Tier {
 	RAINBOW_CLOVER2(5, 5000, 50, 50),
 	RAINBOW_CLOVER3(6, 6000, 60, 60);
 
-	private final Integer revel;
+	private final Integer level;
 	private final Integer requiredClover;
 	private final Integer requiredWriteBoard;
 	private final Integer requiredWriteReply;
 
-	Tier(Integer revel, Integer requiredClover, Integer requiredWriteBoard, Integer requiredWriteReply) {
-		this.revel = revel;
+	Tier(Integer level, Integer requiredClover, Integer requiredWriteBoard, Integer requiredWriteReply) {
+		this.level = level;
 		this.requiredClover = requiredClover;
 		this.requiredWriteBoard = requiredWriteBoard;
 		this.requiredWriteReply = requiredWriteReply;
 	}
-	
-	public Integer checkAndUpgrade(Integer revel, Integer clover, Integer boardCnt, Integer replyCnt) {
+
+	public Integer checkAndUpgrade(Integer level, Integer clover, Integer boardCnt, Integer replyCnt) {
 		return Arrays.stream(Tier.values())
-			.sorted(Comparator.comparingInt(Tier::getRevel).reversed()) // 높은 등급부터
-			.filter(tier -> tier.getRevel() <= revel)
+			.sorted(Comparator.comparingInt(Tier::getLevel).reversed()) // 높은 등급부터
+			.filter(tier -> tier.getLevel() >= this.level)
 			.filter(tier -> tier.getRequiredClover() <= clover)
 			.filter(tier -> tier.getRequiredWriteBoard() <= boardCnt)
 			.filter(tier -> tier.getRequiredWriteReply() <= replyCnt)
 			.findFirst()
 			.orElse(SPROUT)
-			.getRevel();
+			.getLevel();
 	}
 }

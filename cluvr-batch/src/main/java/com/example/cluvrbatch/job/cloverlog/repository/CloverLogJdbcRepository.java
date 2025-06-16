@@ -32,7 +32,11 @@ public class CloverLogJdbcRepository {
 				ps.setLong(1, dto.getUserId());
 				ps.setInt(2, dto.getAmount());
 				ps.setTimestamp(3, Timestamp.valueOf(dto.getCreatedAt()));
-				ps.setTimestamp(4, dto.getDeletedAt() != null ? Timestamp.valueOf(dto.getDeletedAt()) : null);
+				if (dto.getDeletedAt() != null) {
+					ps.setTimestamp(4, Timestamp.valueOf(dto.getDeletedAt()));
+				} else {
+					ps.setNull(4, java.sql.Types.TIMESTAMP);
+				}
 				ps.setString(5, dto.getDescription());
 				ps.setString(6, dto.getAction());
 				ps.setString(7, dto.getFlowType().name()); // enum은 보통 String으로 저장
