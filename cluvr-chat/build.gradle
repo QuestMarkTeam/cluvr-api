@@ -27,6 +27,14 @@ java {
     }
 }
 
+tasks.bootJar {
+    enabled = true
+}
+
+tasks.named('bootJar') {
+    mainClass.set("com.example.Main")  // 실제 메인 클래스로 변경
+}
+
 repositories {
     mavenCentral()
 }

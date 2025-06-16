@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,12 +25,12 @@ import com.example.chat.pubsub.RedisPublisher;
 import com.example.chat.repository.ChatLogRepository;
 import com.example.chat.repository.ChatRoomRepository;
 import com.example.chat.repository.ChatRoomUserRepository;
+import com.example.notification.event.ChatNotificationEvent;
+import com.example.notification.event.ChatNotificationProducer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
-import com.example.notification.event.ChatNotificationEvent;
-import com.example.notification.event.ChatNotificationProducer;
 
 @Service
 @RequiredArgsConstructor
@@ -76,14 +74,14 @@ public class ChatServiceImpl implements ChatService {
 	 * 클럽 Id와 유저의 클럽내에서의 Role 기반으로 채팅방 리스트를 가져옴
 	 * 외부 API 요청(도메인쪽으로)하여 Role 정보를 불러와서 갱신 해주고 불러옴
 	 *
-	 * @param clubId  : 채팅방 리스트가 속한 클럽 Id
 	 * @param request : 유저 Id와 유저의 클럽내에서의 role 정보
 	 * @return 채팅방 리스트 반환
 	 * @author Tcimel
 	 */
 	@Override
 	@Transactional
-	public List<ChatRoomResponseDto> findChatRoomByClubAndRole(Long clubId, ChatRoomRequestDto request) {
+	public List<ChatRoomResponseDto> findChatRoomByClubAndRole(ChatRoomRequestDto request) {
+		Long clubId = request.getClubId();
 		// 역할 조회
 		UserInfoResponseDto userInfo = dummyInfoExternal.getUserInfo(request.getUserId());
 		ClubRole userRole = ClubRole.valueOf(userInfo.getRole().toUpperCase());
@@ -129,10 +127,6 @@ public class ChatServiceImpl implements ChatService {
 				HttpStatus.BAD_REQUEST, "잘못된 요청입니다."));
 		request.setNickname(user.getNickname());
 
-		/*String roomId = "/sub/chat/room/" + request.getRoomId();
-		messagingTemplate.convertAndSend(roomId, request); // 브로드 캐스트
-		saveMessage(request);*/
-
 		List<ChatRoomUser> roomUsers = userRepository.findByRoomId(request.getRoomId());
 		for (ChatRoomUser receiver : roomUsers) {
 			if (!receiver.getUserId().equals(request.getUserId())) {
@@ -144,8 +138,6 @@ public class ChatServiceImpl implements ChatService {
 				notificationProducer.send(event);
 			}
 		}
-		/*String roomId = "/sub/chat/room/" + request.getRoomId();
-		messagingTemplate.convertAndSend(roomId, request); // 브로드 캐스트*/
 
 		try {
 			System.out.println("🥕🥕🥕 Redis publish 실행");
@@ -154,26 +146,6 @@ public class ChatServiceImpl implements ChatService {
 		} catch (JsonProcessingException e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "메세지 직렬화 실패");
 		}
-
-		// saveMessage(request);
-	}
-
-	/**
-	 * Persists a chat message to the chat log repository.
-	 *
-	 * @param request the chat message data to be saved
-	 */
-	@Override
-	public void saveMessage(ChatMessageRequestDto request) {
-		ChatLog message = new ChatLog(
-			request.getRoomId(),
-			request.getUserId(),
-			request.getNickname(),
-			request.getMessage(),
-			request.getType(),
-			LocalDateTime.now()
-		);
-		chatLogRepository.save(message);
 	}
 
 	/**
@@ -193,14 +165,14 @@ public class ChatServiceImpl implements ChatService {
 	 * <p>
 	 * For each chat room the user is eligible to join and not already a member of, creates a new `ChatRoomUser` entry and sends an "ENTER" message to the room. After joining, refreshes the user's chat room list.
 	 *
-	 * @param clubId  the ID of the club whose chat rooms are being joined
 	 * @param request contains the user ID of the joining user
 	 */
 	@Override
 	@Transactional
-	public void join(Long clubId, JoinRequestDto request) {
-		List<ChatRoom> allRooms = chatRoomRepository.findByClubId(clubId);
+	public void join(JoinRequestDto request) {
+		Long clubId = request.getClubId();
 		Long userId = request.getUserId();
+		List<ChatRoom> allRooms = chatRoomRepository.findByClubId(clubId);
 
 		// 외부 API에서 닉네임, 역할 조회
 		// UserInfoResponseDto userInfo = getInfoFromExternal.getUserInfo(userId);
@@ -237,8 +209,8 @@ public class ChatServiceImpl implements ChatService {
 		}
 
 		// 가입 후 채팅방 목록 불러오기
-		ChatRoomRequestDto chatRoomRequest = ChatRoomRequestDto.from(userId, userRole);
-		findChatRoomByClubAndRole(clubId, chatRoomRequest);
+		ChatRoomRequestDto chatRoomRequest = ChatRoomRequestDto.from(userId, clubId, userRole);
+		findChatRoomByClubAndRole(chatRoomRequest);
 	}
 
 	/**

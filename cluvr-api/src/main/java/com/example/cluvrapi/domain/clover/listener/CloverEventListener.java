@@ -19,7 +19,7 @@ public class CloverEventListener {
 
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handleUserActivity(CloverEvent event) {
-		CloverEventDto eventDto = (CloverEventDto)event.getDto();
+		CloverEventDto eventDto = event.getDto();
 		Long userId = event.getUserId();
 		String redisKey = event.getRedisKey().buildKey(userId);
 		double score = System.currentTimeMillis();

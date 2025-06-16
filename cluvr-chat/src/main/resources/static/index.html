@@ -374,10 +374,15 @@
     const API_BASE_URL = window.location.hostname == 'localhost' ? 'http://localhost:8082' : 'http://api.cluvr.com';
 
     function joinChatRoom(clubId, userId) {
-        return fetch(`${API_BASE_URL}/club/${clubId}/chat/room/join`, {
+        const requestBody = {
+            clubId: clubId,
+            userId: userId
+        };
+
+        return fetch(`${API_BASE_URL}/chat/join`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(userId)
+            body: JSON.stringify(requestBody)
         }).catch(error => {
             console.error('채팅방 입장 실패: ', error);
             showNotification('채팅방 입장에 실패했습니다.', 'error');
@@ -426,7 +431,7 @@
                         renderMessage(msgObj);
                     });
 
-                    fetch(`${API_BASE_URL}/club/${clubId}/chat/${roomId}`)
+                    fetch(`${API_BASE_URL}/chat/${roomId}`)
                         .then(res => res.json())
                         .then(data => {
                             const chatBox = document.getElementById("chatBox");
@@ -472,10 +477,10 @@
         const clubId = parseInt(document.getElementById("clubId").value);
         userId = parseInt(document.getElementById("userId").value);
 
-        fetch(`${API_BASE_URL}/club/${clubId}/chat/list`, {
+        fetch(`${API_BASE_URL}/chat/list`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({userId})
+            body: JSON.stringify({clubId, userId})
         })
             .then(res => res.json())
             .then(data => {

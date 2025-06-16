@@ -21,11 +21,10 @@ public interface ChatService {
 	/****
 	 * Retrieves chat rooms for a given club filtered by user role criteria.
 	 *
-	 * @param clubId the unique identifier of the club
 	 * @param request the criteria specifying user role and other filters
 	 * @return a list of chat rooms matching the specified club and role criteria
 	 */
-	List<ChatRoomResponseDto> findChatRoomByClubAndRole(Long clubId, ChatRoomRequestDto request);
+	List<ChatRoomResponseDto> findChatRoomByClubAndRole(ChatRoomRequestDto request);
 
 	/**
 	 * Sends a chat message to all participants in the specified chat room.
@@ -33,13 +32,6 @@ public interface ChatService {
 	 * @param request the message details and target chat room information
 	 */
 	void broadcastMessage(ChatMessageRequestDto request);
-
-	/****
-	 * Persists a chat message to storage based on the provided request data.
-	 *
-	 * @param request the chat message details to be saved
-	 */
-	void saveMessage(ChatMessageRequestDto request);
 
 	/****
 	 * Retrieves the list of chat messages for the specified chat room.
@@ -52,10 +44,9 @@ public interface ChatService {
 	/**
 	 * Adds a user to the chat room associated with the specified club.
 	 *
-	 * @param clubId  the identifier of the club whose chat room the user will join
 	 * @param request the user information required to join the chat room
 	 */
-	void join(Long clubId, JoinRequestDto request);
+	void join(JoinRequestDto request);
 
 	/****
 	 * Removes a user from the chat room associated with the specified club.

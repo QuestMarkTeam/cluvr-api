@@ -56,5 +56,4 @@ public class ReactionRepositoryImpl implements ReactionRepositoryCustom {
 			tuple -> tuple.get(reaction.count())
 		));
 	}
-
 }
