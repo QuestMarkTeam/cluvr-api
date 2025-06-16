@@ -101,5 +101,6 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 	@Override
 	public void updateBoard(String getTitle, String getContent, int getClover) {
 		// 나중에 수정할게요
+		// 앗...
 	}
 }
