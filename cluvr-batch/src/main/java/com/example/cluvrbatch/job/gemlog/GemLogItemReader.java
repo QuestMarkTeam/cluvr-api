@@ -12,27 +12,27 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.example.cluvrbatch.job.enums.RedisKey;
-import com.example.cluvrbatch.job.gemlog.dto.GemEventDto;
+import com.example.cluvrbatch.job.gemlog.dto.GemEventResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
-public class GemLogItemReader implements ItemReader<GemEventDto> {
+public class GemLogItemReader implements ItemReader<GemEventResponseDto> {
 
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 
-	private Queue<GemEventDto> cached = new LinkedList<>();
+	private Queue<GemEventResponseDto> cached = new LinkedList<>();
 
 	@Override
-	public GemEventDto read() throws Exception {
+	public GemEventResponseDto read() throws Exception {
 		if (cached.isEmpty()) {
 			Set<String> keys = redisTemplate.keys(RedisKey.GEM_LOG.getKey() + "*");
 
 			for (String key : keys) {
 				List<String> logs = redisTemplate.opsForList().range(key, 0, -1);
 				for (String json : logs) {
-					cached.add(objectMapper.readValue(json, GemEventDto.class));
+					cached.add(objectMapper.readValue(json, GemEventResponseDto.class));
 				}
 				redisTemplate.delete(key); // 삭제
 			}

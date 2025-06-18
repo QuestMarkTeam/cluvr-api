@@ -39,7 +39,8 @@ public enum ResponseCode {
 	GEM_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
 	/* CLOVER */
 	CLOVER_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 유저의 클로버가 존재하지 않습니다"),
-
+	/* 통계 */
+	STAT_NOT_ENOUGH(HttpStatus.NOT_FOUND, "해당 유저의 통계가 존재하지 않습니다 ."),
 	/* Board, Reply */
 	SELF_REACTION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자신이 작성한 것에 좋아요/싫어요를 선택할 수 없습니다."),
 	BOARD_REPLY_MISMATCH(HttpStatus.BAD_REQUEST, "게시글의 해당하는 댓글이 아닙니다."),

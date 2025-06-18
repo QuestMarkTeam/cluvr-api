@@ -20,6 +20,7 @@ import com.example.cluvrapi.domain.notification.event.NotificationEvent;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.annotation.EarnGem;
 import com.example.cluvrapi.global.event.enums.RedisKey;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
@@ -41,6 +42,8 @@ public class GemServiceImpl implements GemService {
 		return UpdateGemResponseDto.from(user.getGem()); // 충전 후 포인트 반환
 	}
 
+	@EarnGem(value = GemUserActivityType.ITEM_PURCHASE)
+	@Transactional
 	@Override
 	public UpdateGemResponseDto useGem(Long userId, UpdateGemRequestDto requestDto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
@@ -50,9 +53,10 @@ public class GemServiceImpl implements GemService {
 		if (currentGem < amount) { // 포인트 부족하면 에러 발생
 			throw new BusinessException(ResponseCode.GEM_NOT_ENOUGH);
 		}
+		int finalGem = currentGem - amount;
+		user.updateGem(finalGem);
 
-		user.updateGem(amount);
-		return UpdateGemResponseDto.from(currentGem - amount); // 남은 포인트 리턴
+		return UpdateGemResponseDto.from(finalGem); // 남은 포인트 리턴
 	}
 
 	@Transactional
@@ -63,7 +67,7 @@ public class GemServiceImpl implements GemService {
 		String redisKey = RedisKey.GEM_GET_LIMIT.getKey() + userId;
 
 		Duration ttl = getDurationUntilMidnight();
-		Long count = gemRedisService.setIfAbsent(redisKey, 1, ttl) ? 1L : gemRedisService.incrementValue(redisKey);
+		Long count = gemRedisService.setIfAbsent(redisKey, 1L, ttl) ? 1L : gemRedisService.incrementValue(redisKey);
 
 		// 하루 제한 이하면 적립
 		if (gemUserActivityType.getTodayLimit() >= count) {

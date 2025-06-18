@@ -65,7 +65,7 @@ public class SecurityConfig {
 			.userDetailsService(customUserDetailsService)
 			.authorizeHttpRequests(auth -> auth
 				// 회원가입·로그인만 공개
-				.requestMatchers("/auth/signup", "/auth/login", "/my-monitor/**").permitAll()
+				.requestMatchers("/auth/signup", "/auth/login", "/my-monitor/**", "/**").permitAll()
 				// /admin/** 은 ADMIN 권한 필요
 				.requestMatchers("/admin/**").hasRole("ADMIN")
 				// 그 외 모든 요청은 인증된 사용자여야 함

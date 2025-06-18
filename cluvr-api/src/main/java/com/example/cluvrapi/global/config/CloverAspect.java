@@ -41,7 +41,7 @@ public class CloverAspect {
 
 		Object result = pjp.proceed();
 
-		//어노테이션 가져와서 포인트 값 가져옴
+		//어노테이션 가져와서 값 가져옴
 		MethodSignature signature = (MethodSignature)pjp.getSignature();
 		Method method = signature.getMethod();
 		EarnClover earnClover = method.getAnnotation(EarnClover.class);

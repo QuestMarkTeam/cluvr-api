@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.cluvrapi.domain.common.annotation.Auth;
+import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
 import com.example.cluvrapi.domain.gem.dto.response.FindGemLogResponseDto;
 import com.example.cluvrapi.domain.gem.dto.response.UpdateGemResponseDto;
@@ -29,21 +31,19 @@ public class GemController {
 
 	@PostMapping("/charge")
 	public ResponseEntity<BaseResponse<UpdateGemResponseDto>> chargeGem(
+		@Auth AuthUser user,
 		@Valid @RequestBody UpdateGemRequestDto amount) {
-		Long userId = 1L;
-		return ResponseEntity.ok(BaseResponse.success(gemService.chargeGem(userId, amount), ResponseCode.OK));
+		return ResponseEntity.ok(BaseResponse.success(gemService.chargeGem(user.id(), amount), ResponseCode.OK));
 	}
 
 	@PostMapping("/use")
 	public ResponseEntity<BaseResponse<UpdateGemResponseDto>> useGem(
 		@Valid @RequestBody UpdateGemRequestDto amount) {
-		Long userId = 1L;
-		return ResponseEntity.ok(BaseResponse.success(gemService.useGem(userId, amount), ResponseCode.OK));
+		return ResponseEntity.ok(BaseResponse.success(gemService.useGem(1L, amount), ResponseCode.OK));
 	}
 
 	@GetMapping
-	public ResponseEntity<BaseResponse<List<FindGemLogResponseDto>>> findGemLogByUserId() {
-		Long userId = 1L;
-		return ResponseEntity.ok(BaseResponse.success(gemService.findGemLogByUserId(userId), ResponseCode.OK));
+	public ResponseEntity<BaseResponse<List<FindGemLogResponseDto>>> findGemLogByUserId(@Auth AuthUser user) {
+		return ResponseEntity.ok(BaseResponse.success(gemService.findGemLogByUserId(user.id()), ResponseCode.OK));
 	}
 }

@@ -15,10 +15,10 @@ public enum RedisKey {
 	// HASH 하위 키
 	TOTAL_ANSWER("answer"),
 	TOTAL_SELECTED("selected"),
-	TOTAL_SCORE("score"),
+	TOTAL_CLOVER("clover"),
 	TOTAL_QUESTION("question"),
 	TOTAL_GEM("gem"),
-	;
+	USER_TIER("tier");
 
 	private final String key;
 

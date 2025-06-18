@@ -20,7 +20,6 @@ import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.gem.service.GemEvent;
 import com.example.cluvrapi.domain.gem.service.GemService;
 import com.example.cluvrapi.global.annotation.EarnGem;
-import com.example.cluvrapi.global.jwt.CustomUserDetails;
 
 @Aspect
 @RequiredArgsConstructor
@@ -53,14 +52,15 @@ public class GemAspect {
 
 		if (auth != null && auth.isAuthenticated()) {
 			Object principal = auth.getPrincipal();
-			if (principal instanceof CustomUserDetails userDetails) {
-				Long userId = userDetails.getUser().getId();
-				gemService.earnGems(userId, gemUserActivityType);
-				publisher.publishEvent(
-					GemEvent.createEvent(userId, gem, gemUserActivityType.getDescription(), createdTime, deletedTime,
-						gemUserActivityType.getFlowType(), gemUserActivityType.name())
-				);
-			}
+			// if (principal instanceof CustomUserDetails userDetails) {
+			// 	Long userId = userDetails.getUser().getId();
+			Long userId = 1L;
+			gemService.earnGems(userId, gemUserActivityType);
+			publisher.publishEvent(
+				GemEvent.createEvent(userId, gem, gemUserActivityType.getDescription(), createdTime, deletedTime,
+					gemUserActivityType.getFlowType(), gemUserActivityType.name())
+			);
+			// }
 		}
 		return result;
 	}

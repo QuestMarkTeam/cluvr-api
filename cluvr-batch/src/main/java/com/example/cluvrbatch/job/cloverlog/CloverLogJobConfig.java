@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.example.cluvrbatch.job.cloverlog.dto.CloverEventDto;
+import com.example.cluvrbatch.job.cloverlog.dto.CloverEventResponseDto;
 import com.example.cluvrbatch.job.enums.JobStepName;
 
 @Configuration
@@ -33,10 +33,10 @@ public class CloverLogJobConfig {
 
 	@Bean
 	public Step cloverEventStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
-		ItemReader<CloverEventDto> reader,
-		ItemWriter<CloverEventDto> writer) { // Job을 구성하는 단일 Step 단계 정의 Step = 그 안에서 실행되는 한 단계 (ex. Redis → RDS 저장)
+		ItemReader<CloverEventResponseDto> reader,
+		ItemWriter<CloverEventResponseDto> writer) { // Job을 구성하는 단일 Step 단계 정의 Step = 그 안에서 실행되는 한 단계 (ex. Redis → RDS 저장)
 		return new StepBuilder(JobStepName.CLOVER_LOG_JOB.name(), jobRepository)
-			.<CloverEventDto, CloverEventDto>chunk(1000, transactionManager)
+			.<CloverEventResponseDto, CloverEventResponseDto>chunk(1000, transactionManager)
 			.reader(reader)
 			.writer(writer)
 			.build();

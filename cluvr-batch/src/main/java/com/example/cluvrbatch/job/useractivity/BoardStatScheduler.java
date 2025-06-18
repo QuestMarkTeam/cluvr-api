@@ -15,7 +15,7 @@ public class BoardStatScheduler {
 	private final Job boardLogJob;
 	private final BoardStatJobService boardStatJobService;
 
-	@Scheduled(cron = "0 0 3 * * *") // 매일 새벽 3시
+	@Scheduled(cron = "0 * * * * *") // 매일 새벽 3시
 	public void runBoardStatJob() {
 		try {
 			boardStatJobService.runJob();
