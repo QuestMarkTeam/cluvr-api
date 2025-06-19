@@ -8,6 +8,9 @@ import com.example.cluvrapi.domain.clubMember.dto.response.GetMemberRoleResponse
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.join.enums.JoinStatus;
+import com.example.cluvrapi.global.annotation.IsClubAdmin;
+import com.example.cluvrapi.global.annotation.IsClubMember;
+import com.example.cluvrapi.global.annotation.IsClubOwner;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -31,6 +34,7 @@ public interface ClubMemberService {
 	 * @param approver      설명: 요청을 승인/거절하는 운영자 정보
 	 * @throws BusinessException 설명: 요청이 존재하지 않거나 권한이 없을 경우 발생
 	 */
+	@IsClubAdmin
 	void handleJoinRequest(Long clubId, Long joinRequestId, JoinStatus status, AuthUser approver);
 
 	/**
@@ -44,6 +48,7 @@ public interface ClubMemberService {
 	 * @param newRole      설명: 설정할 새로운 역할(ClubMemberRole)
 	 * @throws BusinessException 설명: 권한이 없거나 대상 멤버가 존재하지 않을 경우 발생
 	 */
+	@IsClubAdmin
 	void changeMemberRole(Long clubId, AuthUser operator, Long targetUserId,
 		@NotNull(message = "변경할 역할을 지정하세요.") ClubMemberRole newRole);
 
@@ -56,6 +61,7 @@ public interface ClubMemberService {
 	 * @param user   설명: 탈퇴 요청을 수행하는 사용자 정보
 	 * @throws BusinessException 설명: 클럽 또는 멤버가 존재하지 않거나 상태가 올바르지 않을 경우 발생
 	 */
+	@IsClubMember
 	void withdrawFromClub(Long clubId, AuthUser user);
 
 	/**
@@ -68,6 +74,7 @@ public interface ClubMemberService {
 	 * @param targetMemberId 설명: 추방할 대상 멤버의 사용자 식별자
 	 * @throws BusinessException 설명: 권한이 없거나 대상 멤버가 존재하지 않을 경우 발생
 	 */
+	@IsClubAdmin
 	void kickMember(Long clubId, AuthUser operator, Long targetMemberId);
 
 	/**
@@ -81,6 +88,7 @@ public interface ClubMemberService {
 	 * @return Page<ClubMemberInfoResponseDto> 설명: 조회된 클럽 멤버 정보가 담긴 페이징 결과
 	 * @throws BusinessException 설명: 권한이 없거나 클럽이 존재하지 않을 경우 발생
 	 */
+	@IsClubMember
 	Page<ClubMemberInfoResponseDto> listMembers(Long clubId, AuthUser authUser, Pageable pageable);
 
 	/**
@@ -94,4 +102,7 @@ public interface ClubMemberService {
 	 * @throws BusinessException 설명: 클럽 또는 대상 멤버가 존재하지 않을 경우 발생
 	 */
 	GetMemberRoleResponseDto getMemberRole(Long clubId, Long targetUserId);
+
+	@IsClubOwner
+	void changeOwnership(Long clubId, AuthUser requestUser, Long targetMemberId);
 }

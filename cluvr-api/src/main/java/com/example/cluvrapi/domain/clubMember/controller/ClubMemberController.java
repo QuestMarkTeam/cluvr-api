@@ -104,4 +104,15 @@ public class ClubMemberController {
 			.ok(BaseResponse.success(dto, ResponseCode.OK));
 	}
 
+	@PostMapping("/{targetMemberId}/transfer-owner")
+
+	public BaseResponse<Void> transferOwner(
+		@PathVariable Long clubId,
+		@PathVariable Long targetMemberId,
+		@Auth AuthUser authUser
+	) {
+		clubMemberService.changeOwnership(clubId, authUser, targetMemberId);
+		return BaseResponse.success(null, ResponseCode.OK);
+	}
+
 }
