@@ -1,4 +1,4 @@
-version: "3"
+version: '3.8'
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -7,5 +7,47 @@ services:
       - "5672:5672"     # 내부 AMQP 통신 포트 (코드에서 이 포트로 접속함)
       - "15672:15672"   # 웹 대시보드 GUI
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RMQ_PASSWORD}
+  spring:
+    restart: always
+    image: 617373894870.dkr.ecr.us-west-2.amazonaws.com/cluvr-api:latest
+    container_name: cluvr-api
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - jwt.secret.key=your-very-secret-key
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_REDIS_HOST=${REDIS_HOST}
+      - SPRING_REDIS_PORT=${REDIS_PORT}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - cluvr-net
+
+  # Redis service
+  redis:
+    restart: always
+    image: redis:7.2
+    container_name: redis-api
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      retries: 5
+    ports:
+      - "6379:6379"
+    networks:
+      - cluvr-net
+
+networks:
+  cluvr-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
