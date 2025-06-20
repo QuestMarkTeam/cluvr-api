@@ -2,66 +2,108 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.0'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'application'
-    id 'checkstyle'
 }
 
-allprojects {
-    group = 'com.example'
-    version = '0.0.1-SNAPSHOT'
-    sourceCompatibility = '17'
+// Q클래스 파일 경로 설정
+def generated = "$buildDir/generated/sources/annotationProcessor/java/main"
 
-    repositories {
-        mavenCentral()
-        maven { url 'https://repo.spring.io/milestone' }
-        maven { url 'https://repo.spring.io/snapshot' }
-    }
-    checkstyle {
-        maxWarnings = 0
-        configFile = file("${rootDir}/naver-checkstyle-rules.xml")
-        configProperties = ["suppressionFile": "${rootDir}/naver-checkstyle-suppressions.xml"]
-        toolVersion = "8.24"  // checkstyle 버전 8.24 이상 선언
-    }
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(generated))
 }
 
-subprojects {
-    apply {
-        plugin 'java'
-        plugin 'org.springframework.boot'
-        plugin 'io.spring.dependency-management'
-        plugin 'application'
-    }
+sourceSets {
+    main.java.srcDirs += [generated]
+}
 
-    dependencies {
+// clean 시 generated 파일 제거
+clean {
+    delete file("$buildDir/generated/sources/annotationProcessor/java/main")
+}
 
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
 
-        // lombok
-        compileOnly 'org.projectlombok:lombok'
-        annotationProcessor 'org.projectlombok:lombok'
-        testAnnotationProcessor 'org.projectlombok:lombok'
-        testCompileOnly 'org.projectlombok:lombok'
-
-    }
-
-    tasks.named('bootJar') {
-        mainClass.set("com.smeem.bootstrap.SmeemBootstrapApplication")
-    }
-
-    tasks.named('test') {
-        useJUnitPlatform()
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
+repositories {
+    mavenCentral()
 }
 
-tasks.bootJar {
-    enabled = false
+dependencies {
+
+    // Core
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Devtools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Runtime-only JDBC drivers
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mysql'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'io.lettuce:lettuce-core'
+
+    //QueryDsl
+    implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api:3.1.0"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api:2.1.1"
+
+    // jwt
+    compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
+
+    //security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Redisson
+    implementation 'org.redisson:redisson-spring-boot-starter:3.27.1'
+
+    // RabbitMQ (Spring AMQP)
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    // JSON 직렬화 (RabbitMQ 메시지용)
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // prometheus
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
 }
 
-tasks.jar {
-    enabled = true
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// PathVariable 컴파일러 설정 추가
+compileJava {
+    options.compilerArgs += ['-parameters']
 }

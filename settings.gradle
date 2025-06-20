@@ -1,6 +1,1 @@
-
-rootProject.name = 'cluvr'
-
-include ':cluvr-api', ':cluvr-batch', ':cluvr-chat', ':cluvr-notifications'
-
-
+rootProject.name = 'cluvr-api'
