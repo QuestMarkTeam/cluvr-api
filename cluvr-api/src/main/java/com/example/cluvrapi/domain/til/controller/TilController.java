@@ -28,7 +28,7 @@ import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
 @RestController
-@RequestMapping("/clubs/{clubId}/til")
+@RequestMapping("/api/clubs/{clubId}/til")
 @RequiredArgsConstructor
 public class TilController {
 

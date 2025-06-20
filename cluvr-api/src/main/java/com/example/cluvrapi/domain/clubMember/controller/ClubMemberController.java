@@ -1,5 +1,9 @@
 package com.example.cluvrapi.domain.clubMember.controller;
 
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -24,11 +28,8 @@ import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-
 @RestController
-@RequestMapping("/clubs/{clubId}")
+@RequestMapping("/api/clubs/{clubId}")
 @RequiredArgsConstructor
 
 public class ClubMemberController {

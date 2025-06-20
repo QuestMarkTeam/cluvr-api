@@ -23,7 +23,7 @@ import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
 @RestController
-@RequestMapping("/gems")
+@RequestMapping("/api/gems")
 @RequiredArgsConstructor
 public class GemController {
 

@@ -1,6 +1,11 @@
 package com.example.cluvrapi.domain.auth.controller;
 
-import static com.example.cluvrapi.global.response.ResponseCode.*;
+import static com.example.cluvrapi.global.response.ResponseCode.CREATED;
+import static com.example.cluvrapi.global.response.ResponseCode.OK;
+
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +24,8 @@ import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 	private final AuthService authService;

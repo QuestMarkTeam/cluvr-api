@@ -31,7 +31,7 @@ import com.example.cluvrapi.global.response.ResponseCode;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/clubs/{clubId}/problem-forms")
+@RequestMapping("/api/clubs/{clubId}/problem-forms")
 public class ProblemFormController {
 	private final ProblemFormService problemFormService;
 
