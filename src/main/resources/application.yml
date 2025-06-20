@@ -11,6 +11,12 @@ spring:
     jdbc:
       initialize-schema: always  # 개발 환경에서는 메타테이블 자동 생성
 
+  rabbitmq:
+    host: ${RMQ_HOST}
+    port: ${RMQ_PORT}
+    username: ${RMQ_USERNAME}
+    password: ${RMQ_PASSWORD}
+
   datasource:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
