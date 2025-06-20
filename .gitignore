@@ -18,8 +18,6 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-
-
 .idea
 *.iws
 *.iml
@@ -37,14 +35,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-### Spring ###
-*.properties
-
-# application-local.yml만 무시
-/src/main/resources/application-local.yml
-
-# 나머지 yml 파일은 추적
-!*.yml
-/cluvr-api/src/main/resources/application.yml
-/cluvr-api/src/test/resources/application-test.yml
