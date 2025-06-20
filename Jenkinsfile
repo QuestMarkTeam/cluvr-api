@@ -58,6 +58,17 @@ pipeline {
                     ssh -i /var/lib/jenkins/.ssh/id_rsa ubuntu@$EC2_IP '
                         echo "🔍 의존성 서비스들 상태 확인 중..."
 
+                        # RabbitMQ 체크 및 시작
+                        if [ -z "$(docker ps -q -f name=rabbitmq)" ]; then
+                            echo "📦 RabbitMQ 시작 중..."
+                            docker run -d --name rabbitmq --network cluvr-net -p 5672:5672 -p 15672:15672 --restart unless-stopped \
+                                -e RABBITMQ_DEFAULT_USER=${RMQ_USERNAME} \
+                                -e RABBITMQ_DEFAULT_PASS=${RMQ_PASSWORD} \
+                                rabbitmq:3-management
+                        else
+                            echo "✅ RabbitMQ 이미 실행 중 - 스킵"
+                        fi
+
                         # Redis 체크 및 시작
                         if [ -z "$(docker ps -q -f name=redis)" ]; then
                             echo "📦 Redis 시작 중..."
