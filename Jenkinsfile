@@ -69,6 +69,7 @@ pipeline {
                             echo "✅ RabbitMQ 이미 실행 중 - 스킵"
                         fi
 
+
                         # Redis 체크 및 시작
                         if [ -z "$(docker ps -q -f name=redis)" ]; then
                             echo "📦 Redis 시작 중..."
