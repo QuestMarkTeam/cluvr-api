@@ -50,9 +50,10 @@ public class SecurityConfig {
 
 	@Bean
 	@Order(1)
-	public SecurityFilterChain clubChain(HttpSecurity http, CustomUserDetailsService userDetailsService) throws Exception {
+	public SecurityFilterChain clubChain(HttpSecurity http,
+		CustomUserDetailsService userDetailsService) throws Exception {
 		http
-			.securityMatcher("/api/clubs/**")
+			.securityMatcher("/api/clubs/**")  // 이 체인은 이 경로에만 적용
 			.csrf(csrf -> csrf.disable())
 			.formLogin(form -> form.disable())
 			.httpBasic(basic -> basic.disable())
@@ -63,15 +64,6 @@ public class SecurityConfig {
 				UsernamePasswordAuthenticationFilter.class
 			)
 			.authorizeHttpRequests(auth -> auth
-				// OWNER 기능 (메타 애노테이션으로 실제 제어)
-				.requestMatchers("/api/clubs/{clubId}/settings/**").authenticated()
-				// ADMIN 기능
-				.requestMatchers("/api/clubs/{clubId}/members/**").authenticated()
-				// MEMBER 기능
-				.requestMatchers("/api/clubs/{clubId}/**").authenticated()
-				// 클럽 내/외 공통 ADMIN-only
-				.requestMatchers("/admin/**").hasRole("ADMIN")
-				// 나머지 클럽 URL: 인증만
 				.anyRequest().authenticated()
 			);
 
