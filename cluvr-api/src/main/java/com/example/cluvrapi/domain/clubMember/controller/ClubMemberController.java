@@ -60,26 +60,34 @@ public class ClubMemberController {
 	}
 
 	@DeleteMapping("/members/me")
-	public ResponseEntity<BaseResponse<Void>> withdrawFromClub(
+	public ResponseEntity<BaseResponse<String>> withdrawFromClub(
 		@PathVariable Long clubId,
 		@Auth AuthUser authUser
 	) {
 		clubMemberService.withdrawFromClub(clubId, authUser);
 		return ResponseEntity
-			.status(HttpStatus.NO_CONTENT)
-			.body(BaseResponse.success(ResponseCode.NO_CONTENT));
+			.ok(
+				BaseResponse.success(
+					"클럽 탈퇴가 완료되었습니다.",
+					ResponseCode.OK
+				)
+			);
 	}
 
 	@DeleteMapping("/members/{memberId}")
-	public ResponseEntity<BaseResponse<Void>> kickMember(
+	public ResponseEntity<BaseResponse<String>> kickMember(
 		@PathVariable Long clubId,
 		@PathVariable Long memberId,
 		@Auth AuthUser authUser
 	) {
 		clubMemberService.kickMember(clubId, authUser, memberId);
 		return ResponseEntity
-			.status(HttpStatus.NO_CONTENT)
-			.body(BaseResponse.success(ResponseCode.NO_CONTENT));
+			.ok(
+				BaseResponse.success(
+					"멤버 강퇴가 완료되었습니다.",
+					ResponseCode.OK
+				)
+			);
 	}
 
 	@GetMapping("/members")
