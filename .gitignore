@@ -46,3 +46,5 @@ out/
 
 # 나머지 yml 파일은 추적
 !*.yml
+/cluvr-api/src/main/resources/application.yml
+/cluvr-api/src/test/resources/application-test.yml
