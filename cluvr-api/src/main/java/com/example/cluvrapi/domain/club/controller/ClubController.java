@@ -45,7 +45,7 @@ import com.example.cluvrapi.global.response.ResponseCode;
  */
 
 @RestController
-@RequestMapping("/clubs")
+@RequestMapping("/api/clubs")
 @RequiredArgsConstructor
 public class ClubController {
 

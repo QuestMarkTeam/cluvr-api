@@ -29,7 +29,7 @@ import com.example.cluvrapi.global.response.ResponseCode;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/clubs/{clubId}/submission-forms")
+@RequestMapping("/api/clubs/{clubId}/submission-forms")
 public class SubmissionFormController {
 
 	private final SubmissionFormService submissionFormService;

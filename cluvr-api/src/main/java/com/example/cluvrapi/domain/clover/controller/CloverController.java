@@ -17,7 +17,7 @@ import com.example.cluvrapi.global.response.ResponseCode;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/clovers")
+@RequestMapping("/api/clovers")
 public class CloverController {
 	private final CloverService cloverService;
 

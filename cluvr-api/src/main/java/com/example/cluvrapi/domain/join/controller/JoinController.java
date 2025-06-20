@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.common.annotation.Auth;
@@ -37,6 +38,7 @@ import com.example.cluvrapi.global.response.ResponseCode;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class JoinController {
 
 	private final JoinService joinService;
