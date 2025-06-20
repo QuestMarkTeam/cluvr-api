@@ -14,6 +14,7 @@ import com.example.cluvrapi.domain.auth.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
+import com.example.cluvrapi.domain.auth.properties.AppProperties;
 import com.example.cluvrapi.domain.category.entity.Category;
 import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
 import com.example.cluvrapi.domain.category.repository.CategoryRepository;
@@ -39,10 +40,12 @@ public class AuthServiceImpl implements AuthService {
 	private final RefreshTokenServiceImpl refreshTokenService;
 	private final CategoryRepository categoryRepository;
 	private final CloverService cloverService;
+	private final AppProperties appProperties;
 
 	@Override
 	@Transactional
 	public SignUpUserResponseDto signUp(SignUpUserRequestDto requestDto) {
+
 
 		if (userRepository.existsByEmail(requestDto.getEmail())) {
 			throw new BusinessException(
@@ -50,7 +53,6 @@ public class AuthServiceImpl implements AuthService {
 				"이미 사용 중인 이메일입니다."
 			);
 		}
-
 		if (userRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) {
 			throw new BusinessException(
 				ResponseCode.INVALID_REQUEST,
@@ -64,31 +66,42 @@ public class AuthServiceImpl implements AuthService {
 			);
 		}
 
+		String email = requestDto.getEmail().toLowerCase();
+		String domain = email.substring(email.indexOf("@") + 1);
+
+		UserRole assignedRole = appProperties.getAdminDomains().contains(domain)
+			? UserRole.ADMIN
+			: UserRole.USER;
+
 		String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
 
-		User newUser = new User(null,                                      // id → 데이터베이스에서 자동 생성
-			requestDto.getName(),                      // name
-			requestDto.getBirthday(),                  // birthday
-			requestDto.getEmail(),                     // email
-			requestDto.getPhoneNumber(),               // phoneNumber
-			UserRole.USER,                             // 가입 시 기본 권한(예: USER)
-			requestDto.getGender(),                    // gender
+		User newUser = new User(
+			null,                                    // id auto-generated
+			requestDto.getName(),                    // name
+			requestDto.getBirthday(),                // birthday
+			email,                                   // email (소문자)
+			requestDto.getPhoneNumber(),             // phoneNumber
+			assignedRole,                            // UserRole: USER or ADMIN
+			requestDto.getGender(),                  // gender
 			requestDto.getCategoryType(),            // categoryDetail
-			encodedPassword,                           // 암호화된 password
-			0,                                        // gem 기본값
-			requestDto.getImageUrl(),                  // imageUrl (null 허용될 경우 DTO에서 null 가능)
-			false                                      // isDeleted: 신규 가입이므로 false
+			encodedPassword,                         // encrypted password
+			0,                                       // gem 기본값
+			requestDto.getImageUrl(),                // imageUrl
+			false                                    // isDeleted
 		);
 
 		User savedUser = userRepository.save(newUser);
 
-		// 5) Category 엔티티 생성 및 저장 (유저용)
-		Category newCategory = new Category(savedUser.getId(),                // targetId = 유저 ID
-			requestDto.getCategoryType(),     // CategoryType (예: DEVELOPMENT, MUSIC_EDUCATION 등)
-			CategoryTargetType.USER           // targetType = USER
+		// 6) Category, Clover 등 기존 로직 유지
+		Category newCategory = new Category(
+			savedUser.getId(),
+			requestDto.getCategoryType(),
+			CategoryTargetType.USER
 		);
 		categoryRepository.save(newCategory);
-		cloverService.createClover(CreateCloverRequestDto.from(0, Tier.SPROUT, savedUser.getId()));
+		cloverService.createClover(
+			CreateCloverRequestDto.from(0, Tier.SPROUT, savedUser.getId())
+		);
 
 		return SignUpUserResponseDto.from(savedUser);
 	}

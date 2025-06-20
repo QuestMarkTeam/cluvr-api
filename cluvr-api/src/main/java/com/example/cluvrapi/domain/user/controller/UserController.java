@@ -71,11 +71,15 @@ public class UserController {
 	}
 
 	@DeleteMapping("/me")
-	public ResponseEntity<BaseResponse<Void>> deleteMyProfile(@Auth AuthUser authUser) {
+	public ResponseEntity<BaseResponse<String>> deleteMyProfile(@Auth AuthUser authUser) {
 		userService.deleteMyProfile(authUser.id());
 		return ResponseEntity
-			.status(HttpStatus.NO_CONTENT)
-			.body(BaseResponse.success(ResponseCode.NO_CONTENT));
+			.ok(
+				BaseResponse.success(
+					"회원 탈퇴가 완료되었습니다.",
+					ResponseCode.OK
+				)
+			);
 	}
 
 }
