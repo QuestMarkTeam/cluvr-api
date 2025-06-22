@@ -100,10 +100,10 @@ pipeline {
                         docker pull $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
 
                         echo '🚀 새 앱 실행'
-                        docker run -d --name cluvr-api --network cluvr-net -p 8082:8082 --restart unless-stopped \
+                        docker run -d --name cluvr-api --network cluvr-net -p 80:80 --restart unless-stopped \
                             --env-file ${ENV_PATH} $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
 
-                        echo '✅ 배포 완료: http://$EC2_IP:8082'
+                        echo '✅ 배포 완료: http://$EC2_IP:80'
                     "
                 '''
             }

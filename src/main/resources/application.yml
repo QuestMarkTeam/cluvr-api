@@ -1,3 +1,7 @@
+server:
+  error:
+    include-message: always
+  port: 80
 spring:
   application:
     name: cluvr
@@ -33,7 +37,3 @@ spring:
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQLDialect
         highlight_sql: true
-
-server:
-  error:
-    include-message: always
