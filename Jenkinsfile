@@ -36,10 +36,10 @@ pipeline {
                         echo "SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}" >> .env
                         echo "REDIS_HOST=${REDIS_HOST}" >> .env
                         echo "REDIS_PORT=${REDIS_PORT}" >> .env
-                        echo "REDIS_PORT=${RMQ_HOST}" >> .env
-                        echo "REDIS_PORT=${RMQ_PORT}" >> .env
-                        echo "REDIS_PORT=${RMQ_USERNAME}" >> .env
-                        echo "REDIS_PORT=${RMQ_PASSWORD}" >> .env
+                        echo "RMQ_HOST=${RMQ_HOST}" >> .env
+                        echo "RMQ_PORT=${RMQ_PORT}" >> .env
+                        echo "RMQ_USERNAME=${RMQ_USERNAME}" >> .env
+                        echo "RMQ_PASSWORD=${RMQ_PASSWORD}" >> .env
 
                         scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/id_rsa .env ubuntu@${EC2_IP}:${ENV_PATH}
                     """
