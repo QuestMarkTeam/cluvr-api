@@ -7,8 +7,34 @@ pipeline {
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         IMAGE_TAG = 'latest'
         EC2_IP = '44.239.99.137'
+        ENV_PATH = '/home/ubuntu/.env'
     }
+        stage('Create .env & Send to EC2') {
+            steps {
+                echo '✅ Generating .env and sending to EC2...'
+                withCredentials([
+                    string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
+                    string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
+                    string(credentialsId: 'DB_PORT', variable: 'DB_PORT'),
+                    string(credentialsId: 'DB_NAME', variable: 'DB_NAME'),
+                    string(credentialsId: 'DB_USERNAME', variable: 'DB_USERNAME'),
+                    string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
+                    string(credentialsId: 'REDIS_HOST', variable: 'REDIS_HOST'),
+                    string(credentialsId: 'REDIS_PORT', variable: 'REDIS_PORT')
+                ]) {
+                    sh """
+                        echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" > .env
+                        echo "SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8" >> .env
+                        echo "SPRING_DATASOURCE_USERNAME=${DB_USERNAME}" >> .env
+                        echo "SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}" >> .env
+                        echo "REDIS_HOST=${REDIS_HOST}" >> .env
+                        echo "REDIS_PORT=${REDIS_PORT}" >> .env
 
+                        scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/id_rsa .env ubuntu@${EC2_IP}:${ENV_PATH}
+                    """
+                }
+            }
+        }
     stages {
         stage('Checkout SCM') {
             steps {
@@ -69,16 +95,6 @@ pipeline {
                             echo "✅ RabbitMQ 이미 실행 중 - 스킵"
                         fi
 
-
-                        # Redis 체크 및 시작
-                        if [ -z "$(docker ps -q -f name=redis)" ]; then
-                            echo "📦 Redis 시작 중..."
-                            docker run -d --name redis --network cluvr-net -p 6379:6379 --restart unless-stopped redis:7.2
-                        else
-                            echo "✅ Redis 이미 실행 중 - 스킵"
-                        fi
-
-                        echo "✅ 의존성 서비스들 준비 완료!"
                     '
                     '''
 
