@@ -24,6 +24,10 @@ pipeline {
                     string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
                     string(credentialsId: 'REDIS_HOST', variable: 'REDIS_HOST'),
                     string(credentialsId: 'REDIS_PORT', variable: 'REDIS_PORT'),
+                    string(credentialsId: 'RMQ_HOST', variable: 'RMQ_HOST'),
+                    string(credentialsId: 'RMQ_PORT', variable: 'RMQ_PORT'),
+                    string(credentialsId: 'RMQ_USERNAME', variable: 'RMQ_USERNAME'),
+                    string(credentialsId: 'RMQ_PASSWORD', variable: 'RMQ_PASSWORD'),
                 ]) {
                     sh """
                         echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" > .env
@@ -32,6 +36,10 @@ pipeline {
                         echo "SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}" >> .env
                         echo "REDIS_HOST=${REDIS_HOST}" >> .env
                         echo "REDIS_PORT=${REDIS_PORT}" >> .env
+                        echo "REDIS_PORT=${RMQ_HOST}" >> .env
+                        echo "REDIS_PORT=${RMQ_PORT}" >> .env
+                        echo "REDIS_PORT=${RMQ_USERNAME}" >> .env
+                        echo "REDIS_PORT=${RMQ_PASSWORD}" >> .env
 
                         scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/id_rsa .env ubuntu@${EC2_IP}:${ENV_PATH}
                     """
