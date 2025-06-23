@@ -56,10 +56,9 @@ public class ReplyController {
 	@GetMapping("/boards/{boardId}/replies")
 	public ResponseEntity<BaseResponse<PageResponseDto<ReadReplyResponseDto>>> readRepliesWithParent(
 		@PathVariable long boardId,
-		@RequestParam(required = false) Long parentId,
 		@PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
 		return ResponseEntity.ok(
-			BaseResponse.success(replyService.readReplies(boardId, parentId, pageable), ResponseCode.OK));
+			BaseResponse.success(replyService.readReplies(boardId, pageable), ResponseCode.OK));
 	}
 
 	/**

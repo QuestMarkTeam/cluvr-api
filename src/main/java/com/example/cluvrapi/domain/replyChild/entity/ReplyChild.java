@@ -1,6 +1,8 @@
-package com.example.cluvrapi.domain.reply.entity;
+package com.example.cluvrapi.domain.replyChild.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -18,14 +20,15 @@ import org.hibernate.annotations.SQLDelete;
 
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
+import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.user.entity.User;
 
 @Entity
-@Table(name = "replies")
+@Table(name = "reply_children")
 @Getter
-@SQLDelete(sql = "UPDATE replies SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE reply_children SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Reply extends BaseTimeEntity {
+public class ReplyChild extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,8 +39,8 @@ public class Reply extends BaseTimeEntity {
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "board_id")
-	private Board board;
+	@JoinColumn(nullable = false, name = "reply_id")
+	private Reply parent;
 
 	@Column(nullable = false)
 	private String content;
@@ -45,22 +48,20 @@ public class Reply extends BaseTimeEntity {
 	@Column(nullable = false, name = "is_deleted")
 	private boolean isDeleted;
 
-	@Column(nullable = false, name = "is_selected")
-	private boolean isSelected;
+	@Embedded
+	private MentionInfo mention;
 
-	public Reply(User user, String content, Board board) {
+	public ReplyChild(User user, String content, Reply parent, MentionInfo mentionInfo) {
 		this.user = user;
+		this.parent = parent;
 		this.content = content;
-		this.board = board;
 		this.isDeleted = false;
-		this.isSelected = false;
+		this.mention = mentionInfo;
 	}
 
-	public void update(String content) {
+	public void update(MentionInfo mentionInfo, String content) {
+		this.mention = mentionInfo;
 		this.content = content;
 	}
 
-	public void updateSelection() {
-		this.isSelected = true;
-	}
 }
