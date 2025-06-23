@@ -2,12 +2,15 @@ package com.example.cluvrapi.domain.replyChild.service;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
 import com.example.cluvrapi.domain.replyChild.dto.CreateReplyChildRequestDto;
+import com.example.cluvrapi.domain.replyChild.dto.response.ReadReplyChildrenResponseDto;
 import com.example.cluvrapi.domain.replyChild.entity.MentionInfo;
 import com.example.cluvrapi.domain.replyChild.entity.ReplyChild;
 import com.example.cluvrapi.domain.replyChild.repository.ReplyChildRepository;
@@ -34,4 +37,9 @@ public class ReplyChildServiceImpl implements ReplyChildService {
 		return replyChildRepository.save(replyChild).getId();
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public PageResponseDto<ReadReplyChildrenResponseDto> readReplychildren(long replyId, Pageable pageable) {
+		return replyChildRepository.findAllReplyChildrenByParent(replyId, pageable);
+	}
 }
