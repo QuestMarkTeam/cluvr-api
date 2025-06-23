@@ -14,6 +14,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import org.hibernate.annotations.SQLDelete;
+
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
 import com.example.cluvrapi.domain.user.entity.User;
@@ -21,6 +23,7 @@ import com.example.cluvrapi.domain.user.entity.User;
 @Entity
 @Table(name = "replies")
 @Getter
+@SQLDelete(sql = "UPDATE replies SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Reply extends BaseTimeEntity {
 
@@ -31,10 +34,6 @@ public class Reply extends BaseTimeEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "parent_id")
-	private Reply parent;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "board_id")
@@ -49,11 +48,10 @@ public class Reply extends BaseTimeEntity {
 	@Column(nullable = false, name = "is_selected")
 	private boolean isSelected;
 
-	public Reply(User user, String content, Board board, Reply parent) {
+	public Reply(User user, String content, Board board) {
 		this.user = user;
 		this.content = content;
 		this.board = board;
-		this.parent = parent;
 		this.isDeleted = false;
 		this.isSelected = false;
 	}
@@ -64,9 +62,5 @@ public class Reply extends BaseTimeEntity {
 
 	public void updateSelection() {
 		this.isSelected = true;
-	}
-
-	public void delete() {
-		this.isDeleted = true;
 	}
 }

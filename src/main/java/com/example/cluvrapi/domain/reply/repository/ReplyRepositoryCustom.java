@@ -10,7 +10,7 @@ import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 
 public interface ReplyRepositoryCustom {
-	PageResponseDto<ReadReplyResponseDto> findAllRepliesByParent(long boardId, Long parentId, Pageable pageable);
+	PageResponseDto<ReadReplyResponseDto> findAllRepliesByBoard(long boardId, Pageable pageable);
 
 	PageResponseDto<ReadMyReplyResponseDto> findRepliesByUser(long userId, Pageable pageable);
 

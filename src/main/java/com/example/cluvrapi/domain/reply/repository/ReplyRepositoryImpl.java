@@ -31,18 +31,13 @@ public class ReplyRepositoryImpl implements ReplyRepositoryCustom {
 	}
 
 	@Override
-	public PageResponseDto<ReadReplyResponseDto> findAllRepliesByParent(long boardId, Long parentId,
+	public PageResponseDto<ReadReplyResponseDto> findAllRepliesByBoard(long boardId,
 		Pageable pageable) {
 		QReply reply = QReply.reply;
 		QUser user = QUser.user;
 		BooleanBuilder builder = new BooleanBuilder();
 
 		builder.and(reply.board.id.eq(boardId));
-		if (parentId == null) {
-			builder.and(reply.parent.id.isNull());
-		} else {
-			builder.and(reply.parent.id.eq(parentId));
-		}
 		builder.and(reply.isDeleted.eq(false));
 
 		List<ReadReplyResponseDto> dtos = queryFactory

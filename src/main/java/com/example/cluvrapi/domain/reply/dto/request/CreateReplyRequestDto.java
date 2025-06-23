@@ -21,12 +21,11 @@ public class CreateReplyRequestDto {
 	@Positive(message = "parent의 Id는 항상 양수입니다.")
 	private Long parentId;
 
-	public Reply fromDto(User user, Board board, Reply parent) {
+	public Reply fromDto(User user, Board board) {
 		return new Reply(
 			user,
 			content,
-			board,
-			parent
+			board
 		);
 	}
 }

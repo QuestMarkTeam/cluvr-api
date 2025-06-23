@@ -34,13 +34,12 @@ public interface ReplyService {
 	 * <p> parentId가 null이 아닐 시, 대댓글입니다.</p>
 	 *
 	 * @param boardId - 댓글이 소속되어 있는 게시글 id
-	 * @param parentId - null: 댓글 / null 아닐 시: 대댓글
 	 * @param pageable - 페이지 정보
 	 * @return 페이지 수 만큼 댓글을 조회합니다.
 	 *
 	 * @author yong
 	 */
-	PageResponseDto<ReadReplyResponseDto> readReplies(long boardId, Long parentId, Pageable pageable);
+	PageResponseDto<ReadReplyResponseDto> readReplies(long boardId, Pageable pageable);
 
 	/**
 	 *

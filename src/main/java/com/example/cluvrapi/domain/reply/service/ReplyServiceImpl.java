@@ -37,12 +37,8 @@ public class ReplyServiceImpl implements ReplyService {
 	public Long createReply(long userId, long boardId, CreateReplyRequestDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
-		Reply parent = null;
-		if (dto.getParentId() != null) {
-			parent = replyRepository.findByIdOrElseThrow(dto.getParentId());
-		}
 
-		Reply reply = dto.fromDto(user, board, parent);
+		Reply reply = dto.fromDto(user, board);
 		Long savedId = replyRepository.save(reply).getId();
 
 		// 알림
@@ -66,8 +62,8 @@ public class ReplyServiceImpl implements ReplyService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public PageResponseDto<ReadReplyResponseDto> readReplies(long boardId, Long parentId, Pageable pageable) {
-		return replyRepository.findAllRepliesByParent(boardId, parentId, pageable);
+	public PageResponseDto<ReadReplyResponseDto> readReplies(long boardId, Pageable pageable) {
+		return replyRepository.findAllRepliesByBoard(boardId, pageable);
 	}
 
 	@Transactional
@@ -82,7 +78,7 @@ public class ReplyServiceImpl implements ReplyService {
 	public void deleteReply(long userId, long boardId, long replyId) {
 		Reply reply = replyRepository.findByIdOrElseThrow(replyId);
 		isValid(userId, reply.getUser());
-		reply.delete();
+		replyRepository.delete(reply);
 	}
 
 	public PageResponseDto<ReadMyReplyResponseDto> readRepliesWithUser(long userId, Pageable pageable) {
