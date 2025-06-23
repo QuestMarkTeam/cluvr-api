@@ -8,18 +8,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
-import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
-import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
-import com.example.cluvrapi.domain.replyChild.dto.CreateReplyChildRequestDto;
+import com.example.cluvrapi.domain.replyChild.dto.request.CreateReplyChildRequestDto;
+import com.example.cluvrapi.domain.replyChild.dto.request.UpdateReplyChildRequestDto;
 import com.example.cluvrapi.domain.replyChild.dto.response.ReadReplyChildrenResponseDto;
 import com.example.cluvrapi.domain.replyChild.service.ReplyChildService;
 import com.example.cluvrapi.global.response.BaseResponse;
@@ -50,5 +49,16 @@ public class ReplyChildController {
 		@PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
 		return ResponseEntity.ok(
 			BaseResponse.success(replyChildService.readReplychildren(replyId, pageable), ResponseCode.OK));
+	}
+
+	/**
+	 * 대댓글 수정
+	 */
+	@PatchMapping("/replies/reply-children/{replyChildId}")
+	public ResponseEntity<BaseResponse<Void>> updateReply(@Auth AuthUser user,
+		@PathVariable long replyChildId,
+		@RequestBody UpdateReplyChildRequestDto dto) {
+		replyChildService.updateReplyChild(user.id(), replyChildId, dto);
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 }

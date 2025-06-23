@@ -20,7 +20,7 @@ import com.example.cluvrapi.domain.replyChild.entity.QReplyChild;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @Repository
-public class ReplyChildRepositoryImpl implements ReplyChildRepositoryCustom{
+public class ReplyChildRepositoryImpl implements ReplyChildRepositoryCustom {
 	JPAQueryFactory queryFactory;
 
 	public ReplyChildRepositoryImpl(EntityManager entityManager) {
@@ -32,7 +32,7 @@ public class ReplyChildRepositoryImpl implements ReplyChildRepositoryCustom{
 		QReplyChild replyChild = QReplyChild.replyChild;
 
 		List<ReadReplyChildrenResponseDto> dtos = queryFactory
-			.select(new QReadReplyChildrenResponseDto(replyChild.id, replyChild.user.name, replyChild.mention,
+			.select(new QReadReplyChildrenResponseDto(replyChild.id, replyChild.user.name, replyChild.content, replyChild.mention,
 				replyChild.createdAt, replyChild.modifiedAt))
 			.from(replyChild)
 			.where(replyChild.parent.id.eq(replyId))

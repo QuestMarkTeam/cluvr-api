@@ -1,4 +1,4 @@
-package com.example.cluvrapi.domain.replyChild.dto;
+package com.example.cluvrapi.domain.replyChild.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

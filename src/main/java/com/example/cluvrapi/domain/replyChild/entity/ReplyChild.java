@@ -56,4 +56,9 @@ public class ReplyChild extends BaseTimeEntity {
 		this.mention = mentionInfo;
 	}
 
+	public void update(MentionInfo mentionInfo, String content) {
+		this.mention = mentionInfo;
+		this.content = content;
+	}
+
 }

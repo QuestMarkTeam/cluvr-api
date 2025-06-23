@@ -11,15 +11,17 @@ import com.querydsl.core.annotations.QueryProjection;
 public class ReadReplyChildrenResponseDto {
 	private Long id;
 	private String userName;
+	private String content;
 	private MentionInfo mentionInfo;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
 	@QueryProjection
-	public ReadReplyChildrenResponseDto(Long id, String userName, MentionInfo mentionInfo, LocalDateTime createdAt,
+	public ReadReplyChildrenResponseDto(Long id, String userName, String content, MentionInfo mentionInfo, LocalDateTime createdAt,
 		LocalDateTime updatedAt) {
 		this.id = id;
 		this.userName = userName;
+		this.content = content;
 		this.mentionInfo = mentionInfo;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
