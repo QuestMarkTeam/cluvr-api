@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,6 +60,15 @@ public class ReplyChildController {
 		@PathVariable long replyChildId,
 		@RequestBody UpdateReplyChildRequestDto dto) {
 		replyChildService.updateReplyChild(user.id(), replyChildId, dto);
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
+	}
+
+	/**
+	 * 대댓글 삭제 상태로 변경
+	 */
+	@DeleteMapping("/replies/reply-children/{replyChildId}")
+	public ResponseEntity<BaseResponse<Void>> deleteReply(@Auth AuthUser user, @PathVariable long replyChildId) {
+		replyChildService.deleteReplyChild(user.id(), replyChildId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 }

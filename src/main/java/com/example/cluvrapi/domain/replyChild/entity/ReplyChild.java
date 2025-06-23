@@ -16,6 +16,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import org.hibernate.annotations.SQLDelete;
+
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
 import com.example.cluvrapi.domain.reply.entity.Reply;
@@ -24,6 +26,7 @@ import com.example.cluvrapi.domain.user.entity.User;
 @Entity
 @Table(name = "reply_children")
 @Getter
+@SQLDelete(sql = "UPDATE reply_children SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReplyChild extends BaseTimeEntity {
 

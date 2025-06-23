@@ -35,7 +35,7 @@ public class ReplyChildRepositoryImpl implements ReplyChildRepositoryCustom {
 			.select(new QReadReplyChildrenResponseDto(replyChild.id, replyChild.user.name, replyChild.content, replyChild.mention,
 				replyChild.createdAt, replyChild.modifiedAt))
 			.from(replyChild)
-			.where(replyChild.parent.id.eq(replyId))
+			.where(replyChild.parent.id.eq(replyId).and(replyChild.isDeleted.isFalse()))
 			.orderBy(replyChild.createdAt.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -44,7 +44,7 @@ public class ReplyChildRepositoryImpl implements ReplyChildRepositoryCustom {
 		Long total = queryFactory
 			.select(replyChild.count())
 			.from(replyChild)
-			.where(replyChild.parent.id.eq(replyId))
+			.where(replyChild.parent.id.eq(replyId).and(replyChild.isDeleted.isFalse()))
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, total));

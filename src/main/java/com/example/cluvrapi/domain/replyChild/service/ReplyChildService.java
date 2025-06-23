@@ -13,4 +13,6 @@ public interface ReplyChildService {
 	PageResponseDto<ReadReplyChildrenResponseDto> readReplychildren(long replyId, Pageable pageable);
 
 	void updateReplyChild(long userId, long replyChildId, UpdateReplyChildRequestDto dto);
+
+	void deleteReplyChild(long userId, long replyChildId);
 }

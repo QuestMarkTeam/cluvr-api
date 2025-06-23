@@ -53,16 +53,30 @@ public class ReplyChildServiceImpl implements ReplyChildService {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		MentionInfo mentionInfo = null;
 
-		if(dto.getMentionedUserId() != null) {
+		if (dto.getMentionedUserId() != null) {
 			User mentionedUser = userRepository.findByIdOrElseThrow(dto.getMentionedUserId());
 			mentionInfo = new MentionInfo(mentionedUser.getId(), mentionedUser.getName());
 		}
 
-		if(!replyChild.getUser().equals(user)) {
+		if (!replyChild.getUser().equals(user)) {
 			throw new NoPermissionException(ResponseCode.NO_PERMISSION_DELETE,
 				ResponseCode.NO_PERMISSION_DELETE.getDefaultMessage());
 		}
 
 		replyChild.update(mentionInfo, dto.getContent());
+	}
+
+	@Override
+	@Transactional
+	public void deleteReplyChild(long userId, long replyChildId) {
+		ReplyChild replyChild = replyChildRepository.findByIdOrElseThrow(replyChildId);
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		if (!replyChild.getUser().equals(user)) {
+			throw new NoPermissionException(ResponseCode.NO_PERMISSION_DELETE,
+				ResponseCode.NO_PERMISSION_DELETE.getDefaultMessage());
+		}
+
+		replyChildRepository.delete(replyChild);
 	}
 }
