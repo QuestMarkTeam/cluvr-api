@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: cluvr-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/cluvr
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  mongo:
+    container_name: mongo
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+volumes:
+  mongo-data:
