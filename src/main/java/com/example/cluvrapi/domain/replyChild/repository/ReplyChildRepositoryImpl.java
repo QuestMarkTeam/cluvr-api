@@ -32,7 +32,8 @@ public class ReplyChildRepositoryImpl implements ReplyChildRepositoryCustom {
 		QReplyChild replyChild = QReplyChild.replyChild;
 
 		List<ReadReplyChildrenResponseDto> dtos = queryFactory
-			.select(new QReadReplyChildrenResponseDto(replyChild.id, replyChild.user.name, replyChild.content, replyChild.mention,
+			.select(new QReadReplyChildrenResponseDto(replyChild.id, replyChild.user.name, replyChild.content,
+				replyChild.mention,
 				replyChild.createdAt, replyChild.modifiedAt))
 			.from(replyChild)
 			.where(replyChild.parent.id.eq(replyId).and(replyChild.isDeleted.isFalse()))

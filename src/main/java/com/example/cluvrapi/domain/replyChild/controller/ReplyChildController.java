@@ -49,7 +49,7 @@ public class ReplyChildController {
 		@PathVariable long replyId,
 		@PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
 		return ResponseEntity.ok(
-			BaseResponse.success(replyChildService.readReplychildren(replyId, pageable), ResponseCode.OK));
+			BaseResponse.success(replyChildService.readReplyChildren(replyId, pageable), ResponseCode.OK));
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class ReplyChildController {
 	@PatchMapping("/replies/reply-children/{replyChildId}")
 	public ResponseEntity<BaseResponse<Void>> updateReply(@Auth AuthUser user,
 		@PathVariable long replyChildId,
-		@RequestBody UpdateReplyChildRequestDto dto) {
+		@Valid @RequestBody UpdateReplyChildRequestDto dto) {
 		replyChildService.updateReplyChild(user.id(), replyChildId, dto);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
