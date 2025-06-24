@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.request.UpdateBoardRequestDto;
+import com.example.cluvrapi.domain.board.dto.response.ReadAllBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardResponseDto;
-import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.board.service.BoardService;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
@@ -46,7 +46,7 @@ public class BoardController {
 	}
 
 	@GetMapping
-	public ResponseEntity<BaseResponse<PageResponseDto<ReadBoardsResponseDto>>> readBoards(
+	public ResponseEntity<BaseResponse<PageResponseDto<ReadAllBoardsResponseDto>>> readBoards(
 		@RequestParam CategoryType category,
 		@PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
 		return ResponseEntity.ok(
@@ -54,8 +54,9 @@ public class BoardController {
 	}
 
 	@GetMapping("/{boardId}")
-	public ResponseEntity<BaseResponse<ReadBoardResponseDto>> readBoard(@PathVariable long boardId) {
-		return ResponseEntity.ok(BaseResponse.success(boardService.readBoard(boardId), ResponseCode.OK));
+	public ResponseEntity<BaseResponse<ReadBoardResponseDto>> readBoard(@Auth AuthUser user,
+		@PathVariable long boardId) {
+		return ResponseEntity.ok(BaseResponse.success(boardService.readBoard(boardId, user.id()), ResponseCode.OK));
 	}
 
 	@PatchMapping("/{boardId}")

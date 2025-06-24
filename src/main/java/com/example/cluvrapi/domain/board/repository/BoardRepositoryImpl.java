@@ -8,9 +8,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.example.cluvrapi.domain.board.dto.response.QReadBoardsResponseDto;
+import com.example.cluvrapi.domain.board.dto.response.QReadAllBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.QReadMyBoardsResponseDto;
-import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
+import com.example.cluvrapi.domain.board.dto.response.ReadAllBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.entity.QBoard;
@@ -42,12 +42,11 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 	}
 
 	@Override
-	public PageResponseDto<ReadBoardsResponseDto> findAllBoardsByCategory(CategoryType category, Pageable pageable) {
+	public PageResponseDto<ReadAllBoardsResponseDto> findAllBoardsByCategory(CategoryType category, Pageable pageable) {
 		QBoard board = QBoard.board;
-		QUser user = QUser.user;
 
-		List<ReadBoardsResponseDto> dtos = queryFactory
-			.select(new QReadBoardsResponseDto(
+		List<ReadAllBoardsResponseDto> dtos = queryFactory
+			.select(new QReadAllBoardsResponseDto(
 				board.id,
 				board.title,
 				board.content,
@@ -57,7 +56,6 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 				board.modifiedAt
 			))
 			.from(board)
-			// .join(board.user, user).fetchJoin() // -이거 요청 계속 실패하네요  ㅠㅠ N+1 문제 때문에 조인해야할거같은데
 			.where(
 				board.isDeleted.isFalse()
 					.and(category != null ? board.category.eq(category) : null)
@@ -99,8 +97,21 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 	}
 
 	@Override
-	public void updateBoard(String getTitle, String getContent, int getClover) {
-		// 나중에 수정할게요
-		// 앗...
+	public void updateBoard(long boardId, String title, String content, Integer clover) {
+		QBoard board = QBoard.board;
+
+		var update = queryFactory.update(board);
+
+		if (title != null) {
+			update.set(board.title, title);
+		}
+		if (content != null) {
+			update.set(board.content, content);
+		}
+		if (clover != null) {
+			update.set(board.clover, clover);
+		}
+
+		update.where(board.id.eq(boardId)).execute();
 	}
 }
