@@ -75,13 +75,24 @@ pipeline {
 
                 sh '''
                     ssh -i /var/lib/jenkins/.ssh/id_rsa ubuntu@$EC2_IP "
+                        docker network create cluvr-net 2>/dev/null || echo 'Already exists'
+
+                        if [ -z \$(docker ps -q -f name=rabbitmq) ]; then
+                            docker run -d --name rabbitmq --network cluvr-net -p 5672:5672 -p 15672:15672 \
+                                -e RABBITMQ_DEFAULT_USER=${RMQ_USERNAME} \
+                                -e RABBITMQ_DEFAULT_PASS=${RMQ_PASSWORD} \
+                                --restart unless-stopped rabbitmq:3-management
+                        else
+                            echo '✅ RabbitMQ 이미 실행 중'
+                        fi
+
                         docker stop cluvr-api 2>/dev/null || true
                         docker rm cluvr-api 2>/dev/null || true
 
                         aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
                         docker pull $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
 
-                        docker run -d --name cluvr-api --network cluvr-net -p 80:8080 \
+                        docker run -d --name cluvr-api --network host \
                             --env-file ${ENV_PATH} \
                             --log-driver json-file \
                             --log-opt max-size=10m \
