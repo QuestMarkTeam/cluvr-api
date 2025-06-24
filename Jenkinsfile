@@ -63,25 +63,20 @@ pipeline {
             steps {
                 echo "✅ Deploying develop branch build..."
 
-                // Docker build & tag
                 sh '''
                     docker build -t $ECR_REPO:$IMAGE_TAG .
                     docker tag $ECR_REPO:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
                 '''
 
-                // Push to ECR
                 sh '''
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
                     docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
                 '''
 
-                // Remote EC2 deploy steps
                 sh '''
                     ssh -i /var/lib/jenkins/.ssh/id_rsa ubuntu@$EC2_IP "
-                        echo '🔧 네트워크 생성 (있으면 생략)'
                         docker network create cluvr-net 2>/dev/null || echo 'Already exists'
 
-                        echo '🐰 RabbitMQ 체크 및 실행'
                         if [ -z \$(docker ps -q -f name=rabbitmq) ]; then
                             docker run -d --name rabbitmq --network cluvr-net -p 5672:5672 -p 15672:15672 \
                                 -e RABBITMQ_DEFAULT_USER=${RMQ_USERNAME} \
@@ -91,17 +86,19 @@ pipeline {
                             echo '✅ RabbitMQ 이미 실행 중'
                         fi
 
-                        echo '🛑 기존 앱 중지'
                         docker stop cluvr-api 2>/dev/null || true
                         docker rm cluvr-api 2>/dev/null || true
 
-                        echo '📦 이미지 pull'
                         aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
                         docker pull $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
 
-                        echo '🚀 새 앱 실행'
-                        docker run -d --name cluvr-api --network cluvr-net -p 80:8080 --restart unless-stopped \
-                            --env-file ${ENV_PATH} $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
+                        docker run -d --name cluvr-api --network cluvr-net -p 80:8080 \
+                            --env-file ${ENV_PATH} \
+                            --log-driver json-file \
+                            --log-opt max-size=10m \
+                            --log-opt max-file=3 \
+                            --restart unless-stopped \
+                            $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
 
                         echo '✅ 배포 완료: http://$EC2_IP'
                     "
