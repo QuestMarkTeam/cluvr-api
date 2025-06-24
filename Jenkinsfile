@@ -92,7 +92,7 @@ pipeline {
                         aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
                         docker pull $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
 
-                        docker run -d --name cluvr-api --network cluvr-net -p 80:8080 \
+                        docker run -d --name cluvr-api --network host \
                             --env-file ${ENV_PATH} \
                             --log-driver json-file \
                             --log-opt max-size=10m \
