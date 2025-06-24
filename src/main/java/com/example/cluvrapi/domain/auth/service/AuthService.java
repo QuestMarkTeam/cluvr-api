@@ -2,6 +2,7 @@ package com.example.cluvrapi.domain.auth.service;
 
 import com.example.cluvrapi.domain.auth.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyRequestDto;
 import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
 
@@ -22,7 +23,7 @@ public interface AuthService {
 	 * @return SignUpUserResponseDto 설명: 저장된 사용자 정보로 구성된 DTO
 	 * @throws BusinessException 설명: 이메일 또는 전화번호 중복, 비밀번호·비밀번호 확인 불일치 등 검증 실패 시 발생
 	 */
-	SignUpUserResponseDto signUp(SignUpUserRequestDto requestDto);
+	void signUp(SignUpUserRequestDto requestDto);
 
 	/**
 	 * 설명: 기존 사용자의 로그인 인증을 수행하고 JWT 토큰을 발급합니다.
@@ -46,5 +47,9 @@ public interface AuthService {
 	 * @throws BusinessException 설명: 토큰 미제공, 토큰 무효, 블랙리스트 등록 실패 등 처리 중 오류 발생 시
 	 */
 	void logout(String accessToken);
+
+
+	/** 2) 토큰 검증 후 실제 회원가입 처리 */
+	SignUpUserResponseDto completeSignUp(SignUpVerifyRequestDto requestDto);
 
 }
