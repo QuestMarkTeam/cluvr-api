@@ -19,6 +19,11 @@ import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.join.entity.JoinRequest;
 import com.example.cluvrapi.domain.join.enums.JoinStatus;
 import com.example.cluvrapi.domain.join.repository.JoinRequestRepository;
+import com.example.cluvrapi.domain.user.entity.User;
+import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.annotation.IsClubAdmin;
+import com.example.cluvrapi.global.annotation.IsClubMember;
+import com.example.cluvrapi.global.annotation.IsClubOwner;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -31,6 +36,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 	private final JoinRequestRepository joinRequestRepository;
 	private final ClubMemberRepository clubMemberRepository;
 	private final ClubRepository clubRepository;
+	private final UserRepository userRepository;
 
 	@Transactional
 	@Override
@@ -158,14 +164,16 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 	@Override
 	public GetMemberRoleResponseDto getMemberRole(Long clubId, Long targetUserId) {
 		Club club = clubRepository.findByIdOrElseThrow(clubId);
+		User findUser = userRepository.findByIdOrElseThrow(targetUserId);
 
 		ClubMember target = clubMemberRepository.findByClubIdAndUserId(clubId, targetUserId)
 			.orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND, "대상 멤버를 찾을 수 없습니다."));
 
 		return GetMemberRoleResponseDto.toDto(
+			findUser.getId(),
+			findUser.getName(),
 			club.getId(),
 			club.getName(),
-			targetUserId,
 			target.getClubMemberRole()
 		);
 	}
