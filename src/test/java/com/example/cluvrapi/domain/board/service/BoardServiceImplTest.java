@@ -256,7 +256,7 @@ class BoardServiceImplTest {
 		Board board = new Board(writer, BoardType.CHITCHAT, CategoryType.DEVELOPMENT, "title", "content", 20);
 		ReflectionTestUtils.setField(board, "id", boardId);
 
-		Reply reply = new Reply(replier, "replyContent", board, null);
+		Reply reply = new Reply(replier, "replyContent", board);
 		ReflectionTestUtils.setField(reply, "id", replyId);
 
 		Clover clover = mock(Clover.class);
