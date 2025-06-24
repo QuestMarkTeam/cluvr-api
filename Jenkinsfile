@@ -57,6 +57,35 @@ pipeline {
             }
         }
 
+        stage('Create .env & Send to EC2') {
+                    steps {
+                        echo '✅ Generating .env and sending to EC2...'
+                        withCredentials([
+                            string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
+                            string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
+                            string(credentialsId: 'DB_PORT', variable: 'DB_PORT'),
+                            string(credentialsId: 'DB_NAME', variable: 'DB_NAME'),
+                            string(credentialsId: 'DB_USERNAME', variable: 'DB_USERNAME'),
+                            string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
+                            string(credentialsId: 'REDIS_HOST', variable: 'REDIS_HOST'),
+                            string(credentialsId: 'REDIS_PORT', variable: 'REDIS_PORT')
+                        ]) {
+                            sh """
+                                echo "jwt.secret.key=${JWT_SECRET_KEY}" > .env
+                                echo "DB_HOST=${DB_HOST}" >> .env
+                                echo "DB_PORT=${DB_PORT}" >> .env
+                                echo "DB_NAME=${DB_NAME}" >> .env
+                                echo "DB_USERNAME=${DB_USERNAME}" >> .env
+                                echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+                                echo "REDIS_HOST=${REDIS_HOST}" >> .env
+                                echo "REDIS_PORT=${REDIS_PORT}" >> .env
+
+                                scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/id_rsa .env ubuntu@${NOTI_EC2_IP}:${ENV_PATH}
+                            """
+                        }
+                    }
+                }
+
         stage('Build & Deploy only if on develop branch') {
             when {
                 allOf {
