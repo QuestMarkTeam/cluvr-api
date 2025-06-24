@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.auth.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyRequestDto;
 import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
 import com.example.cluvrapi.domain.auth.service.AuthService;
@@ -31,12 +32,16 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/signup")
-	public ResponseEntity<BaseResponse<SignUpUserResponseDto>> signUp(
-		@Valid @RequestBody SignUpUserRequestDto signUpUserRequestDto) {
-		SignUpUserResponseDto responseDto = authService.signUp(signUpUserRequestDto);
+	public ResponseEntity<BaseResponse<String>> signUp(
+		@Valid @RequestBody SignUpUserRequestDto dto
+	) {
+		authService.signUp(dto);
 		return ResponseEntity
 			.status(HttpStatus.CREATED)
-			.body(BaseResponse.success(responseDto, CREATED));
+			.body(BaseResponse.success(
+				"회원가입 요청이 성공적으로 전송되었습니다. 이메일 인증을 진행해주세요.",
+				CREATED
+			));
 	}
 
 	@PostMapping("/login")
@@ -60,5 +65,18 @@ public class AuthController {
 			throw new BusinessException(ResponseCode.TOKEN_INVALID);
 		}
 		return authorizationHeader.substring(7);
+	}
+
+	@PostMapping("/verify")
+	public ResponseEntity<BaseResponse<String>> verifyEmail(
+		@Valid @RequestBody SignUpVerifyRequestDto req
+	) {
+		authService.completeSignUp(req);
+		return ResponseEntity
+			.status(HttpStatus.CREATED)
+			.body(BaseResponse.success(
+				"이메일 인증이 완료되었습니다.",
+				CREATED
+			));
 	}
 }

@@ -2,8 +2,6 @@ package com.example.cluvrapi.domain.clubMember.service;
 
 import java.util.Optional;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,11 +19,10 @@ import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.join.entity.JoinRequest;
 import com.example.cluvrapi.domain.join.enums.JoinStatus;
 import com.example.cluvrapi.domain.join.repository.JoinRequestRepository;
-import com.example.cluvrapi.global.annotation.IsClubAdmin;
-import com.example.cluvrapi.global.annotation.IsClubMember;
-import com.example.cluvrapi.global.annotation.IsClubOwner;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

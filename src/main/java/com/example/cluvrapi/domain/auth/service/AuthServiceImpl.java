@@ -1,7 +1,14 @@
 package com.example.cluvrapi.domain.auth.service;
 
+import java.time.Duration;
+import java.security.SecureRandom;
+
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.auth.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyCacheRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyRequestDto;
 import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
 import com.example.cluvrapi.domain.auth.properties.AppProperties;
@@ -41,70 +50,53 @@ public class AuthServiceImpl implements AuthService {
 	private final CategoryRepository categoryRepository;
 	private final CloverService cloverService;
 	private final AppProperties appProperties;
+	private final RedisTemplate<String, Object> redisTemplate;
+	private final SecureRandom random = new SecureRandom();
+
+	private final JavaMailSender mailSender;
+
+	private static final Duration VERIFY_TTL = Duration.ofMinutes(10);
+
+	@Value("${spring.mail.username}")
+	private String mailFrom;
 
 	@Override
-	@Transactional
-	public SignUpUserResponseDto signUp(SignUpUserRequestDto requestDto) {
-
-
-		if (userRepository.existsByEmail(requestDto.getEmail())) {
-			throw new BusinessException(
-				ResponseCode.INVALID_REQUEST,
-				"이미 사용 중인 이메일입니다."
-			);
+	public void signUp(SignUpUserRequestDto dto) {
+		if (userRepository.existsByEmail(dto.getEmail())) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 사용 중인 이메일입니다.");
 		}
-		if (userRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) {
-			throw new BusinessException(
-				ResponseCode.INVALID_REQUEST,
-				"이미 등록된 전화번호입니다."
-			);
+		if (userRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 등록된 전화번호입니다.");
 		}
-		if (!requestDto.getPassword().equals(requestDto.getConfirmPassword())) {
-			throw new BusinessException(
-				ResponseCode.INVALID_REQUEST,
-				"비밀번호와 비밀번호 확인이 일치하지 않습니다."
-			);
+		if (!dto.getPassword().equals(dto.getConfirmPassword())) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비밀번호와 확인이 일치하지 않습니다.");
 		}
 
-		String email = requestDto.getEmail().toLowerCase();
-		String domain = email.substring(email.indexOf("@") + 1);
+		String code = String.format("%06d", random.nextInt(900_000) + 100_000);
+		String emailLower = dto.getEmail().toLowerCase();
+		String key = "signup:verify:" + emailLower;
+		SignUpVerifyCacheRequestDto cacheDto = new SignUpVerifyCacheRequestDto(dto, code);
 
-		UserRole assignedRole = appProperties.getAdminDomains().contains(domain)
-			? UserRole.ADMIN
-			: UserRole.USER;
-
-		String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
-
-		User newUser = new User(
-			null,                                    // id auto-generated
-			requestDto.getName(),                    // name
-			requestDto.getBirthday(),                // birthday
-			email,                                   // email (소문자)
-			requestDto.getPhoneNumber(),             // phoneNumber
-			assignedRole,                            // UserRole: USER or ADMIN
-			requestDto.getGender(),                  // gender
-			requestDto.getCategoryType(),            // categoryDetail
-			encodedPassword,                         // encrypted password
-			0,                                       // gem 기본값
-			requestDto.getImageUrl(),                // imageUrl
-			false                                    // isDeleted
+		redisTemplate.opsForValue().set(key, cacheDto, VERIFY_TTL);
+		SimpleMailMessage msg = new SimpleMailMessage();
+		msg.setTo(emailLower);
+		msg.setSubject("【Cluvr】 회원가입 인증번호 안내");
+		msg.setText(
+			"안녕하세요, Cluvr입니다.\n\n" +
+				"회원가입을 위해 아래 인증번호를 입력해 주세요:\n\n" +
+				code + "\n\n" +
+				"※ 유효시간: 10분\n" +
+				"감사합니다."
 		);
-
-		User savedUser = userRepository.save(newUser);
-
-		// 6) Category, Clover 등 기존 로직 유지
-		Category newCategory = new Category(
-			savedUser.getId(),
-			requestDto.getCategoryType(),
-			CategoryTargetType.USER
-		);
-		categoryRepository.save(newCategory);
-		cloverService.createClover(
-			CreateCloverRequestDto.from(0, Tier.SPROUT, savedUser.getId())
-		);
-
-		return SignUpUserResponseDto.from(savedUser);
+		try {
+			mailSender.send(msg);
+		} catch (Exception e) {
+			// 캐시 삭제
+			redisTemplate.delete(key);
+			throw new BusinessException(ResponseCode.DB_FAIL, "이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+		}
 	}
+
 
 	@Override
 	@Transactional(readOnly = true)
@@ -165,5 +157,62 @@ public class AuthServiceImpl implements AuthService {
 		}
 
 	}
-}
+	@Override
+	@Transactional
+	public SignUpUserResponseDto completeSignUp(SignUpVerifyRequestDto req) {
+		String email = req.getEmail().toLowerCase();
+		String key = "signup:verify:" + email;
+
+		Object cachedObject = redisTemplate.opsForValue().get(key);
+		if (cachedObject == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "인증 요청이 없거나 만료되었습니다.");
+		}
+		if (!(cachedObject instanceof SignUpVerifyCacheRequestDto)) {
+			throw new BusinessException(ResponseCode.DB_FAIL, "잘못된 캐시 데이터입니다.");
+		}
+		SignUpVerifyCacheRequestDto cache = (SignUpVerifyCacheRequestDto) cachedObject;
+		if (cache == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "인증 요청이 없거나 만료되었습니다.");
+		}
+		if (!cache.getVerificationCode().equals(req.getCode())) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "인증번호가 일치하지 않습니다.");
+		}
+
+		redisTemplate.delete(key);
+
+		SignUpUserRequestDto dto = cache.getSignUpRequest();
+		String emailLower = dto.getEmail().toLowerCase();
+		String domain = emailLower.substring(emailLower.indexOf('@') + 1);
+		UserRole role = appProperties.getAdminDomains().contains(domain)
+			? UserRole.ADMIN : UserRole.USER;
+
+		User user = new User(
+			null,
+			dto.getName(),
+			dto.getBirthday(),
+			emailLower,
+			dto.getPhoneNumber(),
+			role,
+			dto.getGender(),
+			dto.getCategoryType(),
+			passwordEncoder.encode(dto.getPassword()),
+			0,
+			dto.getImageUrl(),
+			false
+		);
+		User saved = userRepository.save(user);
+
+		categoryRepository.save(new Category(
+			saved.getId(),
+			dto.getCategoryType(),
+			CategoryTargetType.USER
+		));
+		cloverService.createClover(
+			CreateCloverRequestDto.from(0, Tier.SPROUT, saved.getId())
+		);
+
+		return SignUpUserResponseDto.from(saved);
+	}
+	}
+
 
