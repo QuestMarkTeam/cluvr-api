@@ -77,7 +77,7 @@ pipeline {
                     ssh -i /var/lib/jenkins/.ssh/id_rsa ubuntu@$EC2_IP "
                         docker network create cluvr-net 2>/dev/null || echo 'Already exists'
 
-                        if [ -z \$(docker ps -q -f name=rabbitmq) ]; then
+                        if [ -z "$(docker ps -q -f name=rabbitmq)" ]; then
                             docker run -d --name rabbitmq --network cluvr-net -p 5672:5672 -p 15672:15672 \
                                 -e RABBITMQ_DEFAULT_USER=${RMQ_USERNAME} \
                                 -e RABBITMQ_DEFAULT_PASS=${RMQ_PASSWORD} \
