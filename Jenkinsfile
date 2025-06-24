@@ -55,35 +55,6 @@ pipeline {
             }
         }
 
-        stage('Create .env & Send to EC2') {
-                    steps {
-                        echo '✅ Generating .env and sending to EC2...'
-                        withCredentials([
-                            string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
-                            string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
-                            string(credentialsId: 'DB_PORT', variable: 'DB_PORT'),
-                            string(credentialsId: 'DB_NAME', variable: 'DB_NAME'),
-                            string(credentialsId: 'DB_USERNAME', variable: 'DB_USERNAME'),
-                            string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
-                            string(credentialsId: 'REDIS_HOST', variable: 'REDIS_HOST'),
-                            string(credentialsId: 'REDIS_PORT', variable: 'REDIS_PORT')
-                        ]) {
-                            sh """
-                                echo "jwt.secret.key=${JWT_SECRET_KEY}" > .env
-                                echo "DB_HOST=${DB_HOST}" >> .env
-                                echo "DB_PORT=${DB_PORT}" >> .env
-                                echo "DB_NAME=${DB_NAME}" >> .env
-                                echo "DB_USERNAME=${DB_USERNAME}" >> .env
-                                echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
-                                echo "REDIS_HOST=${REDIS_HOST}" >> .env
-                                echo "REDIS_PORT=${REDIS_PORT}" >> .env
-
-                                scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/id_rsa .env ubuntu@${NOTI_EC2_IP}:${ENV_PATH}
-                            """
-                        }
-                    }
-                }
-
         stage('Build & Deploy only if on develop branch') {
             when {
                 allOf {
@@ -176,7 +147,7 @@ pipeline {
                     sh '''
                     ssh -i /var/lib/jenkins/.ssh/id_rsa ubuntu@$EC2_IP "
                         echo '🚀 새로운 cluvr-api 앱 시작 중...'
-                        docker run -d --name cluvr-api --network cluvr-net -p 80:8080 \
+                        docker run -d --name cluvr-api --network host \
                                                     --env-file ${ENV_PATH} \
                                                     --log-driver json-file \
                                                     --log-opt max-size=10m \
@@ -184,7 +155,7 @@ pipeline {
                                                     --restart unless-stopped \
                                                     $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
                         echo '🎉 배포 완료! 앱이 실행 중입니다.'
-                        echo '📍 접속 주소: $EC2_IP'
+                        echo '📍 접속 주소: http://44.239.99.137'
                     "
                     '''
                 }
