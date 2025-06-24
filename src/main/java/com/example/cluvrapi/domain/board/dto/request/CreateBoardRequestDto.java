@@ -1,12 +1,12 @@
 package com.example.cluvrapi.domain.board.dto.request;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import org.hibernate.validator.constraints.Range;
 
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.enums.BoardType;
@@ -29,9 +29,10 @@ public class CreateBoardRequestDto implements CloverEarnDto {
 	@NotNull(message = "카테고리는 필수입니다.")
 	private CategoryType category;
 
-	@Min(value = 10, message = "클로버는 최소 10 이상이어야 합니다.")
-	@Max(value = 110, message = "클로버는 최대 110 이하여야 합니다.")
-	private int clover;
+	@Range(min = 0, max = 100, message = "게시글 하나에 사용할 수 있는 클로버는 0부터 100 사이 입니다.")
+	private Integer clover;
+
+	private final int DEFAULT_BOARD_CLOVER = 10;
 
 	public Board fromDto(User user) {
 		return new Board(
@@ -40,7 +41,7 @@ public class CreateBoardRequestDto implements CloverEarnDto {
 			category,
 			title,
 			content,
-			clover
+			clover + DEFAULT_BOARD_CLOVER
 		);
 	}
 
