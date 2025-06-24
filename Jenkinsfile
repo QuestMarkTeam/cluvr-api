@@ -147,7 +147,7 @@ pipeline {
                     sh '''
                     ssh -i /var/lib/jenkins/.ssh/id_rsa ubuntu@$EC2_IP "
                         echo '🚀 새로운 cluvr-api 앱 시작 중...'
-                        docker run -d --name cluvr-api --network cluvr-net -p 80:8080 \
+                        docker run -d --name cluvr-api --network host \
                                                     --env-file ${ENV_PATH} \
                                                     --log-driver json-file \
                                                     --log-opt max-size=10m \
