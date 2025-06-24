@@ -1,7 +1,7 @@
 package com.example.cluvrapi.domain.auth.service;
 
 import java.time.Duration;
-import java.util.Random;
+import java.security.SecureRandom;
 
 import lombok.RequiredArgsConstructor;
 
@@ -51,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
 	private final CloverService cloverService;
 	private final AppProperties appProperties;
 	private final RedisTemplate<String, Object> redisTemplate;
-	private final Random random = new Random();
+	private final SecureRandom random = new SecureRandom();
 
 	private final JavaMailSender mailSender;
 
@@ -73,13 +73,13 @@ public class AuthServiceImpl implements AuthService {
 		}
 
 		String code = String.format("%06d", random.nextInt(900_000) + 100_000);
-		String key = "signup:verify:" + dto.getEmail().toLowerCase();
+		String emailLower = dto.getEmail().toLowerCase();
+		String key = "signup:verify:" + emailLower;
 		SignUpVerifyCacheRequestDto cacheDto = new SignUpVerifyCacheRequestDto(dto, code);
-		redisTemplate.opsForValue().set(key, cacheDto, VERIFY_TTL);
 
+		redisTemplate.opsForValue().set(key, cacheDto, VERIFY_TTL);
 		SimpleMailMessage msg = new SimpleMailMessage();
-		msg.setFrom(mailFrom);
-		msg.setTo(dto.getEmail());
+		msg.setTo(emailLower);
 		msg.setSubject("【Cluvr】 회원가입 인증번호 안내");
 		msg.setText(
 			"안녕하세요, Cluvr입니다.\n\n" +
@@ -88,7 +88,13 @@ public class AuthServiceImpl implements AuthService {
 				"※ 유효시간: 10분\n" +
 				"감사합니다."
 		);
-		mailSender.send(msg);
+		try {
+			mailSender.send(msg);
+		} catch (Exception e) {
+			// 캐시 삭제
+			redisTemplate.delete(key);
+			throw new BusinessException(ResponseCode.DB_FAIL, "이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+		}
 	}
 
 
@@ -157,8 +163,14 @@ public class AuthServiceImpl implements AuthService {
 		String email = req.getEmail().toLowerCase();
 		String key = "signup:verify:" + email;
 
-		SignUpVerifyCacheRequestDto cache =
-			(SignUpVerifyCacheRequestDto) redisTemplate.opsForValue().get(key);
+		Object cachedObject = redisTemplate.opsForValue().get(key);
+		if (cachedObject == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "인증 요청이 없거나 만료되었습니다.");
+		}
+		if (!(cachedObject instanceof SignUpVerifyCacheRequestDto)) {
+			throw new BusinessException(ResponseCode.DB_FAIL, "잘못된 캐시 데이터입니다.");
+		}
+		SignUpVerifyCacheRequestDto cache = (SignUpVerifyCacheRequestDto) cachedObject;
 		if (cache == null) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "인증 요청이 없거나 만료되었습니다.");
 		}
