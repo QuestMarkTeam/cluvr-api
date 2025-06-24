@@ -105,7 +105,8 @@ public class ClubMemberController {
 	@GetMapping("/members/{userId}/role")
 	public ResponseEntity<BaseResponse<GetMemberRoleResponseDto>> getMemberRole(
 		@PathVariable Long clubId,
-		@PathVariable("userId") Long targetUserId
+		@PathVariable("userId") Long targetUserId,
+		@Auth AuthUser authUser
 	) {
 		GetMemberRoleResponseDto dto = clubMemberService.getMemberRole(clubId, targetUserId);
 		return ResponseEntity
