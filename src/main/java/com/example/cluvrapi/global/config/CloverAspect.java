@@ -55,7 +55,7 @@ public class CloverAspect {
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("CloverEarnDto가 필요합니다"));
 
-		Integer clover = flowType.apply(earnDto.getClover()); // 클로버 음수,양수 바꿈
+		Integer clover = earnDto.getClover();
 
 		LocalDateTime createdTime = (flowType == CloverActionType.EARN) ? LocalDateTime.now() : null;
 		LocalDateTime deletedTime = (flowType == CloverActionType.USE) ? LocalDateTime.now() : null;
@@ -68,7 +68,7 @@ public class CloverAspect {
 			if (principal instanceof CustomUserDetails userDetails) {
 				Long userId = userDetails.getUser().getId();
 				// 클로버 업데이트
-				cloverService.updateClover(new UpdateCloverRequestDto(clover, userId));
+				cloverService.updateClover(new UpdateCloverRequestDto(flowType.apply(clover), userId));
 				publisher.publishEvent(
 					CloverEvent.createEvent(userId, clover, createdTime, deletedTime, cloverUserActivityType));
 			} else {

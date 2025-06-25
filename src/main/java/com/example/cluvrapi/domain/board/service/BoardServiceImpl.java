@@ -17,6 +17,7 @@ import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.clover.entity.Clover;
+import com.example.cluvrapi.domain.clover.enums.CloverUserActivityType;
 import com.example.cluvrapi.domain.clover.repository.CloverRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
@@ -27,6 +28,8 @@ import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
+import com.example.cluvrapi.global.annotation.EarnClover;
+import com.example.cluvrapi.global.annotation.EarnGem;
 import com.example.cluvrapi.global.exception.NoPermissionException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -42,14 +45,11 @@ public class BoardServiceImpl implements BoardService {
 	private final CloverRepository cloverRepository;
 	private final BoardViewCountRedisService boardViewCountRedisService;
 
+	@EarnClover(value = CloverUserActivityType.CREATE_QUESTION)
 	@Override
 	@Transactional
 	public long createBoard(long userId, CreateBoardRequestDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		Clover clover = cloverRepository.findByUserId(userId)
-			.orElseThrow(() -> new IllegalStateException(ResponseCode.INVALID_REQUEST.getDefaultMessage()));
-
-		clover.spendScore(dto.getClover());
 		return boardRepository.save(dto.fromDto(user)).getId();
 	}
 
