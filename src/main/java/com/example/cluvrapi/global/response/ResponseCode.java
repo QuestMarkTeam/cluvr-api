@@ -40,12 +40,16 @@ public enum ResponseCode {
 	GEM_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
 	/* CLOVER */
 	CLOVER_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 유저의 클로버가 존재하지 않습니다"),
+	CLOVER_POST_LIMIT(HttpStatus.BAD_REQUEST, "클로버는 100 아래로만 걸 수 있습니다."),
 	/* 통계 */
 	STAT_NOT_ENOUGH(HttpStatus.NOT_FOUND, "해당 유저의 통계가 존재하지 않습니다 ."),
 	/* Board, Reply */
 	SELF_REACTION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자신이 작성한 것에 좋아요/싫어요를 선택할 수 없습니다."),
 	BOARD_REPLY_MISMATCH(HttpStatus.BAD_REQUEST, "게시글의 해당하는 댓글이 아닙니다."),
-	NO_PERMISSION_DELETE(HttpStatus.NOT_ACCEPTABLE, "현재 유저는 이 게시물을 삭제할 수 있는 권한이 없습니다.");
+	NO_PERMISSION_DELETE(HttpStatus.NOT_ACCEPTABLE, "현재 유저는 이 게시물을 삭제할 수 있는 권한이 없습니다."),
+	ALREADY_SELECTED(HttpStatus.BAD_REQUEST, "채택은 각 게시물 당 한 개만 가능합니다. 이미 채택을 하셨습니다."),
+	CANNOT_SELECT_OWN_REPLY(HttpStatus.BAD_REQUEST, "게시글 작성자와 댓글 작성자가 동일 인물이므로 채택할 수 없습니다."),
+	REPLY_NOT_MATCHED_WITH_BOARD(HttpStatus.BAD_REQUEST, "채택한 댓글은 해당 게시물 소속의 댓글이 아닙니다.");
 
 	private final HttpStatus status;
 	private final String defaultMessage;

@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.request.UpdateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardResponseDto;
-import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
+import com.example.cluvrapi.domain.board.dto.response.ReadAllBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
@@ -31,7 +31,7 @@ public interface BoardService {
 	 * @return 조회된 게시글 목록
 	 * @author yong
 	 */
-	PageResponseDto<ReadBoardsResponseDto> readBoards(CategoryType category, Pageable pageable);
+	PageResponseDto<ReadAllBoardsResponseDto> readBoards(CategoryType category, Pageable pageable);
 
 	/**
 	 * 설명: 특정 게시글 상세 조회
@@ -40,7 +40,7 @@ public interface BoardService {
 	 * @return 게시글 상세 정보 DTO
 	 * @author yong
 	 */
-	ReadBoardResponseDto readBoard(long boardId);
+	ReadBoardResponseDto readBoard(long boardId, long userId);
 
 	/**
 	 * 설명: 특정 게시글을 수정

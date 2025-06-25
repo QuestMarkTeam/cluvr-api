@@ -24,7 +24,7 @@ public class ReadBoardResponseDto {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
-	public static ReadBoardResponseDto ofDto(Board board, long likeCount, long dislikeCount) {
+	public static ReadBoardResponseDto ofDto(Board board, long viewCount, long likeCount, long dislikeCount) {
 		return new ReadBoardResponseDto(
 			board.getId(),
 			board.getTitle(),
@@ -32,7 +32,7 @@ public class ReadBoardResponseDto {
 			board.getCategory(),
 			board.isSelected(),
 			board.getClover(),
-			board.getViewCount(),
+			viewCount,
 			board.getUser().getName(),
 			likeCount,
 			dislikeCount,

@@ -7,7 +7,7 @@ import lombok.Getter;
 import com.querydsl.core.annotations.QueryProjection;
 
 @Getter
-public class ReadBoardsResponseDto {
+public class ReadAllBoardsResponseDto {
 	private long id;
 	private String title;
 	private String content;
@@ -17,7 +17,7 @@ public class ReadBoardsResponseDto {
 	private LocalDateTime updatedAt;
 
 	@QueryProjection
-	public ReadBoardsResponseDto(long id, String title, String content, long viewCount, String userName,
+	public ReadAllBoardsResponseDto(long id, String title, String content, long viewCount, String userName,
 		LocalDateTime createdAt,
 		LocalDateTime updatedAt) {
 		this.id = id;

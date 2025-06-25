@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import org.hibernate.validator.constraints.Range;
+
 @Getter
 @AllArgsConstructor
 public class UpdateBoardRequestDto {
@@ -14,7 +16,6 @@ public class UpdateBoardRequestDto {
 
 	private final String content;
 
-	@Min(value = 0, message = " 클로버는 0~ 100이하로만 추가할 수 있습니다.")
-	@Max(value = 100, message = "클로버는 0~ 100이하로만 추가할 수 있습니다.")
-	private final int clover;
+	@Range(min = 0, max = 100, message = "게시글 하나에 사용할 수 있는 클로버는 0부터 100 사이 입니다.")
+	private final Integer clover;
 }

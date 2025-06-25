@@ -2,7 +2,7 @@ package com.example.cluvrapi.domain.board.repository;
 
 import org.springframework.data.domain.Pageable;
 
-import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
+import com.example.cluvrapi.domain.board.dto.response.ReadAllBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
@@ -30,9 +30,9 @@ public interface BoardRepositoryCustom {
 	 *
 	 * @author yong
 	 */
-	PageResponseDto<ReadBoardsResponseDto> findAllBoardsByCategory(CategoryType category, Pageable pageable);
+	PageResponseDto<ReadAllBoardsResponseDto> findAllBoardsByCategory(CategoryType category, Pageable pageable);
 
 	PageResponseDto<ReadMyBoardsResponseDto> findBoardsByUser(long userId, Pageable pageable);
 
-	void updateBoard(String getTitle, String getContent, int getClover);
+	void updateBoard(long boardId, String getTitle, String getContent, Integer getClover);
 }
