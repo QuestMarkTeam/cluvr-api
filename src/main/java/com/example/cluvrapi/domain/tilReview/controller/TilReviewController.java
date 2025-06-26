@@ -28,6 +28,6 @@ public class TilReviewController {
 		@PathVariable Long tilId
 	) {
 		tilReviewService.requestReview(authUser.id(), clubId, tilId);
-		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
+		return ResponseEntity.ok(BaseResponse.success(ResponseCode.CREATED));
 	}
 }
