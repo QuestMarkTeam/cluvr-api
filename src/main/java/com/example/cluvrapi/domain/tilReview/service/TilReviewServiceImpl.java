@@ -33,7 +33,7 @@ public class TilReviewServiceImpl implements TilReviewService {
 		);
 
 		// 2) 리뷰 요청 여부 검증
-		validateReview(LocalDate.now(),clubId);
+		validateReview(LocalDate.now(), clubId);
 
 		// 3) Til Review Document 생성
 		TilReview tilReview = new TilReview(

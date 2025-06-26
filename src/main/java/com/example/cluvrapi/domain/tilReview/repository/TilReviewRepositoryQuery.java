@@ -3,7 +3,6 @@ package com.example.cluvrapi.domain.tilReview.repository;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import com.example.cluvrapi.domain.til.repository.TilRepositoryQuery;
 import com.example.cluvrapi.domain.tilReview.entity.TilReview;
 
 public interface TilReviewRepositoryQuery {

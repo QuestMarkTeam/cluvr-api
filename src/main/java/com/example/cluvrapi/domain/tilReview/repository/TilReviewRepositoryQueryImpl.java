@@ -7,8 +7,6 @@ import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 
-import com.example.cluvrapi.domain.til.repository.TilRepositoryQuery;
-import com.example.cluvrapi.domain.tilReview.entity.QTilReview;
 import com.example.cluvrapi.domain.tilReview.entity.TilReview;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
