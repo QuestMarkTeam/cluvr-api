@@ -8,7 +8,7 @@ public interface TilReviewService {
 	/**
 	 * 특정 TIL에 대해 리뷰 요청을 수행하는 메서드
 	 *
-	 * @param id      유저 고유 식별자
+	 * @param userId      유저 고유 식별자
 	 * @param clubId  클럽 고유 식별자
 	 * @param tilId   리뷰를 요청할 TIL의 고유 식별자
 	 *
@@ -16,5 +16,5 @@ public interface TilReviewService {
 	 * @author sinyoung0403
 	 */
 	@IsClubAdmin
-	void requestReview(Long id, Long clubId, Long tilId);
+	void requestReview(Long userId, Long clubId, Long tilId);
 }

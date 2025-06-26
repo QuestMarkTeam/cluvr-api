@@ -26,7 +26,7 @@ public class TilReviewServiceImpl implements TilReviewService {
 
 	@Transactional
 	@Override
-	public void requestReview(Long userId, Long tilId, Long clubId) {
+	public void requestReview(Long userId, Long clubId, Long tilId) {
 		// 1) Til 조회, Club 조회
 		Til findTil = tilRepository.findTilByIdAndClubId(clubId, tilId).orElseThrow(
 			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당 TIL이 존재하지 않습니다.")
