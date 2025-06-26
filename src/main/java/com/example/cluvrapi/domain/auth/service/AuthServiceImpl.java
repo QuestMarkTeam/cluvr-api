@@ -30,9 +30,11 @@ import com.example.cluvrapi.domain.category.repository.CategoryRepository;
 import com.example.cluvrapi.domain.clover.dto.request.CreateCloverRequestDto;
 import com.example.cluvrapi.domain.clover.enums.Tier;
 import com.example.cluvrapi.domain.clover.service.CloverService;
+import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.entity.enums.UserRole;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.annotation.EventGem;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.jwt.JwtUtil;
@@ -98,6 +100,7 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 
+	@EventGem(value = GemUserActivityType.LOGIN)
 	@Override
 	@Transactional(readOnly = true)
 	public LoginUserResponseDto login(LoginUserRequestDto requestDto) {

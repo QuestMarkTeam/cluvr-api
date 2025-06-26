@@ -9,6 +9,6 @@ import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 
 @Target(value = ElementType.METHOD)
 @Retention(value = RetentionPolicy.RUNTIME)
-public @interface EarnGem {
+public @interface UpdateGem {
 	GemUserActivityType value();
 }

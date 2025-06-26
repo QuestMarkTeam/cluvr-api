@@ -28,8 +28,7 @@ import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
-import com.example.cluvrapi.global.annotation.EarnClover;
-import com.example.cluvrapi.global.annotation.EarnGem;
+import com.example.cluvrapi.global.annotation.UpdateClover;
 import com.example.cluvrapi.global.exception.NoPermissionException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -45,7 +44,7 @@ public class BoardServiceImpl implements BoardService {
 	private final CloverRepository cloverRepository;
 	private final BoardViewCountRedisService boardViewCountRedisService;
 
-	@EarnClover(value = CloverUserActivityType.CREATE_QUESTION)
+	@UpdateClover(value = CloverUserActivityType.CREATE_QUESTION)
 	@Override
 	@Transactional
 	public long createBoard(long userId, CreateBoardRequestDto dto) {
@@ -162,7 +161,7 @@ public class BoardServiceImpl implements BoardService {
 		// if (board.getUser() != user) {
 		// 	String content = String.format("'%s'님이 '%s' 게시글에서 회원님의 댓글을 채택하셨습니다. /n 보상으로 '%s' clover를 지급해드립니다.",
 		// 		user.getName(),
-		// 		board.getTitle(), board.getClover());
+		// 		board.getTitle(), board.getGem());
 		//
 		// 	NotificationEvent event = NotificationEvent.from(
 		// 		board.getUser().getId(),

@@ -38,11 +38,13 @@ public interface GemService extends GemLogService {
 	 *
 	 * <p>{추가적인 설명이 필요하다면 여기에 작성합니다.}
 	 *
-	 * @param userId 유저 식별자
-	 * @param gemUserActivityType 포인트 적립 amount
+	 * @param updateGemRequestDto
+	 *
 	 *
 	 * @author 나원준
 	 */
 
-	void earnGems(Long userId, GemUserActivityType gemUserActivityType);
+	void updateGems(UpdateGemRequestDto updateGemRequestDto);
+
+	void earnGems(GemUserActivityType gemUserActivityType, Long userId);
 }
