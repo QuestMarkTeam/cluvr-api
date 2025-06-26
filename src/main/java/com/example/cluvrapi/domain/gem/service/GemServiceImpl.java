@@ -65,7 +65,8 @@ public class GemServiceImpl implements GemService {
 	public void earnGems(Long userId, UpdateGemRequestDto updateGemRequestDto) { // 이벤트로 얻는 포인트 처리
 		User user = userRepository.findByIdOrElseThrow(userId);
 		GemUserActivityType gemUserActivityType = updateGemRequestDto.getGemUserActivityType();
-		String redisKey = RedisKey.GEM_GET_LIMIT.getKey() + userId;
+
+		String redisKey = RedisKey.GEM_GET_LIMIT.getKey() + userId + ":"+gemUserActivityType.name();
 		Duration ttl = getDurationUntilMidnight();
 		Long count = gemRedisService.setIfAbsent(redisKey, 1L, ttl) ? 1L : gemRedisService.incrementValue(redisKey);
 
