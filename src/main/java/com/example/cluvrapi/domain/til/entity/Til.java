@@ -42,7 +42,7 @@ public class Til extends BaseTimeEntity {
 	@Column(nullable = false, length = 20)
 	private String title;
 
-	@Column(nullable = false, length = 255)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
 
 	@Column(nullable = false)
