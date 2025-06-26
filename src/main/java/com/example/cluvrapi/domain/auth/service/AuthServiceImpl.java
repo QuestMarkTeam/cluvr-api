@@ -36,6 +36,7 @@ import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
 import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.gem.service.GemEvent;
 import com.example.cluvrapi.domain.gem.service.GemService;
+import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.entity.enums.UserRole;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
@@ -106,6 +107,8 @@ public class AuthServiceImpl implements AuthService {
 		}
 	}
 
+
+	@EventGem(value = GemUserActivityType.LOGIN)
 	@Override
 	@Transactional
 	public LoginUserResponseDto login(LoginUserRequestDto requestDto) {
