@@ -47,7 +47,7 @@ public class TilReviewServiceImpl implements TilReviewService {
 		tilReviewRepository.save(tilReview);
 	}
 
-	public void validateReview(LocalDate today, Long clubId) {
+	private void validateReview(LocalDate today, Long clubId) {
 		LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
 		LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
 
