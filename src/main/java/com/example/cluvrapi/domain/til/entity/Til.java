@@ -39,10 +39,10 @@ public class Til extends BaseTimeEntity {
 	@JoinColumn(name = "club_id", nullable = false)
 	private Club club;
 
-	@Column(nullable = false, length = 20)
+	@Column(nullable = false, length = 50)
 	private String title;
 
-	@Column(nullable = false, length = 255)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
 
 	@Column(nullable = false)
