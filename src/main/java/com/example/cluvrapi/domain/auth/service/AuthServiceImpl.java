@@ -227,7 +227,7 @@ public class AuthServiceImpl implements AuthService {
 		return SignUpUserResponseDto.from(saved);
 	}
 
-	public void getReward(Long userId) {
+	private void getReward(Long userId) {
 		GemUserActivityType gemUserActivityType = GemUserActivityType.LOGIN;
 		Integer gem = gemUserActivityType.getGem();
 		gemService.earnGems(userId, UpdateGemRequestDto.from(gem, gemUserActivityType));

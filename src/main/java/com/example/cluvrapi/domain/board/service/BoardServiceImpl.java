@@ -12,7 +12,6 @@ import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.request.UpdateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadAllBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardResponseDto;
-import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;

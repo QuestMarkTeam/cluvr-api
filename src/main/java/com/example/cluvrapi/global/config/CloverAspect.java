@@ -49,7 +49,7 @@ public class CloverAspect {
 		CloverActionType flowType = cloverUserActivityType.getFlowType();
 
 		// 동적인 값 가져오기
-		Integer clover = getGem(pjp);
+		Integer clover = getCloverData(pjp);
 
 		LocalDateTime createdTime = (flowType == CloverActionType.EARN) ? LocalDateTime.now() : null;
 		LocalDateTime deletedTime = (flowType == CloverActionType.USE) ? LocalDateTime.now() : null;
@@ -74,12 +74,12 @@ public class CloverAspect {
 		return result;
 	}
 
-	public Integer getGem(ProceedingJoinPoint pjp){
+	public Integer getCloverData(ProceedingJoinPoint pjp){
 		CloverUpdateDto earnDto = Arrays.stream(pjp.getArgs())
 			.filter(CloverUpdateDto.class::isInstance)
 			.map(CloverUpdateDto.class::cast)
 			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("CloverEarnDto가 필요합니다"));
+			.orElseThrow(() -> new BusinessException(ResponseCode.FAIL));
 		return earnDto.getClover();
 	}
 
