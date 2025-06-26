@@ -2,7 +2,6 @@ package com.example.cluvrapi.domain.gem.service;
 
 import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
 import com.example.cluvrapi.domain.gem.dto.response.UpdateGemResponseDto;
-import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 
 public interface GemService extends GemLogService {
 	/**
@@ -44,7 +43,5 @@ public interface GemService extends GemLogService {
 	 * @author 나원준
 	 */
 
-	void updateGems(UpdateGemRequestDto updateGemRequestDto);
-
-	void earnGems(GemUserActivityType gemUserActivityType, Long userId);
+	void earnGems(Long userId, UpdateGemRequestDto updateGemRequestDto);
 }

@@ -9,19 +9,16 @@ import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 @Getter
 public class UpdateGemRequestDto {
 
-	private Long userId;
-
 	private Integer gem;
 
 	private GemUserActivityType gemUserActivityType;
 
-	public UpdateGemRequestDto(Long userId, Integer gem, GemUserActivityType gemUserActivityType) {
-		this.userId = userId;
+	public UpdateGemRequestDto(Integer gem, GemUserActivityType gemUserActivityType) {
 		this.gem = gem;
 		this.gemUserActivityType = gemUserActivityType;
 	}
 
-	public static UpdateGemRequestDto from(Long userId, Integer gem, GemUserActivityType gemUserActivityType){
-		return new UpdateGemRequestDto(userId, gem,gemUserActivityType);
+	public static UpdateGemRequestDto from(Integer gem, GemUserActivityType gemUserActivityType){
+		return new UpdateGemRequestDto(gem,gemUserActivityType);
 	}
 }

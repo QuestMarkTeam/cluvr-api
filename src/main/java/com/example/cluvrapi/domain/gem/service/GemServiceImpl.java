@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
 import com.example.cluvrapi.domain.gem.dto.response.FindGemLogResponseDto;
 import com.example.cluvrapi.domain.gem.dto.response.UpdateGemResponseDto;
-import com.example.cluvrapi.domain.gem.enums.GemActionType;
 import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.gem.repository.GemLogRepository;
 import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
@@ -44,50 +43,37 @@ public class GemServiceImpl implements GemService {
 	}
 
 
-	@Transactional
-	@Override
-	public void updateGems(UpdateGemRequestDto updateGemRequestDto) {
-		Long userId = updateGemRequestDto.getUserId();
-		GemUserActivityType gemUserActivityType = updateGemRequestDto.getGemUserActivityType();
-		if(gemUserActivityType.getFlowType() == GemActionType.EVENT_EARN){
-			earnGems(gemUserActivityType, userId); // 이벤트 포인트 적립 처리
-		}
-
-
-
-	}
-
 	@UpdateGem(value = GemUserActivityType.ITEM_PURCHASE)
 	@Transactional
 	@Override
 	public UpdateGemResponseDto useGem(Long userId, UpdateGemRequestDto requestDto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		int amount = requestDto.getGem(); // 감소량
+		int gem = requestDto.getGem(); // 감소량
 		int currentGem = user.getGem(); // 현재 보유 포인트
 
-		if (currentGem < amount) { // 포인트 부족하면 에러 발생
+		if (currentGem < gem) { // 포인트 부족하면 에러 발생
 			throw new BusinessException(ResponseCode.GEM_NOT_ENOUGH);
 		}
-		int finalGem = currentGem - amount;
+		int finalGem = currentGem - gem;
 		user.updateGem(finalGem);
 
 		return UpdateGemResponseDto.from(finalGem); // 남은 포인트 리턴
 	}
 
-
+	@Transactional
 	@Override
-	public void earnGems(GemUserActivityType gemUserActivityType, Long userId) { // 이벤트로 얻는 포인트 처리
-		String redisKey = RedisKey.GEM_GET_LIMIT.getKey() + userId;
+	public void earnGems(Long userId, UpdateGemRequestDto updateGemRequestDto) { // 이벤트로 얻는 포인트 처리
 		User user = userRepository.findByIdOrElseThrow(userId);
+		GemUserActivityType gemUserActivityType = updateGemRequestDto.getGemUserActivityType();
+		String redisKey = RedisKey.GEM_GET_LIMIT.getKey() + userId;
 		Duration ttl = getDurationUntilMidnight();
 		Long count = gemRedisService.setIfAbsent(redisKey, 1L, ttl) ? 1L : gemRedisService.incrementValue(redisKey);
 
 		// 하루 제한 이하면 적립
 			if (gemUserActivityType.getTodayLimit() >= count) {
-			Integer updateGem = user.getGem() + gemUserActivityType.getGem();
+			Integer updateGem = user.getGem() + updateGemRequestDto.getGem();
 			user.updateGem(updateGem);
-			String content = String.format("Gem %점을 획득하였습니다.", gemUserActivityType.getGem());
-
+			String content = String.format("Gem %d 점을 획득하였습니다.", updateGemRequestDto.getGem());
 			NotificationEvent event = NotificationEvent.from(
 				userId,
 				NotificationType.POINT,

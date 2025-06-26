@@ -3,6 +3,7 @@ package com.example.cluvrapi.global.config;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,8 +21,8 @@ import com.example.cluvrapi.domain.gem.dto.GemUpdateDto;
 import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
 import com.example.cluvrapi.domain.gem.enums.GemActionType;
 import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
+import com.example.cluvrapi.domain.gem.handler.GemMethodHandler;
 import com.example.cluvrapi.domain.gem.service.GemEvent;
-import com.example.cluvrapi.domain.gem.service.GemService;
 import com.example.cluvrapi.global.annotation.EventGem;
 import com.example.cluvrapi.global.annotation.UpdateGem;
 import com.example.cluvrapi.global.exception.BusinessException;
@@ -33,9 +34,10 @@ import com.example.cluvrapi.global.response.ResponseCode;
 @Component
 public class GemAspect {
 
-	private final GemService gemService; // 내부에서 트랜잭션 공유 가능하도록
 	private final ApplicationEventPublisher publisher; // 이벤트 발행
 
+
+	private final List<GemMethodHandler> handlers;
 	/**
 	 * 설명: 이벤트와 관련된 Gem 처리
 	 *
@@ -102,12 +104,8 @@ public class GemAspect {
 			Object principal = auth.getPrincipal();
 			if (principal instanceof CustomUserDetails userDetails) {
 				Long userId = userDetails.getUser().getId();
-				// 적립,사용 등 Gem에  +,- 바꿔서 넘겨줌
-				if(gemUserActivityType.getFlowType() == GemActionType.EVENT_EARN){
-					gemService.earnGems(gemUserActivityType, userId); // 이벤트 포인트 적립 처리
-				}else{
-					gemService.updateGems(UpdateGemRequestDto.from(userId, flowType.apply(gem), gemUserActivityType));
-				}
+				// 각자에 알맞는 비지니스 로직으로 보내줌
+				execute(gemUserActivityType, userId, gem, flowType);
 				publisher.publishEvent(
 					GemEvent.createEvent(userId, gem, gemUserActivityType.getDescription(), createdTime, deletedTime,
 						gemUserActivityType.getFlowType(), gemUserActivityType.name())
@@ -125,7 +123,16 @@ public class GemAspect {
 			.filter(GemUpdateDto.class::isInstance)
 			.map(GemUpdateDto.class::cast)
 			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("GemUpdateDto가 필요합니다"));
+			.orElseThrow(() -> new BusinessException(ResponseCode.FAIL));
 		return earnDto.getGem();
+	}
+
+	// 해당 액션에 맞는 비지니스 처리 로직으로 보내줌
+	public void execute(GemUserActivityType activityType, Long userId, Integer gem, GemActionType flowType) {
+		handlers.stream()
+			.filter(handler -> handler.supports(flowType))
+			.findFirst()
+			.orElseThrow(() -> new BusinessException(ResponseCode.FAIL))
+			.handle(userId, UpdateGemRequestDto.from(gem, activityType));
 	}
 }
