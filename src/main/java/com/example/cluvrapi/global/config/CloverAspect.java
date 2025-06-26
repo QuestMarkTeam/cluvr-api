@@ -50,13 +50,6 @@ public class CloverAspect {
 
 		// 동적인 값 가져오기
 		Integer clover = getCloverData(pjp);
-		CloverEarnDto earnDto = Arrays.stream(pjp.getArgs())
-			.filter(CloverEarnDto.class::isInstance)
-			.map(CloverEarnDto.class::cast)
-			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("CloverEarnDto가 필요합니다"));
-
-		Integer clover = earnDto.getClover();
 
 		LocalDateTime createdTime = (flowType == CloverActionType.EARN) ? LocalDateTime.now() : null;
 		LocalDateTime deletedTime = (flowType == CloverActionType.USE) ? LocalDateTime.now() : null;

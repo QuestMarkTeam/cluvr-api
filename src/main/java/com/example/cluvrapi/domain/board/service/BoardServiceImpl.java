@@ -55,6 +55,7 @@ public class BoardServiceImpl implements BoardService {
 	@EarnClover(value = CloverUserActivityType.CREATE_QUESTION)
 	@EventGem(value = GemUserActivityType.BOARD)
 	@UpdateClover(value = CloverUserActivityType.CREATE_QUESTION)
+	@UpdateClover(value = CloverUserActivityType.CREATE_QUESTION)
 	@Override
 	@Transactional
 	public long createBoard(long userId, CreateBoardRequestDto dto) {
