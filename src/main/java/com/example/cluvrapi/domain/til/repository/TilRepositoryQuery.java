@@ -1,9 +1,12 @@
 package com.example.cluvrapi.domain.til.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Pageable;
 
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.til.dto.response.InfoTilResponseDto;
+import com.example.cluvrapi.domain.til.entity.Til;
 
 public interface TilRepositoryQuery {
 
@@ -31,4 +34,16 @@ public interface TilRepositoryQuery {
 	 */
 
 	PageResponseDto<InfoTilResponseDto> findAllTilById(Long clubId, Pageable pageable);
+
+	/**
+	 * 설명: Til 단건 조회하는 쿼리문
+	 *
+	 * <p> clubId와 tilId를 이용한 조회 처리
+	 *
+	 * @param clubId {설명: 클럽 고유 식별자}
+	 * @param tilId  {설명: Til 고유 식별자}
+	 * @return Optional<Til> {설명: Til 객체 (존재하지 않을 수 있음)}
+	 * @author {sinyoung0403}
+	 */
+	Optional<Til> findTilByIdAndClubId(Long clubId, Long tilId);
 }

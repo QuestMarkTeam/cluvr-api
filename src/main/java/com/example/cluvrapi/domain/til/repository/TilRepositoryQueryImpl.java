@@ -3,6 +3,7 @@ package com.example.cluvrapi.domain.til.repository;
 import static com.example.cluvrapi.domain.til.entity.QTil.til;
 
 import java.util.List;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.til.dto.response.InfoTilResponseDto;
 import com.example.cluvrapi.domain.til.dto.response.QInfoTilResponseDto;
+import com.example.cluvrapi.domain.til.entity.Til;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @RequiredArgsConstructor
@@ -54,5 +56,16 @@ public class TilRepositoryQueryImpl implements TilRepositoryQuery {
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));
+	}
+
+	public Optional<Til> findTilByIdAndClubId(Long clubId, Long tilId) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.selectFrom(til)
+				.where(til.id.eq(tilId)
+					.and(til.club.id.eq(clubId))
+					.and(til.isDeleted.isFalse()))
+				.fetchOne()
+		);
 	}
 }
