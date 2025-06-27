@@ -30,8 +30,6 @@ import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.annotation.UpdateClover;
 import com.example.cluvrapi.global.exception.BusinessException;
-import com.example.cluvrapi.global.annotation.EarnClover;
-import com.example.cluvrapi.global.annotation.EarnGem;
 import com.example.cluvrapi.global.annotation.EventGem;
 
 import com.example.cluvrapi.global.exception.NoPermissionException;
@@ -49,9 +47,7 @@ public class BoardServiceImpl implements BoardService {
 	private final CloverRepository cloverRepository;
 	private final BoardViewCountRedisService boardViewCountRedisService;
 
-	@EarnClover(value = CloverUserActivityType.CREATE_QUESTION)
 	@EventGem(value = GemUserActivityType.BOARD)
-	@UpdateClover(value = CloverUserActivityType.CREATE_QUESTION)
 	@UpdateClover(value = CloverUserActivityType.CREATE_QUESTION)
 	@Override
 	@Transactional
