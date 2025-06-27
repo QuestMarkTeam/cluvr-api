@@ -61,4 +61,7 @@ public interface AuthService {
 	 */
 	SignUpUserResponseDto completeSignUp(SignUpVerifyRequestDto requestDto);
 
+	SignUpUserResponseDto testSignUp(SignUpUserRequestDto dto);
+
+
 }

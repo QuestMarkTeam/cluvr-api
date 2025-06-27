@@ -79,4 +79,14 @@ public class AuthController {
 				CREATED
 			));
 	}
+
+
+	@PostMapping("/test-signup")
+	public ResponseEntity<BaseResponse<SignUpUserResponseDto>> simpleSignUp(
+		@Valid @RequestBody SignUpUserRequestDto dto) {
+		SignUpUserResponseDto res = authService.testSignUp(dto);
+		return ResponseEntity
+			.status(HttpStatus.CREATED)
+			.body(BaseResponse.success(res, ResponseCode.CREATED));
+	}
 }
