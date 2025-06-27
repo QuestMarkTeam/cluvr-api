@@ -1,9 +1,11 @@
 package com.example.cluvrapi.domain.reply.service;
 
+import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,7 @@ public class ReplyServiceImpl implements ReplyService {
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
 	private final NotificationProducer notificationProducer;
+	private final ReplyReactionRedisService replyReactionCountRedisService;
 
 	@Transactional
 	@Override
@@ -63,7 +66,16 @@ public class ReplyServiceImpl implements ReplyService {
 	@Transactional(readOnly = true)
 	@Override
 	public PageResponseDto<ReadReplyResponseDto> readReplies(long boardId, Pageable pageable) {
-		return replyRepository.findAllRepliesByBoard(boardId, pageable);
+		PageResponseDto<Reply> replies = replyRepository.findAllRepliesByBoard(boardId, pageable);
+
+		List<ReadReplyResponseDto> dtos = replies.getContent().stream()
+			.map(reply -> {
+				long like = replyReactionCountRedisService.readLikeCountFromRedis(reply.getId());
+				long dislike = replyReactionCountRedisService.readDislikeCountFromRedis(reply.getId());
+				return new ReadReplyResponseDto(reply, like, dislike);
+			}).toList();
+
+		return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, replies.getTotalElements()));
 	}
 
 	@Transactional
