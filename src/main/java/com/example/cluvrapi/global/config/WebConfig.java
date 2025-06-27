@@ -25,7 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
 	// 정적 이미지
 	@Override
 	public void  addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/static/img")
-			.addResourceLocations("file:src/main/resources/static/img");
+		registry.addResourceHandler("/static/img/**")
+			.addResourceLocations("classpath:/static/img/");
 	}
 }
