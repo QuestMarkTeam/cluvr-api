@@ -107,23 +107,23 @@ public class SecurityConfig {
 
 		return http.build();
 	}
-	//
-	// @Value("${app.cors.allowed-origins}")
-	// private List<String> allowedOrigins;
-	//
-	// @Bean
-	// public CorsConfigurationSource corsConfigurationSource() {
-	// 	System.out.println(allowedOrigins);
-	// 	CorsConfiguration configuration = new CorsConfiguration();
-	// 	configuration.setAllowedOriginPatterns(allowedOrigins);
-	// 	configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-	// 	configuration.setAllowedHeaders(Arrays.asList("*"));
-	// 	configuration.setAllowCredentials(true);
-	// 	configuration.setMaxAge(3600L);
-	//
-	// 	UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	// 	source.registerCorsConfiguration("/**", configuration);
-	// 	return source;
-	// }
+
+	@Value("${app.cors.allowed-origins}")
+	private List<String> allowedOrigins;
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		System.out.println(allowedOrigins);
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOriginPatterns(allowedOrigins);
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+		configuration.setAllowCredentials(true);
+		configuration.setMaxAge(3600L);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 
 }
