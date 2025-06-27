@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.club.controller;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -26,9 +28,11 @@ import com.example.cluvrapi.domain.club.dto.response.CreateClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.CreateInviteCodeResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
+import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.enums.ClubType;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.club.service.ClubService;
+import com.example.cluvrapi.domain.clubMember.service.ClubMemberService;
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
@@ -50,6 +54,7 @@ import com.example.cluvrapi.global.response.ResponseCode;
 public class ClubController {
 
 	private final ClubService clubService;
+	private final ClubMemberService clubMemberService;
 
 	/**
 	 * 설명: 클럽을 생성하는 API 입니다.
@@ -261,4 +266,12 @@ public class ClubController {
 		clubService.updateJoinType(authUser.id(), clubId, joinType);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
+
+
+	@GetMapping("/me")
+	public ResponseEntity<BaseResponse<List<Club>>> getMyClubs(@Auth AuthUser authUser) {
+		List<Club> clubs = clubMemberService.getClubsByUser(authUser.id());
+		return ResponseEntity.ok(BaseResponse.success(clubs, ResponseCode.OK));
+	}
+
 }

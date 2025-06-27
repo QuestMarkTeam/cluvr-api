@@ -79,4 +79,12 @@ public class ClubMemberRepositoryImpl implements ClubMemberRepositoryCustom {
 			.fetchOne();
 		return Objects.requireNonNullElse(cnt, 0L);
 	}
+
+	@Override
+	public List<ClubMember> findActiveClubMembershipsByUserId(Long userId) {
+		QClubMember cm = clubMember;
+		return queryFactory.selectFrom(cm)
+			.where(cm.user.id.eq(userId), cm.clubMemberStatus.eq(ClubMemberStatus.ACTIVE))
+			.fetch();
+	}
 }

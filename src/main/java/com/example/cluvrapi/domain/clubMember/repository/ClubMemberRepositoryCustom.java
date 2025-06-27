@@ -1,5 +1,6 @@
 package com.example.cluvrapi.domain.clubMember.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -61,4 +62,5 @@ public interface ClubMemberRepositoryCustom {
 	 */
 	long countByClubIdAndStatus(Long clubId, ClubMemberStatus status);
 
+	List<ClubMember> findActiveClubMembershipsByUserId(Long userId);
 }
