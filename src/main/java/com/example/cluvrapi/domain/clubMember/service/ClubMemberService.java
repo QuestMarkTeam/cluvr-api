@@ -15,6 +15,7 @@ import com.example.cluvrapi.global.annotation.IsClubAdmin;
 import com.example.cluvrapi.global.annotation.IsClubMember;
 import com.example.cluvrapi.global.annotation.IsClubOwner;
 import com.example.cluvrapi.global.exception.BusinessException;
+import com.example.cluvrapi.domain.club.dto.response.MyClubResponseDto;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -110,5 +111,5 @@ public interface ClubMemberService {
 	@IsClubOwner
 	void changeOwnership(Long clubId, AuthUser requestUser, Long targetMemberId);
 
-	List<Club> getClubsByUser(Long userId);
+	List<MyClubResponseDto> getClubsByUser(Long userId);
 }
