@@ -32,7 +32,7 @@ public interface SubmissionFormRepositoryQuery {
 	 * @author {sinyoung0403}
 	 */
 
-	InfoSubmissionFormResponseDto findSubmissionFormById(Long clubId, Long submissionFormId);
+	Optional<InfoSubmissionFormResponseDto> findSubmissionFormById(Long clubId, Long submissionFormId);
 
 	/**
 	 * 설명: 제출 양식을 다건 조회하는 쿼리문

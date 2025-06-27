@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.club.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Pageable;
 
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
@@ -35,7 +37,7 @@ public interface ClubRepositoryQuery {
 	 * @author sinyoung0403
 	 */
 
-	FindClubResponseDto findClubById(Long clubId);
+	Optional<FindClubResponseDto> findClubById(Long clubId);
 
 	/**
 	 * 설명: 클럽 타입과 페이징 정보를 기반으로 클럽 리스트를 조회합니다.

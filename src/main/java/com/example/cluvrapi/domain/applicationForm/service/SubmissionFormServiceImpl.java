@@ -60,7 +60,9 @@ public class SubmissionFormServiceImpl implements SubmissionFormService {
 	@Override
 	@Transactional(readOnly = true)
 	public InfoSubmissionFormResponseDto findSubmissionFormById(Long clubId, Long submissionFormId) {
-		return submissionFormRepository.findSubmissionFormById(clubId, submissionFormId);
+		return submissionFormRepository.findSubmissionFormById(clubId, submissionFormId).orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "존재하지 않는 입력 양식입니다.")
+		);
 	}
 
 	@Override

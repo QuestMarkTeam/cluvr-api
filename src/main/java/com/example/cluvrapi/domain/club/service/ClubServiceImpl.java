@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.applicationForm.repository.SubmissionFormRepository;
-import com.example.cluvrapi.domain.applicationForm.service.SubmissionFormService;
 import com.example.cluvrapi.domain.category.entity.Category;
 import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
 import com.example.cluvrapi.domain.category.repository.CategoryRepository;
@@ -104,7 +103,9 @@ public class ClubServiceImpl implements ClubService {
 	@Override
 	@Transactional(readOnly = true)
 	public FindClubResponseDto findClubById(Long clubId) {
-		return clubRepository.findClubById(clubId);
+		return clubRepository.findClubById(clubId).orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "존재하지 않는 클럽입니다.")
+		);
 	}
 
 	@Override

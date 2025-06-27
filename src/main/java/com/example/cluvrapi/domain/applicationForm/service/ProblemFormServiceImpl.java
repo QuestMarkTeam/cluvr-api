@@ -17,9 +17,7 @@ import com.example.cluvrapi.domain.applicationForm.repository.ProblemFormReposit
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
-import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
-import com.example.cluvrapi.domain.common.validator.ClubValidator;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -68,7 +66,9 @@ public class ProblemFormServiceImpl implements ProblemFormService {
 	@Override
 	@Transactional(readOnly = true)
 	public InfoProblemFormResponseDto findProblemFormById(Long clubId, Long problemId) {
-		return problemRepository.findProblemFormById(clubId, problemId);
+		return problemRepository.findProblemFormById(clubId, problemId).orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "존재하지 않는 문제양식입니다.")
+		);
 	}
 
 	@Override

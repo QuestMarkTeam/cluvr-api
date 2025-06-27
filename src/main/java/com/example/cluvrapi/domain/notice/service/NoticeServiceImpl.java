@@ -8,9 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
-import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
-import com.example.cluvrapi.domain.common.validator.ClubValidator;
 import com.example.cluvrapi.domain.notice.dto.reqeust.CreateNoticeRequestDto;
 import com.example.cluvrapi.domain.notice.dto.reqeust.UpdateNoticeRequestDto;
 import com.example.cluvrapi.domain.notice.dto.response.CreateNoticeResponseDto;
@@ -63,10 +61,9 @@ public class NoticeServiceImpl implements NoticeService {
 	@Override
 	@Transactional
 	public void updateNotice(Long userId, Long clubId, Long noticeId, UpdateNoticeRequestDto updateNoticeRequestDto) {
-		Notice findNotice = noticeRepository.findByIdOrElseThrow(noticeId);
-
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
+		// 1) Notice 조회
+		Notice findNotice = noticeRepository.findNoticeByIdAndClubId(clubId, noticeId).orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당 데이터가 존재하지 않습니다.")
 		);
 
 		// 2) 수정
@@ -82,8 +79,9 @@ public class NoticeServiceImpl implements NoticeService {
 	@Override
 	@Transactional
 	public void deleteNotice(Long userId, Long clubId, Long noticeId) {
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
+		// 1) Notice 조회
+		Notice findNotice = noticeRepository.findNoticeByIdAndClubId(clubId, noticeId).orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당 데이터가 존재하지 않습니다.")
 		);
 
 		// 2) 삭제
