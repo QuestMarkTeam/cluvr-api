@@ -107,8 +107,6 @@ public class AuthServiceImpl implements AuthService {
 		}
 	}
 
-
-	@EventGem(value = GemUserActivityType.LOGIN)
 	@Override
 	@Transactional
 	public LoginUserResponseDto login(LoginUserRequestDto requestDto) {
