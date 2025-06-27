@@ -28,9 +28,10 @@ import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.reply.repository.ReplyRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.annotation.UpdateClover;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.annotation.EventGem;
-import com.example.cluvrapi.global.annotation.UpdateClover;
+
 import com.example.cluvrapi.global.exception.NoPermissionException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
