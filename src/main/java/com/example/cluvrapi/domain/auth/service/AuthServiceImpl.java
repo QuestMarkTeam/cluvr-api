@@ -228,6 +228,7 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
+	@Transactional
 	public SignUpUserResponseDto testSignUp(SignUpUserRequestDto dto) {
 		String emailLower = dto.getEmail().toLowerCase();
 
@@ -257,6 +258,17 @@ public class AuthServiceImpl implements AuthService {
 		);
 
 		User saved = userRepository.save(user);
+
+		categoryRepository.save(new Category(
+			saved.getId(),
+			dto.getCategoryType(),
+			CategoryTargetType.USER
+		));
+
+		// 5) 클로버 생성
+		cloverService.createClover(
+			CreateCloverRequestDto.from(0, Tier.SPROUT, saved.getId())
+		);
 
 		return SignUpUserResponseDto.from(saved);
 	}
