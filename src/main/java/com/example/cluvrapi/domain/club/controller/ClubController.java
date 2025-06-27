@@ -28,7 +28,7 @@ import com.example.cluvrapi.domain.club.dto.response.CreateClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.CreateInviteCodeResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindAllClubResponseDto;
 import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
-import com.example.cluvrapi.domain.club.entity.Club;
+import com.example.cluvrapi.domain.club.dto.response.MyClubResponseDto;
 import com.example.cluvrapi.domain.club.enums.ClubType;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.club.service.ClubService;
@@ -267,10 +267,18 @@ public class ClubController {
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
 	}
 
+	/**
+	 * 설명: 클럽 목록을 조회하는 API 입니다.
+	 *
+	 * <p> 요청한 사용자가 속한 클럽 목록을 조회합니다.
+	 *
+	 * @param authUser 인증된 사용자 정보
+	 * @return 클럽 목록 응답 DTO
+	 */
 
 	@GetMapping("/me")
-	public ResponseEntity<BaseResponse<List<Club>>> getMyClubs(@Auth AuthUser authUser) {
-		List<Club> clubs = clubMemberService.getClubsByUser(authUser.id());
+	public ResponseEntity<BaseResponse<List<MyClubResponseDto>>> getMyClubs(@Auth AuthUser authUser) {
+		List<MyClubResponseDto> clubs = clubMemberService.getClubsByUser(authUser.id());
 		return ResponseEntity.ok(BaseResponse.success(clubs, ResponseCode.OK));
 	}
 

@@ -25,6 +25,7 @@ import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
+import com.example.cluvrapi.domain.club.dto.response.MyClubResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -201,12 +202,21 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 		target.changeRole(ClubMemberRole.OWNER);
 	}
 
+	/**
+	 * 설명: 사용자가 속한 클럽 목록을 조회하는 API 입니다.
+	 *
+	 * <p> 요청한 사용자가 속한 클럽 목록을 조회합니다.
+	 *
+	 * @param userId 사용자 ID
+	 * @return 클럽 목록 응답 DTO
+	 */
 	@Override
 	@Transactional(readOnly = true)
-	public List<Club> getClubsByUser(Long userId) {
+	public List<MyClubResponseDto> getClubsByUser(Long userId) {
 		return clubMemberRepository.findActiveClubMembershipsByUserId(userId)
 			.stream()
 			.map(ClubMember::getClub)
+			.map(MyClubResponseDto::from)
 			.collect(Collectors.toList());
 	}
 
