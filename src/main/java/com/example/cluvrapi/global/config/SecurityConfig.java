@@ -64,7 +64,7 @@ public class SecurityConfig {
 		CustomUserDetailsService userDetailsService) throws Exception {
 		http
 			.securityMatcher("/api/clubs/**")  // 이 체인은 이 경로에만 적용
-			// .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(csrf -> csrf.disable())
 			.formLogin(form -> form.disable())
 			.httpBasic(basic -> basic.disable())
@@ -88,7 +88,7 @@ public class SecurityConfig {
 		Exception {
 
 		http
-			// .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(csrf -> csrf.disable())
 			.formLogin(form -> form.disable())
 			.httpBasic(basic -> basic.disable())
