@@ -56,7 +56,11 @@ public class TilServiceImpl implements TilService {
 		tilRepository.save(til);
 
 		// 4) 알림 전송
-		Long ownerUserId = clubMember.getUser().getId();
+		ClubMember ownerClubMember = clubMemberRepository.findOwnerByClub(findClub).orElseThrow(
+			() -> new BusinessException(ResponseCode.ACCESS_DENIED, "해당 클랜의 멤버가 아닙니다.")
+		);
+
+		Long ownerUserId = ownerClubMember.getUser().getId();
 
 		if (!ownerUserId.equals(findUser.getId())) { // 자기 자신에게는 알림 안 보냄
 			String content = String.format("'%s'님이 클럽에 새로운 TIL을 작성했습니다.", findUser.getName());
