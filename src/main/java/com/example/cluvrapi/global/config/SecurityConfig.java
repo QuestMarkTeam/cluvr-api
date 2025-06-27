@@ -61,7 +61,7 @@ public class SecurityConfig {
 		CustomUserDetailsService userDetailsService) throws Exception {
 		http
 			.securityMatcher("/api/clubs/**")  // 이 체인은 이 경로에만 적용
-			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			// .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(csrf -> csrf.disable())
 			.formLogin(form -> form.disable())
 			.httpBasic(basic -> basic.disable())
@@ -84,7 +84,7 @@ public class SecurityConfig {
 		Exception {
 
 		http
-			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			// .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(csrf -> csrf.disable())
 			.formLogin(form -> form.disable())
 			.httpBasic(basic -> basic.disable())
@@ -107,22 +107,23 @@ public class SecurityConfig {
 
 		return http.build();
 	}
-
-	@Value("${app.cors.allowed-origins}")
-	private List<String> allowedOrigins;
-
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOriginPatterns(allowedOrigins);
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		configuration.setAllowedHeaders(Arrays.asList("*"));
-		configuration.setAllowCredentials(true);
-		configuration.setMaxAge(3600L);
-
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
+	//
+	// @Value("${app.cors.allowed-origins}")
+	// private List<String> allowedOrigins;
+	//
+	// @Bean
+	// public CorsConfigurationSource corsConfigurationSource() {
+	// 	System.out.println(allowedOrigins);
+	// 	CorsConfiguration configuration = new CorsConfiguration();
+	// 	configuration.setAllowedOriginPatterns(allowedOrigins);
+	// 	configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+	// 	configuration.setAllowedHeaders(Arrays.asList("*"));
+	// 	configuration.setAllowCredentials(true);
+	// 	configuration.setMaxAge(3600L);
+	//
+	// 	UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	// 	source.registerCorsConfiguration("/**", configuration);
+	// 	return source;
+	// }
 
 }
