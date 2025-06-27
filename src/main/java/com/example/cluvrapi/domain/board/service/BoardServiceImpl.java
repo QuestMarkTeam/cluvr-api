@@ -1,9 +1,11 @@
 package com.example.cluvrapi.domain.board.service;
 
+import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,10 +44,11 @@ public class BoardServiceImpl implements BoardService {
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
 	private final NotificationProducer notificationProducer;
-	private final ReactionRepository reactionRepository;
 	private final ReplyRepository replyRepository;
 	private final CloverRepository cloverRepository;
 	private final BoardViewCountRedisService boardViewCountRedisService;
+	private final BoardReactionCountRedisService boardReactionCountRedisService;
+	private final RecommendBoardRedisService recommendBoardRedisService;
 
 	@EventGem(value = GemUserActivityType.BOARD)
 	@UpdateClover(value = CloverUserActivityType.CREATE_QUESTION)
@@ -57,23 +60,29 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional
 	public PageResponseDto<ReadAllBoardsResponseDto> readBoards(CategoryType category, Pageable pageable) {
-		return boardRepository.findAllBoardsByCategory(category, pageable);
+		PageResponseDto<Board> boards = boardRepository.findAllBoardsByCategory(category, pageable);
+
+		List<ReadAllBoardsResponseDto> dtos = boards.getContent().stream().map(board -> {
+			return new ReadAllBoardsResponseDto(board, boardViewCountRedisService.getViewCountFromRedis(board));
+		}).toList();
+		return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, boards.getTotalElements()));
 	}
 
 	@Override
 	@Transactional
 	public ReadBoardResponseDto readBoard(long boardId, long userId) {
-		//고도화 예정
 		Board board = boardRepository.findBoardById(boardId);
-		Map<ReactionType, Long> reactionCountMap = reactionRepository.countBoardReactions(board);
 
-		// 좋아요 싫어요 수도 고도화 필요
-		long likeCount = reactionCountMap.getOrDefault(ReactionType.LIKE, 0L);
-		long dislikeCount = reactionCountMap.getOrDefault(ReactionType.DISLIKE, 0L);
+		long likeCount = boardReactionCountRedisService.readLikeCountFromRedis(board);
+		long dislikeCount = boardReactionCountRedisService.readDislikeCountFromRedis(board);
+		if (!boardViewCountRedisService.hasUserKey(boardId, userId)) {
+			boardViewCountRedisService.incrementViewCount(board, userId);
+			recommendBoardRedisService.updateRecommendBoard(board.getCategory(), board.getId());
+		}
 
-		long viewCount = boardViewCountRedisService.incrementViewCount(board, userId);
+		long viewCount = boardViewCountRedisService.getViewCountFromRedis(board);
 
 		return ReadBoardResponseDto.ofDto(board, viewCount, likeCount, dislikeCount);
 	}
@@ -101,7 +110,6 @@ public class BoardServiceImpl implements BoardService {
 		}
 
 		boardRepository.updateBoard(boardId, dto.getTitle(), dto.getContent(), clover);
-		System.out.println("test");
 	}
 
 	@Transactional
@@ -177,5 +185,17 @@ public class BoardServiceImpl implements BoardService {
 		//
 		// 	notificationProducer.send(event);
 		// }
+	}
+
+	@Override
+	@Transactional
+	public List<ReadAllBoardsResponseDto> readRecommendedBoards(CategoryType categoryType) {
+		List<Long> recommendedBoardIds = recommendBoardRedisService.getRecommendedBoardFromRedis(categoryType);
+		List<Board> boards = boardRepository.findByIdIn(recommendedBoardIds);
+
+		return boards.stream().map(board -> {
+			long viewCount = boardViewCountRedisService.getViewCountFromRedis(board);
+			return new ReadAllBoardsResponseDto(board, viewCount);
+		}).toList();
 	}
 }

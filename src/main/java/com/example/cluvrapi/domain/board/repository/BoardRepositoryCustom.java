@@ -30,7 +30,7 @@ public interface BoardRepositoryCustom {
 	 *
 	 * @author yong
 	 */
-	PageResponseDto<ReadAllBoardsResponseDto> findAllBoardsByCategory(CategoryType category, Pageable pageable);
+	PageResponseDto<Board> findAllBoardsByCategory(CategoryType category, Pageable pageable);
 
 	PageResponseDto<ReadMyBoardsResponseDto> findBoardsByUser(long userId, Pageable pageable);
 

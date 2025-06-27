@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.board.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 
 import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
@@ -83,5 +85,16 @@ public interface BoardService {
 	 * @author yong
 	 */
 	void selectBestReply(long userId, long boardId, long replyId);
+
+	/**
+	 *
+	 * 설명: 메인 페이지에서 당일 조회수 증가 수와 좋아요 수, 싫어요 수를 사용하여 인기 게시글을 가져온다.
+	 *
+	 * @param categoryType
+	 * @return
+	 *
+	 * @author yong
+	 */
+	List<ReadAllBoardsResponseDto> readRecommendedBoards(CategoryType categoryType);
 }
 
