@@ -28,7 +28,7 @@ public interface SubmissionFormRepositoryQuery {
 	 *
 	 * @param clubId           {설명: 클럽 고유 식별자}
 	 * @param submissionFormId {설명: 제출 양식 고유 식별자}
-	 * @return InfoSubmissionFormResponseDto {제출 양식 정보}
+	 * @return Optional<InfoSubmissionFormResponseDto> {InfoSubmissionFormResponseDto Optional 객체}
 	 * @author {sinyoung0403}
 	 */
 

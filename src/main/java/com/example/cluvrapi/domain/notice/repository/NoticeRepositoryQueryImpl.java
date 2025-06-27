@@ -28,7 +28,7 @@ public class NoticeRepositoryQueryImpl implements NoticeRepositoryQuery {
 				.selectFrom(notice)
 				.where(notice.id.eq(noticeId)
 					.and(notice.club.id.eq(clubId))
-					.and(notice.isDeleted).isFalse())
+					.and(notice.isDeleted.isFalse()))
 				.fetchOne()
 		);
 	}

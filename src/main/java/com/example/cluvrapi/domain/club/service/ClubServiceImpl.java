@@ -121,11 +121,9 @@ public class ClubServiceImpl implements ClubService {
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
 		// 2) 검증
-		if (updateClubRequestDto.getName() != null && !updateClubRequestDto.getName().equals(findClub.getName())) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "입력값이 올바르지 않습니다.");
-		}
-
-		if (clubRepository.existsByClubName(updateClubRequestDto.getName())) {
+		if (updateClubRequestDto.getName() != null
+			&& !updateClubRequestDto.getName().equals(findClub.getName())
+			&& clubRepository.existsByClubName(updateClubRequestDto.getName())) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 존재하는 클럽명입니다.");
 		}
 

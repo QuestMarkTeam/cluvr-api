@@ -57,7 +57,7 @@ public class TilServiceImpl implements TilService {
 
 		// 4) 알림 전송
 		ClubMember ownerClubMember = clubMemberRepository.findOwnerByClub(findClub).orElseThrow(
-			() -> new BusinessException(ResponseCode.ACCESS_DENIED, "해당 클랜의 멤버가 아닙니다.")
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "클럽 소유자를 찾을 수 없습니다.")
 		);
 
 		Long ownerUserId = ownerClubMember.getUser().getId();
