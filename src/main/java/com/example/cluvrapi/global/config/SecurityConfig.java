@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 import com.example.cluvrapi.global.jwt.CustomUserDetailsService;
 import com.example.cluvrapi.global.jwt.JwtAuthenticationFilter;
@@ -95,11 +96,9 @@ public class SecurityConfig {
 			)
 			.userDetailsService(userDetailsService)
 			.authorizeHttpRequests(auth -> auth
-				// 회원가입·로그인만 공개
-				.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/verify", "/my-monitor/**","/favicon.ico", "/api/auth/test-signup").permitAll()
-				// /admin/** 은 ADMIN 권한 필요
+				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+				.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/verify", "/my-monitor/**",  "/favicon.ico", "/api/auth/test-signup").permitAll()
 				.requestMatchers("/admin/**").hasRole("ADMIN")
-				// 그 외 모든 요청은 인증된 사용자여야 함
 				.anyRequest().authenticated()
 			)
 			.addFilterBefore(
