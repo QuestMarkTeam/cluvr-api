@@ -44,10 +44,6 @@ public class TilServiceImpl implements TilService {
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
-		ClubMember clubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.ACCESS_DENIED, "해당 클랜의 멤버가 아닙니다.")
-		);
-
 		// 2) Til Entity 생성
 		Til til = new Til(
 			findUser,                            // User

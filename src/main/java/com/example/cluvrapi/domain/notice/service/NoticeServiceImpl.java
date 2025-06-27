@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
-import com.example.cluvrapi.domain.clubMember.entity.ClubMember;
 import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.common.validator.ClubValidator;
@@ -30,25 +29,20 @@ public class NoticeServiceImpl implements NoticeService {
 	private final UserRepository userRepository;
 	private final ClubRepository clubRepository;
 	private final NoticeRepository noticeRepository;
-	private final ClubMemberRepository clubMemberRepository;
-	private final ClubValidator clubValidator;
 
 	@Override
 	@Transactional
 	public CreateNoticeResponseDto createNotice(Long userId, Long clubId,
 		CreateNoticeRequestDto createNoticeRequestDto) {
+		// 1) 유저 및 클럽 조회
 		User findUser = userRepository.findByIdOrElseThrow(userId);
-
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
-		);
-		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
-
+		// 2) Notice Entity 생성
 		Notice notice = new Notice(findUser, findClub, createNoticeRequestDto.getTitle(),
 			createNoticeRequestDto.getContent());
 
+		// 3) notice 저장
 		noticeRepository.save(notice);
 
 		return CreateNoticeResponseDto.from(notice.getId());
@@ -74,8 +68,8 @@ public class NoticeServiceImpl implements NoticeService {
 		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
 			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
 		);
-		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
 
+		// 2) 수정
 		if (updateNoticeRequestDto.getTitle() != null) {
 			findNotice.updateTitle(updateNoticeRequestDto.getTitle());
 		}
@@ -91,10 +85,8 @@ public class NoticeServiceImpl implements NoticeService {
 		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
 			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
 		);
-		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
 
-		Notice findNotice = noticeRepository.findByIdOrElseThrow(noticeId);
-
+		// 2) 삭제
 		noticeRepository.delete(findNotice);
 	}
 }
