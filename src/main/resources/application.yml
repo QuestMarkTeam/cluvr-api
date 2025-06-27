@@ -54,3 +54,11 @@ spring:
 jwt:
   secret:
     key: ${jwt.secret.key}
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:*
+      - http://127.0.0.1:*
+      - http://localhost:63342
+      - http://localhost:3000
+      - http://54.200.146.243

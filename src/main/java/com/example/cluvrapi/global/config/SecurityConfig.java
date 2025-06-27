@@ -3,6 +3,7 @@ package com.example.cluvrapi.global.config;
 import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -106,16 +107,13 @@ public class SecurityConfig {
 		return http.build();
 	}
 
+	@Value("${app.cors.allowed-origins}")
+	private String[] allowedOrigins;
+
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOriginPatterns(Arrays.asList(
-			"http://localhost:*",
-			"http://127.0.0.1:*",
-			"http://localhost:63342",
-			"http://localhost:3000",
-			"http://54.200.146.243"
-		));
+		configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.setAllowCredentials(true);
