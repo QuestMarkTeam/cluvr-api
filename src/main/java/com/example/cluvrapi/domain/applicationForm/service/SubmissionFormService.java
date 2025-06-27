@@ -7,6 +7,7 @@ import com.example.cluvrapi.domain.applicationForm.dto.request.UpdateSubmissionT
 import com.example.cluvrapi.domain.applicationForm.dto.response.CreateSubmissionFormResponseDto;
 import com.example.cluvrapi.domain.applicationForm.dto.response.InfoSubmissionFormResponseDto;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.global.annotation.IsClubOwner;
 import com.example.cluvrapi.global.exception.BusinessException;
 
 public interface SubmissionFormService {
@@ -22,6 +23,7 @@ public interface SubmissionFormService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubOwner
 	CreateSubmissionFormResponseDto createSubmissionForm(Long userId,
 		Long clubId, CreateSubmissionFormRequestDto submissionFormRequestDto);
 
@@ -58,6 +60,7 @@ public interface SubmissionFormService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubOwner
 	void updateSubmissionTemplate(Long userId, Long clubId,
 		Long submissionFormId, UpdateSubmissionTemplateRequestDto updateSubmissionTemplateRequestDto);
 
@@ -73,5 +76,6 @@ public interface SubmissionFormService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubOwner
 	void deleteSubmissionForm(Long userId, Long clubId, Long submissionFormId);
 }

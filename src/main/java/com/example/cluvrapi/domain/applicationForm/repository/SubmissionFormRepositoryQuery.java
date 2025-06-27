@@ -28,11 +28,11 @@ public interface SubmissionFormRepositoryQuery {
 	 *
 	 * @param clubId           {설명: 클럽 고유 식별자}
 	 * @param submissionFormId {설명: 제출 양식 고유 식별자}
-	 * @return InfoSubmissionFormResponseDto {제출 양식 정보}
+	 * @return Optional<InfoSubmissionFormResponseDto> {InfoSubmissionFormResponseDto Optional 객체}
 	 * @author {sinyoung0403}
 	 */
 
-	InfoSubmissionFormResponseDto findSubmissionFormById(Long clubId, Long submissionFormId);
+	Optional<InfoSubmissionFormResponseDto> findSubmissionFormById(Long clubId, Long submissionFormId);
 
 	/**
 	 * 설명: 제출 양식을 다건 조회하는 쿼리문

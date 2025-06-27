@@ -31,13 +31,14 @@ public class SubmissionFormRepositoryQueryImpl implements SubmissionFormReposito
 	}
 
 	@Override
-	public InfoSubmissionFormResponseDto findSubmissionFormById(Long clubId, Long submissionFormId) {
-		InfoSubmissionFormResponseDto content = jpaQueryFactory
-			.select(new QInfoSubmissionFormResponseDto(submissionForm.submissionTemplate))
-			.from(submissionForm)
-			.where(submissionForm.id.eq(submissionFormId).and(submissionForm.club.id.eq(clubId)))
-			.fetchOne();
-		return content;
+	public Optional<InfoSubmissionFormResponseDto> findSubmissionFormById(Long clubId, Long submissionFormId) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.select(new QInfoSubmissionFormResponseDto(submissionForm.submissionTemplate))
+				.from(submissionForm)
+				.where(submissionForm.id.eq(submissionFormId).and(submissionForm.club.id.eq(clubId)))
+				.fetchOne()
+		);
 	}
 
 	@Override

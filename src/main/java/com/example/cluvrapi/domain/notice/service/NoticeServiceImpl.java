@@ -8,10 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
-import com.example.cluvrapi.domain.clubMember.entity.ClubMember;
-import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
-import com.example.cluvrapi.domain.common.validator.ClubValidator;
 import com.example.cluvrapi.domain.notice.dto.reqeust.CreateNoticeRequestDto;
 import com.example.cluvrapi.domain.notice.dto.reqeust.UpdateNoticeRequestDto;
 import com.example.cluvrapi.domain.notice.dto.response.CreateNoticeResponseDto;
@@ -30,25 +27,20 @@ public class NoticeServiceImpl implements NoticeService {
 	private final UserRepository userRepository;
 	private final ClubRepository clubRepository;
 	private final NoticeRepository noticeRepository;
-	private final ClubMemberRepository clubMemberRepository;
-	private final ClubValidator clubValidator;
 
 	@Override
 	@Transactional
 	public CreateNoticeResponseDto createNotice(Long userId, Long clubId,
 		CreateNoticeRequestDto createNoticeRequestDto) {
+		// 1) 유저 및 클럽 조회
 		User findUser = userRepository.findByIdOrElseThrow(userId);
-
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
 
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
-		);
-		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
-
+		// 2) Notice Entity 생성
 		Notice notice = new Notice(findUser, findClub, createNoticeRequestDto.getTitle(),
 			createNoticeRequestDto.getContent());
 
+		// 3) notice 저장
 		noticeRepository.save(notice);
 
 		return CreateNoticeResponseDto.from(notice.getId());
@@ -56,26 +48,25 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Override
 	public InfoNoticeResponseDto findNoticeById(Long clubId, Long noticeId) {
-		return noticeRepository.findNoticeById(clubId, noticeId).orElseThrow(
+		return noticeRepository.findNoticeDtoById(clubId, noticeId).orElseThrow(
 			() -> new BusinessException(ResponseCode.NOT_FOUND, "존재하지 않는 공지사항 입니다.")
 		);
 	}
 
 	@Override
 	public PageResponseDto<InfoNoticeResponseDto> findAllNotice(Long clubId, Pageable pageable) {
-		return noticeRepository.findAllNotice(clubId, pageable);
+		return noticeRepository.findAllNoticeDtoByClubId(clubId, pageable);
 	}
 
 	@Override
 	@Transactional
 	public void updateNotice(Long userId, Long clubId, Long noticeId, UpdateNoticeRequestDto updateNoticeRequestDto) {
-		Notice findNotice = noticeRepository.findByIdOrElseThrow(noticeId);
-
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
+		// 1) Notice 조회
+		Notice findNotice = noticeRepository.findNoticeByIdAndClubId(clubId, noticeId).orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당 데이터가 존재하지 않습니다.")
 		);
-		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
 
+		// 2) 수정
 		if (updateNoticeRequestDto.getTitle() != null) {
 			findNotice.updateTitle(updateNoticeRequestDto.getTitle());
 		}
@@ -88,13 +79,12 @@ public class NoticeServiceImpl implements NoticeService {
 	@Override
 	@Transactional
 	public void deleteNotice(Long userId, Long clubId, Long noticeId) {
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId).orElseThrow(
-			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다.")
+		// 1) Notice 조회
+		Notice findNotice = noticeRepository.findNoticeByIdAndClubId(clubId, noticeId).orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당 데이터가 존재하지 않습니다.")
 		);
-		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
 
-		Notice findNotice = noticeRepository.findByIdOrElseThrow(noticeId);
-
+		// 2) 삭제
 		noticeRepository.delete(findNotice);
 	}
 }

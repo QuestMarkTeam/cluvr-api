@@ -28,11 +28,11 @@ public interface ProblemFormRepositoryQuery {
 	 *
 	 * @param clubId    {설명: 클럽 고유 식별자}
 	 * @param problemId {설명: 문제 양식 고유 식별자}
-	 * @return InfoProblemFormResponseDto {문제 양식 정보}
+	 * @return Optional<InfoProblemFormResponseDto> {InfoProblemFormResponseDto Optional 객체}
 	 * @author sinyoung0403
 	 */
 
-	InfoProblemFormResponseDto findProblemFormById(Long clubId, Long problemId);
+	Optional<InfoProblemFormResponseDto> findProblemFormById(Long clubId, Long problemId);
 
 	/**
 	 * 설명: 문제 양식을 다건 조회하는 쿼리문

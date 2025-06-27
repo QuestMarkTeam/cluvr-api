@@ -7,6 +7,7 @@ import com.example.cluvrapi.domain.til.dto.reqeust.CreateTilRequestDto;
 import com.example.cluvrapi.domain.til.dto.reqeust.UpdateTilRequestDto;
 import com.example.cluvrapi.domain.til.dto.response.CreateTilResponseDto;
 import com.example.cluvrapi.domain.til.dto.response.InfoTilResponseDto;
+import com.example.cluvrapi.global.annotation.IsClubMember;
 import com.example.cluvrapi.global.exception.BusinessException;
 
 public interface TilService {
@@ -22,6 +23,7 @@ public interface TilService {
 	 * @author {sinyoung0403}
 	 */
 
+	@IsClubMember
 	CreateTilResponseDto createTil(Long userId, Long clubId, CreateTilRequestDto createTilRequestDto);
 
 	/**
@@ -32,6 +34,7 @@ public interface TilService {
 	 * @author {sinyoung0403}
 	 */
 
+	@IsClubMember
 	InfoTilResponseDto findTilById(Long tilId);
 
 	/**
@@ -43,6 +46,7 @@ public interface TilService {
 	 * @author {sinyoung0403}
 	 */
 
+	@IsClubMember
 	PageResponseDto<InfoTilResponseDto> findAllTilById(Long clubId, Pageable pageable);
 
 	/**
@@ -58,6 +62,7 @@ public interface TilService {
 	 * @author {sinyoung0403}
 	 */
 
+	@IsClubMember
 	void updateTil(Long userId, Long tilId, UpdateTilRequestDto updateTilRequestDto);
 
 	/**
@@ -69,5 +74,7 @@ public interface TilService {
 	 * @throws BusinessException {404 NotFound}
 	 * @author {sinyoung0403}
 	 */
+
+	@IsClubMember
 	void deleteTil(Long userId, Long clubId, Long tilId);
 }

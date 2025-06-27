@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.notice.dto.response.InfoNoticeResponseDto;
 import com.example.cluvrapi.domain.notice.dto.response.QInfoNoticeResponseDto;
+import com.example.cluvrapi.domain.notice.entity.Notice;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @RequiredArgsConstructor
@@ -21,7 +22,19 @@ public class NoticeRepositoryQueryImpl implements NoticeRepositoryQuery {
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
-	public Optional<InfoNoticeResponseDto> findNoticeById(Long clubId, Long noticeId) {
+	public Optional<Notice> findNoticeByIdAndClubId(Long clubId, Long noticeId) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.selectFrom(notice)
+				.where(notice.id.eq(noticeId)
+					.and(notice.club.id.eq(clubId))
+					.and(notice.isDeleted.isFalse()))
+				.fetchOne()
+		);
+	}
+
+	@Override
+	public Optional<InfoNoticeResponseDto> findNoticeDtoById(Long clubId, Long noticeId) {
 		return Optional.ofNullable(
 			jpaQueryFactory
 				.select(new QInfoNoticeResponseDto(
@@ -39,7 +52,7 @@ public class NoticeRepositoryQueryImpl implements NoticeRepositoryQuery {
 	}
 
 	@Override
-	public PageResponseDto<InfoNoticeResponseDto> findAllNotice(Long clubId, Pageable pageable) {
+	public PageResponseDto<InfoNoticeResponseDto> findAllNoticeDtoByClubId(Long clubId, Pageable pageable) {
 		List<InfoNoticeResponseDto> content = jpaQueryFactory
 			.select(new QInfoNoticeResponseDto(
 				notice.id,

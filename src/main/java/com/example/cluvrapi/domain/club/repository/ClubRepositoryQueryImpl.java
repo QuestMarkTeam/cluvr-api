@@ -5,6 +5,7 @@ import static com.example.cluvrapi.domain.club.entity.QClub.club;
 import static com.example.cluvrapi.domain.clubMember.entity.QClubMember.clubMember;
 
 import java.util.List;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -44,16 +45,25 @@ public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 	}
 
 	@Override
-	public FindClubResponseDto findClubById(Long clubId) {
-		FindClubResponseDto content = jpaQueryFactory.select(
-				new QFindClubResponseDto(club.clubType, club.name, category.categoryType.stringValue(), club.greeting,
-					club.description, club.posterUrl, club.createdAt))
-			.from(club)
-			.leftJoin(category)
-			.on(category.targetType.eq(CategoryTargetType.CLUB).and(category.targetId.eq(clubId)))
-			.where(club.id.eq(clubId))
-			.fetchOne();
-		return content;
+	public Optional<FindClubResponseDto> findClubById(Long clubId) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.select(
+					new QFindClubResponseDto(
+						club.clubType,
+						club.name,
+						category.categoryType.stringValue(),
+						club.greeting,
+						club.description,
+						club.posterUrl,
+						club.createdAt)
+				)
+				.from(club)
+				.leftJoin(category)
+				.on(category.targetType.eq(CategoryTargetType.CLUB).and(category.targetId.eq(clubId)))
+				.where(club.id.eq(clubId))
+				.fetchOne()
+		);
 	}
 
 	@Override

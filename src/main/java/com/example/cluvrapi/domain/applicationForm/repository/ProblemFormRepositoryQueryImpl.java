@@ -31,19 +31,20 @@ public class ProblemFormRepositoryQueryImpl implements ProblemFormRepositoryQuer
 	}
 
 	@Override
-	public InfoProblemFormResponseDto findProblemFormById(Long clubId, Long problemId) {
-		InfoProblemFormResponseDto content = jpaQueryFactory
-			.select(new QInfoProblemFormResponseDto(
-				problemForm.id,
-				problemForm.problemTemplate,
-				problemForm.submissionInstructions,
-				problemForm.gradingCriteria,
-				problemForm.isActive
-			))
-			.from(problemForm)
-			.where(problemForm.id.eq(problemId).and(problemForm.club.id.eq(clubId)))
-			.fetchOne();
-		return content;
+	public Optional<InfoProblemFormResponseDto> findProblemFormById(Long clubId, Long problemId) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.select(new QInfoProblemFormResponseDto(
+					problemForm.id,
+					problemForm.problemTemplate,
+					problemForm.submissionInstructions,
+					problemForm.gradingCriteria,
+					problemForm.isActive
+				))
+				.from(problemForm)
+				.where(problemForm.id.eq(problemId).and(problemForm.club.id.eq(clubId)))
+				.fetchOne()
+		);
 	}
 
 	@Override

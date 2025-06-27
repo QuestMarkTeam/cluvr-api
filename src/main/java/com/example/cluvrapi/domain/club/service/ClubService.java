@@ -12,6 +12,8 @@ import com.example.cluvrapi.domain.club.dto.response.FindClubResponseDto;
 import com.example.cluvrapi.domain.club.enums.ClubType;
 import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.global.annotation.IsClubAdmin;
+import com.example.cluvrapi.global.annotation.IsClubOwner;
 import com.example.cluvrapi.global.exception.BusinessException;
 
 /**
@@ -70,6 +72,8 @@ public interface ClubService {
 	 * @param updateClubRequestDto 수정할 클럽 정보가 담긴 DTO
 	 * @author sinyoung0403
 	 */
+
+	@IsClubOwner
 	void updateClub(Long userId, Long clubId, UpdateClubRequestDto updateClubRequestDto);
 
 	/**
@@ -81,6 +85,8 @@ public interface ClubService {
 	 * @param clubId 삭제할 클럽의 고유 식별자
 	 * @author sinyoung0403
 	 */
+
+	@IsClubOwner
 	void deleteClub(Long userId, Long clubId);
 
 	/**
@@ -93,6 +99,7 @@ public interface ClubService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubOwner
 	void upgradeMemberCount(Long userId, Long clubId, UpgradeMemberCountRequestDto upgradeMemberCountRequestDto);
 
 	/**
@@ -104,6 +111,8 @@ public interface ClubService {
 	 * @param clubId 클럽 고유 식별자
 	 * @author sinyoung0403
 	 */
+
+	@IsClubOwner
 	void upgradeMemberCountWithGem(Long userId, Long clubId);
 
 	/**
@@ -118,6 +127,8 @@ public interface ClubService {
 	 * @throws BusinessException {ResponseCode.NOT_FOUND}
 	 * @author sinyoung0403
 	 */
+
+	@IsClubAdmin
 	CreateInviteCodeResponseDto createInviteCode(Long userId, Long clubId);
 
 	/**
@@ -129,6 +140,7 @@ public interface ClubService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubOwner
 	void updatePrivacy(Long userId, Long clubId, Boolean isPublic);
 
 	/**
@@ -141,5 +153,6 @@ public interface ClubService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubOwner
 	void updateJoinType(Long userId, Long clubId, JoinType joinType);
 }
