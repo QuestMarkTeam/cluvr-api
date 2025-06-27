@@ -27,6 +27,7 @@ public class ReactionServiceImpl implements ReactionService {
 	private final ReplyRepository replyRepository;
 	private final UserRepository userRepository;
 	private final NotificationProducer notificationProducer;
+	private final ReactionCountRedisService reactionCountRedisService;
 
 	@Override
 	@Transactional
@@ -34,6 +35,7 @@ public class ReactionServiceImpl implements ReactionService {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		Board board = boardRepository.findByIdOrElseThrow(dto.getBoardId());
 
+		//게시글, 댓글 리액션인지, 리액션 타입,
 		Reply reply = null;
 		// 댓글 리액션일 때
 		if (dto.getReplyId() != null) {
@@ -53,9 +55,21 @@ public class ReactionServiceImpl implements ReactionService {
 			}
 			// 다른 리액션 타입을 가지고 있을 때 업데이트
 			reaction.update(dto.getReactionType());
+			if (reply == null) {
+				reactionCountRedisService.decreaseBoardReactionCount(dto.getReactionType(), board);
+			} else {
+				reactionCountRedisService.decreaseReplyReactionCount(dto.getReactionType(), reply);
+			}
+
 		} else {
 			// 리액션이 존재하지 않을 때
 			reactionRepository.save(new Reaction(user, board, reply, dto.getReactionType()));
+		}
+
+		if (reply == null) {
+			reactionCountRedisService.increaseBoardReactionCount(dto.getReactionType(), board);
+		} else {
+			reactionCountRedisService.increaseReplyReactionCount(dto.getReactionType(), reply);
 		}
 
 		// 알림
@@ -98,5 +112,6 @@ public class ReactionServiceImpl implements ReactionService {
 		}
 
 		reactionRepository.deleteById(reaction.getId());
+		reactionCountRedisService.decreaseBoardReactionCount(dto.getReactionType(), board);
 	}
 }

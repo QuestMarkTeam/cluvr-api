@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import lombok.Getter;
 
+import com.example.cluvrapi.domain.board.entity.Board;
 import com.querydsl.core.annotations.QueryProjection;
 
 @Getter
@@ -17,15 +18,13 @@ public class ReadAllBoardsResponseDto {
 	private LocalDateTime updatedAt;
 
 	@QueryProjection
-	public ReadAllBoardsResponseDto(long id, String title, String content, long viewCount, String userName,
-		LocalDateTime createdAt,
-		LocalDateTime updatedAt) {
-		this.id = id;
-		this.title = title;
-		this.content = content;
+	public ReadAllBoardsResponseDto(Board board, long viewCount) {
+		this.id = board.getId();
+		this.title = board.getTitle();
+		this.content = board.getContent();
 		this.viewCount = viewCount;
-		this.userName = userName;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
+		this.userName = board.getUser().getName();
+		this.createdAt = board.getCreatedAt();
+		this.updatedAt = board.getModifiedAt();
 	}
 }

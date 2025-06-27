@@ -42,20 +42,11 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 	}
 
 	@Override
-	public PageResponseDto<ReadAllBoardsResponseDto> findAllBoardsByCategory(CategoryType category, Pageable pageable) {
+	public PageResponseDto<Board> findAllBoardsByCategory(CategoryType category, Pageable pageable) {
 		QBoard board = QBoard.board;
 
-		List<ReadAllBoardsResponseDto> dtos = queryFactory
-			.select(new QReadAllBoardsResponseDto(
-				board.id,
-				board.title,
-				board.content,
-				board.viewCount,
-				board.user.name,
-				board.createdAt,
-				board.modifiedAt
-			))
-			.from(board)
+		List<Board> dtos = queryFactory
+			.selectFrom(board)
 			.where(
 				board.isDeleted.isFalse()
 					.and(category != null ? board.category.eq(category) : null)

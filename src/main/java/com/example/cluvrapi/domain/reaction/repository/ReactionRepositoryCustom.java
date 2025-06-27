@@ -14,5 +14,7 @@ import com.example.cluvrapi.domain.user.entity.User;
 public interface ReactionRepositoryCustom {
 	Optional<Reaction> findReaction(User user, Board board, @Nullable Reply reply);
 
-	Map<ReactionType, Long> countBoardReactions(Board board);
+	long countBoardReactions(long boardId, ReactionType reactionType);
+
+	long countReplyReactions(long replyId, ReactionType reactionType);
 }

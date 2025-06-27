@@ -14,10 +14,10 @@ import com.example.cluvrapi.domain.board.entity.QBoard;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.QReadMyReplyResponseDto;
-import com.example.cluvrapi.domain.reply.dto.response.QReadReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadReplyResponseDto;
 import com.example.cluvrapi.domain.reply.entity.QReply;
+import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.user.entity.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -31,7 +31,7 @@ public class ReplyRepositoryImpl implements ReplyRepositoryCustom {
 	}
 
 	@Override
-	public PageResponseDto<ReadReplyResponseDto> findAllRepliesByBoard(long boardId,
+	public PageResponseDto<Reply> findAllRepliesByBoard(long boardId,
 		Pageable pageable) {
 		QReply reply = QReply.reply;
 		QUser user = QUser.user;
@@ -40,10 +40,10 @@ public class ReplyRepositoryImpl implements ReplyRepositoryCustom {
 		builder.and(reply.board.id.eq(boardId));
 		builder.and(reply.isDeleted.eq(false));
 
-		List<ReadReplyResponseDto> dtos = queryFactory
-			.select(new QReadReplyResponseDto(reply.id, reply.content, reply.user.name, reply.createdAt))
-			.from(reply)
+		List<Reply> replies = queryFactory
+			.selectFrom(reply)
 			.join(reply.user, user)
+			.fetchJoin()
 			.where(builder)
 			.orderBy(reply.createdAt.desc())
 			.offset(pageable.getOffset())
@@ -56,7 +56,7 @@ public class ReplyRepositoryImpl implements ReplyRepositoryCustom {
 			.where(builder)
 			.fetchOne();
 
-		return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, total));
+		return PageResponseDto.toDto(new PageImpl<>(replies, pageable, total != null ? total : 0));
 	}
 
 	@Override

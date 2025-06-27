@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.board.controller;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
@@ -38,6 +40,15 @@ import com.example.cluvrapi.global.response.ResponseCode;
 public class BoardController {
 
 	private final BoardService boardService;
+
+	@GetMapping("/recommendation")
+	public ResponseEntity<BaseResponse<List<ReadAllBoardsResponseDto>>> readRecommendBoards(
+		@RequestParam CategoryType category
+		) {
+		return ResponseEntity.ok(
+			BaseResponse.success(boardService.readRecommendedBoards(category), ResponseCode.OK)
+		);
+	}
 
 	@PostMapping
 	public ResponseEntity<BaseResponse<Long>> createBoard(@Auth AuthUser user,
