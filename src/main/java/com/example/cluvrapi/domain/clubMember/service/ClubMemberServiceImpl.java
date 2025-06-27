@@ -1,6 +1,8 @@
 package com.example.cluvrapi.domain.clubMember.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,9 +23,6 @@ import com.example.cluvrapi.domain.join.enums.JoinStatus;
 import com.example.cluvrapi.domain.join.repository.JoinRequestRepository;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
-import com.example.cluvrapi.global.annotation.IsClubAdmin;
-import com.example.cluvrapi.global.annotation.IsClubMember;
-import com.example.cluvrapi.global.annotation.IsClubOwner;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -201,5 +200,15 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 		currentOwner.changeRole(ClubMemberRole.ADMIN);
 		target.changeRole(ClubMemberRole.OWNER);
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Club> getClubsByUser(Long userId) {
+		return clubMemberRepository.findActiveClubMembershipsByUserId(userId)
+			.stream()
+			.map(ClubMember::getClub)
+			.collect(Collectors.toList());
+	}
+
 }
 
