@@ -57,7 +57,8 @@ public class CloverServiceImpl implements CloverService {
 	@Override
 	public void updateClover(UpdateCloverRequestDto requestDto) {
 		Clover clover = cloverRepository.findByUserIdOrElseThrow(requestDto.getUserId());
-		clover.updateScore(requestDto.getScore());
+		Integer updateClover = clover.getScore() + requestDto.getScore();
+		clover.updateScore(updateClover);
 
 		Long receiverId = requestDto.getUserId();  // 랭크 → 유저
 		String content = String.format("랭크 점수가 %d점으로 갱신되었습니다.", requestDto.getScore());

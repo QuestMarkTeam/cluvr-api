@@ -11,12 +11,12 @@ import org.hibernate.validator.constraints.Range;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.enums.BoardType;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
-import com.example.cluvrapi.domain.clover.dto.CloverEarnDto;
+import com.example.cluvrapi.domain.clover.dto.CloverUpdateDto;
 import com.example.cluvrapi.domain.user.entity.User;
 
 @Getter
 @AllArgsConstructor
-public class CreateBoardRequestDto implements CloverEarnDto {
+public class CreateBoardRequestDto implements CloverUpdateDto {
 	@NotBlank(message = "제목은 필수입니다.")
 	private String title;
 

@@ -3,10 +3,11 @@ package com.example.cluvrapi.domain.gem.enums;
 import java.time.LocalDateTime;
 
 public enum GemActionType {
-	EARN(1),   // 적립
+	EVENT_EARN(1),   // 적립
 	USE(-1),  // 사용
 	EXPIRE(-1), // 소멸
-	REFUND(1) // 환불
+	REFUND(1),// 환불
+	CHARGE(1)
 	;
 
 	private final Integer multiplier;
@@ -20,10 +21,10 @@ public enum GemActionType {
 	}
 
 	public LocalDateTime getEventDate() {
-		return this == EARN ? LocalDateTime.now() : null;
+		return this == EVENT_EARN || this == REFUND ? LocalDateTime.now() : null;
 	}
 
 	public LocalDateTime getDeleteDate() {
-		return this == USE || this == EXPIRE || this == REFUND ? LocalDateTime.now() : null;
+		return this == USE || this == EXPIRE  ? LocalDateTime.now() : null;
 	}
 }

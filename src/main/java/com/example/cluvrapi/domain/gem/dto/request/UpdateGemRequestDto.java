@@ -1,13 +1,24 @@
 package com.example.cluvrapi.domain.gem.dto.request;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 
 import lombok.Getter;
 
+import com.example.cluvrapi.domain.gem.enums.GemActionType;
+import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
+
 @Getter
 public class UpdateGemRequestDto {
-	@NotNull(message = "금액을 입력해야 합니다.")
-	@Min(value = 1, message = "1 이상의 값을 입력해야 합니다.")
-	private Integer amount;
+
+	private Integer gem;
+
+	private GemUserActivityType gemUserActivityType;
+
+	public UpdateGemRequestDto(Integer gem, GemUserActivityType gemUserActivityType) {
+		this.gem = gem;
+		this.gemUserActivityType = gemUserActivityType;
+	}
+
+	public static UpdateGemRequestDto from(Integer gem, GemUserActivityType gemUserActivityType){
+		return new UpdateGemRequestDto(gem,gemUserActivityType);
+	}
 }

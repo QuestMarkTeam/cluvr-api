@@ -9,6 +9,6 @@ import com.example.cluvrapi.domain.clover.enums.CloverUserActivityType;
 
 @Target(value = ElementType.METHOD)
 @Retention(value = RetentionPolicy.RUNTIME)
-public @interface EarnClover {
+public @interface UpdateClover {
 	CloverUserActivityType value();
 }

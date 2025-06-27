@@ -2,10 +2,12 @@ package com.example.cluvrapi.domain.auth.service;
 
 import java.time.Duration;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -30,9 +32,14 @@ import com.example.cluvrapi.domain.category.repository.CategoryRepository;
 import com.example.cluvrapi.domain.clover.dto.request.CreateCloverRequestDto;
 import com.example.cluvrapi.domain.clover.enums.Tier;
 import com.example.cluvrapi.domain.clover.service.CloverService;
+import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
+import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
+import com.example.cluvrapi.domain.gem.service.GemEvent;
+import com.example.cluvrapi.domain.gem.service.GemService;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.entity.enums.UserRole;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.annotation.EventGem;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.jwt.JwtUtil;
@@ -52,6 +59,8 @@ public class AuthServiceImpl implements AuthService {
 	private final AppProperties appProperties;
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final SecureRandom random = new SecureRandom();
+	private final ApplicationEventPublisher publisher; // 이벤트 발행
+	private final GemService gemService;
 
 	private final JavaMailSender mailSender;
 
@@ -97,9 +106,8 @@ public class AuthServiceImpl implements AuthService {
 		}
 	}
 
-
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional
 	public LoginUserResponseDto login(LoginUserRequestDto requestDto) {
 
 		try {
@@ -109,6 +117,7 @@ public class AuthServiceImpl implements AuthService {
 
 			// 인증 성공 시 principal은 CustomUserDetails
 			User user = ((CustomUserDetails)authentication.getPrincipal()).getUser();
+			Long userId = user.getId();
 
 			if (user.getIsDeleted()) {
 				throw new BusinessException(
@@ -117,10 +126,13 @@ public class AuthServiceImpl implements AuthService {
 				);
 			}
 			// 2) 액세스 토큰 생성
-			String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getUserRole().name());
+			String accessToken = jwtUtil.generateAccessToken(userId, user.getUserRole().name());
 
 			// 3) 리프레시 토큰 생성 및 저장 (Redis 등)
-			String refreshToken = refreshTokenService.createRefreshToken(user.getId(), user.getUserRole().name());
+			String refreshToken = refreshTokenService.createRefreshToken(userId, user.getUserRole().name());
+
+			// 3.5) Gem 적립
+			getReward(userId);
 
 			// 4) DTO 변환 후 반환
 			return LoginUserResponseDto.from(user, accessToken, refreshToken);
@@ -157,6 +169,7 @@ public class AuthServiceImpl implements AuthService {
 		}
 
 	}
+
 	@Override
 	@Transactional
 	public SignUpUserResponseDto completeSignUp(SignUpVerifyRequestDto req) {
@@ -170,7 +183,7 @@ public class AuthServiceImpl implements AuthService {
 		if (!(cachedObject instanceof SignUpVerifyCacheRequestDto)) {
 			throw new BusinessException(ResponseCode.DB_FAIL, "잘못된 캐시 데이터입니다.");
 		}
-		SignUpVerifyCacheRequestDto cache = (SignUpVerifyCacheRequestDto) cachedObject;
+		SignUpVerifyCacheRequestDto cache = (SignUpVerifyCacheRequestDto)cachedObject;
 		if (cache == null) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "인증 요청이 없거나 만료되었습니다.");
 		}
@@ -213,6 +226,17 @@ public class AuthServiceImpl implements AuthService {
 
 		return SignUpUserResponseDto.from(saved);
 	}
+
+	private void getReward(Long userId) {
+		GemUserActivityType gemUserActivityType = GemUserActivityType.LOGIN;
+		Integer gem = gemUserActivityType.getGem();
+		gemService.earnGems(userId, UpdateGemRequestDto.from(gem, gemUserActivityType));
+		publisher.publishEvent(
+			GemEvent.createEvent(userId, gem, gemUserActivityType.getDescription(), LocalDateTime.now(), null,
+				gemUserActivityType.getFlowType(), gemUserActivityType.name())
+		);
 	}
+
+}
 
 

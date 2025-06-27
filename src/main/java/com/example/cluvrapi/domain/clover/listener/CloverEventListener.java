@@ -28,7 +28,5 @@ public class CloverEventListener {
 		// 이벤트에 해당하는 클로버 적립 로그 저장
 		redisService.setZSetValue(redisKey, eventDto, score);
 		redisService.setExpireOfDay(redisKey, 31L);
-		// 포인트 , 게시글 , 카테고리별 활동 기록 카운트 용 레디스 ex) 게시글 작성 + 1
-		// handleUserActivityCount(userId);
 	}
 }
