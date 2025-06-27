@@ -48,14 +48,14 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Override
 	public InfoNoticeResponseDto findNoticeById(Long clubId, Long noticeId) {
-		return noticeRepository.findNoticeById(clubId, noticeId).orElseThrow(
+		return noticeRepository.findNoticeDtoById(clubId, noticeId).orElseThrow(
 			() -> new BusinessException(ResponseCode.NOT_FOUND, "존재하지 않는 공지사항 입니다.")
 		);
 	}
 
 	@Override
 	public PageResponseDto<InfoNoticeResponseDto> findAllNotice(Long clubId, Pageable pageable) {
-		return noticeRepository.findAllNotice(clubId, pageable);
+		return noticeRepository.findAllNoticeDtoByClubId(clubId, pageable);
 	}
 
 	@Override

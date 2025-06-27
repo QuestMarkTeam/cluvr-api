@@ -52,7 +52,7 @@ public class NoticeRepositoryQueryImpl implements NoticeRepositoryQuery {
 	}
 
 	@Override
-	public PageResponseDto<InfoNoticeResponseDto> findAllNotice(Long clubId, Pageable pageable) {
+	public PageResponseDto<InfoNoticeResponseDto> findAllNoticeDtoByClubId(Long clubId, Pageable pageable) {
 		List<InfoNoticeResponseDto> content = jpaQueryFactory
 			.select(new QInfoNoticeResponseDto(
 				notice.id,

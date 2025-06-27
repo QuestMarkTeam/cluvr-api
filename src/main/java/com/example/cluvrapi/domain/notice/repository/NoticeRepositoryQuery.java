@@ -20,7 +20,6 @@ public interface NoticeRepositoryQuery {
 	 * @return Optional<Notice> {설명: 조회된 공지사항 엔티티}
 	 * @author sinyoung0403
 	 */
-	Optional<InfoNoticeResponseDto> findNoticeById(Long clubId, Long noticeId);
 
 	Optional<Notice> findNoticeByIdAndClubId(Long clubId, Long noticeId);
 
@@ -47,5 +46,5 @@ public interface NoticeRepositoryQuery {
 	 * @return PageResponseDto<InfoNoticeResponseDto> {공지사항 정보 페이징 객체}
 	 * @author sinyoung0403
 	 */
-	PageResponseDto<InfoNoticeResponseDto> findAllNotice(Long clubId, Pageable pageable);
+	PageResponseDto<InfoNoticeResponseDto> findAllNoticeDtoByClubId(Long clubId, Pageable pageable);
 }
