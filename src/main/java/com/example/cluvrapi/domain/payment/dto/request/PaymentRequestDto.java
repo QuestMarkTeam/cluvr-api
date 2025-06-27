@@ -1,4 +1,4 @@
-package com.example.cluvrapi.domain.payment.dto;
+package com.example.cluvrapi.domain.payment.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

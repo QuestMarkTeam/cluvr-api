@@ -1,5 +1,16 @@
 import './style.css';
 import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
+// 현재 URL에서 쿼리 파라미터 추출
+const params = new URLSearchParams(window.location.search);
+
+const orderId2 = params.get("orderId");
+const amount2 = params.get("amount");
+const orderName2 = params.get("orderName");
+
+// 콘솔 출력
+console.log("주문번호:", orderId2);
+console.log("결제금액:", amount2);
+console.log("상품명:", orderName2);
 
 const amount = {
     currency: "KRW",

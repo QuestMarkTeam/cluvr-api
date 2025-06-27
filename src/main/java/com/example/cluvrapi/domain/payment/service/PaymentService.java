@@ -1,6 +1,8 @@
 package com.example.cluvrapi.domain.payment.service;
 
-import com.example.cluvrapi.domain.payment.dto.PaymentRequestDto;
+import com.example.cluvrapi.domain.payment.dto.request.PaymentPrepareRequestDto;
+import com.example.cluvrapi.domain.payment.dto.request.PaymentRequestDto;
+import com.example.cluvrapi.domain.payment.dto.response.PaymentPrepareResponseDto;
 
 public interface PaymentService {
 	void confirmPayment(Long id, PaymentRequestDto paymentRequestDto);
@@ -15,5 +17,5 @@ public interface PaymentService {
 	 * @author {작성자 이름}
 	 */
 
-	void savePaymentInfo();
+	PaymentPrepareResponseDto savePaymentInfo(Long userId, PaymentPrepareRequestDto requestDto);
 }

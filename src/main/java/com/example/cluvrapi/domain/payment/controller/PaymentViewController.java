@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -21,7 +22,11 @@ import lombok.RequiredArgsConstructor;
 
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
+import com.example.cluvrapi.domain.payment.dto.request.PaymentPrepareRequestDto;
+import com.example.cluvrapi.domain.payment.dto.response.PaymentPrepareResponseDto;
 import com.example.cluvrapi.domain.payment.service.PaymentService;
+import com.example.cluvrapi.global.response.BaseResponse;
+import com.example.cluvrapi.global.response.ResponseCode;
 
 @Controller
 @RequiredArgsConstructor
@@ -91,20 +96,20 @@ public class PaymentViewController {
 	 *
 	 * @author {작성자 이름}
 	 */
-
-	@GetMapping("/api/checkout")
-	public String redirectToCheck(
+	@PostMapping("/api/checkout")
+	public ResponseEntity<BaseResponse<PaymentPrepareResponseDto>> redirectToCheck(
+		@RequestBody PaymentPrepareRequestDto requestDto,
 		@Auth AuthUser authUser
 	) {
-		paymentService.savePaymentInfo();
-		return "redirect:/checkout.html";
+		PaymentPrepareResponseDto responseDto = paymentService.savePaymentInfo(authUser.id(), requestDto);
+		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.OK));
 	}
 	@GetMapping("/api/fail")
 	public String redirectToFail() {
-		return "redirect:/fail.html";
+		return "redirect:/payment/fail.html";
 	}
 	@GetMapping("/api/success")
 	public String redirectToSuccess() {
-		return "redirect:/success.html";
+		return "redirect:/payment/success.html";
 	}
 }

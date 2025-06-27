@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
-import com.example.cluvrapi.domain.payment.dto.PaymentRequestDto;
+import com.example.cluvrapi.domain.payment.dto.request.PaymentRequestDto;
 import com.example.cluvrapi.domain.payment.service.PaymentService;
 
 @RestController
