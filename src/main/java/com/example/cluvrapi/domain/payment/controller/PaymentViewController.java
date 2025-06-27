@@ -17,13 +17,22 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import lombok.RequiredArgsConstructor;
+
+import com.example.cluvrapi.domain.common.annotation.Auth;
+import com.example.cluvrapi.domain.common.dto.AuthUser;
+import com.example.cluvrapi.domain.payment.service.PaymentService;
+
 @Controller
-public class WidgetController {
+@RequiredArgsConstructor
+public class PaymentViewController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	private final PaymentService paymentService;
+
 	@RequestMapping(value = "/api/confirm")
-	public ResponseEntity<JSONObject> confirmPayment(@RequestBody String jsonBody) throws Exception {
+	public ResponseEntity<JSONObject> confirmPayment1(@RequestBody String jsonBody) throws Exception {
 
 		JSONParser parser = new JSONParser();
 		String orderId;
@@ -75,8 +84,19 @@ public class WidgetController {
 		return ResponseEntity.status(code).body(jsonObject);
 	}
 
+	/**
+	 * 설명: 결제 UI 호출
+	 *
+	 * @return {반환값에 대한 설명}
+	 *
+	 * @author {작성자 이름}
+	 */
+
 	@GetMapping("/api/checkout")
-	public String redirectToCheck() {
+	public String redirectToCheck(
+		@Auth AuthUser authUser
+	) {
+		paymentService.savePaymentInfo();
 		return "redirect:/checkout.html";
 	}
 	@GetMapping("/api/fail")
