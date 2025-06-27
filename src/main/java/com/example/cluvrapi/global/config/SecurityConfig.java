@@ -1,5 +1,7 @@
 package com.example.cluvrapi.global.config;
 
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -11,6 +13,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.cluvrapi.global.jwt.CustomUserDetailsService;
 import com.example.cluvrapi.global.jwt.JwtAuthenticationFilter;
@@ -54,6 +59,7 @@ public class SecurityConfig {
 		CustomUserDetailsService userDetailsService) throws Exception {
 		http
 			.securityMatcher("/api/clubs/**")  // 이 체인은 이 경로에만 적용
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(csrf -> csrf.disable())
 			.formLogin(form -> form.disable())
 			.httpBasic(basic -> basic.disable())
@@ -76,6 +82,7 @@ public class SecurityConfig {
 		Exception {
 
 		http
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(csrf -> csrf.disable())
 			.formLogin(form -> form.disable())
 			.httpBasic(basic -> basic.disable())
@@ -97,6 +104,26 @@ public class SecurityConfig {
 			);
 
 		return http.build();
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOriginPatterns(Arrays.asList(
+			"http://localhost:*",
+			"http://127.0.0.1:*",
+			"http://localhost:63342",
+			"http://localhost:3000",
+			"http://54.200.146.243"
+		));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+		configuration.setAllowCredentials(true);
+		configuration.setMaxAge(3600L);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
 	}
 
 }
