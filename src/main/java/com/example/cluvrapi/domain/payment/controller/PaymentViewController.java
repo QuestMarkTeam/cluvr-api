@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -17,13 +18,26 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import lombok.RequiredArgsConstructor;
+
+import com.example.cluvrapi.domain.common.annotation.Auth;
+import com.example.cluvrapi.domain.common.dto.AuthUser;
+import com.example.cluvrapi.domain.payment.dto.request.PaymentPrepareRequestDto;
+import com.example.cluvrapi.domain.payment.dto.response.PaymentPrepareResponseDto;
+import com.example.cluvrapi.domain.payment.service.PaymentService;
+import com.example.cluvrapi.global.response.BaseResponse;
+import com.example.cluvrapi.global.response.ResponseCode;
+
 @Controller
-public class WidgetController {
+@RequiredArgsConstructor
+public class PaymentViewController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	private final PaymentService paymentService;
+
 	@RequestMapping(value = "/api/confirm")
-	public ResponseEntity<JSONObject> confirmPayment(@RequestBody String jsonBody) throws Exception {
+	public ResponseEntity<JSONObject> confirmPayment1(@RequestBody String jsonBody) throws Exception {
 
 		JSONParser parser = new JSONParser();
 		String orderId;
@@ -75,16 +89,27 @@ public class WidgetController {
 		return ResponseEntity.status(code).body(jsonObject);
 	}
 
-	@GetMapping("/api/checkout")
-	public String redirectToCheck() {
-		return "redirect:/checkout.html";
+	/**
+	 * 설명: 결제 UI 호출
+	 *
+	 * @return {반환값에 대한 설명}
+	 *
+	 * @author {작성자 이름}
+	 */
+	@PostMapping("/api/checkout")
+	public ResponseEntity<BaseResponse<PaymentPrepareResponseDto>> redirectToCheck(
+		@RequestBody PaymentPrepareRequestDto requestDto,
+		@Auth AuthUser authUser
+	) {
+		PaymentPrepareResponseDto responseDto = paymentService.savePaymentInfo(authUser.id(), requestDto);
+		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.OK));
 	}
 	@GetMapping("/api/fail")
 	public String redirectToFail() {
-		return "redirect:/fail.html";
+		return "redirect:/payment/fail.html";
 	}
 	@GetMapping("/api/success")
 	public String redirectToSuccess() {
-		return "redirect:/success.html";
+		return "redirect:/payment/success.html";
 	}
 }

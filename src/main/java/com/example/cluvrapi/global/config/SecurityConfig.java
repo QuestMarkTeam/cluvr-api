@@ -32,14 +32,16 @@ public class SecurityConfig {
 	private final JwtUtil jwtUtil;
 	private final RefreshTokenService refreshTokenService;
 
-	public SecurityConfig(
-		CustomUserDetailsService userDetailsService,
+	private final CorsProperties corsProperties;
+
+	public SecurityConfig(CustomUserDetailsService userDetailsService,
 		JwtUtil jwtUtil,
-		RefreshTokenService refreshTokenService
-	) {
+		RefreshTokenService refreshTokenService,
+		CorsProperties corsProperties) {
 		this.userDetailsService = userDetailsService;
 		this.jwtUtil = jwtUtil;
 		this.refreshTokenService = refreshTokenService;
+		this.corsProperties = corsProperties;
 	}
 
 	@Bean
@@ -108,14 +110,13 @@ public class SecurityConfig {
 		return http.build();
 	}
 
-	@Value("${app.cors.allowed-origins}")
-	private List<String> allowedOrigins;
+
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
-		System.out.println(allowedOrigins);
+		System.out.println(corsProperties);
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOriginPatterns(allowedOrigins);
+		configuration.setAllowedOriginPatterns(corsProperties.getAllowedOrigins());
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.setAllowCredentials(true);
