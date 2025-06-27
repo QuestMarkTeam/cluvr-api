@@ -227,6 +227,40 @@ public class AuthServiceImpl implements AuthService {
 		return SignUpUserResponseDto.from(saved);
 	}
 
+	@Override
+	public SignUpUserResponseDto testSignUp(SignUpUserRequestDto dto) {
+		String emailLower = dto.getEmail().toLowerCase();
+
+		if (userRepository.existsByEmail(emailLower)) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 사용 중인 이메일입니다.");
+		}
+		if (userRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 등록된 전화번호입니다.");
+		}
+		if (!dto.getPassword().equals(dto.getConfirmPassword())) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비밀번호와 확인이 일치하지 않습니다.");
+		}
+
+		User user = new User(
+			null,                        // id (자동 생성)
+			dto.getName(),
+			dto.getBirthday(),
+			emailLower,
+			dto.getPhoneNumber(),
+			UserRole.USER,               // 기본 USER 권한
+			dto.getGender(),
+			dto.getCategoryType(),
+			passwordEncoder.encode(dto.getPassword()),
+			0,                           // 초기 포인트 등
+			dto.getImageUrl(),
+			false                        // isDeleted=false
+		);
+
+		User saved = userRepository.save(user);
+
+		return SignUpUserResponseDto.from(saved);
+	}
+
 	private void getReward(Long userId) {
 		GemUserActivityType gemUserActivityType = GemUserActivityType.LOGIN;
 		Integer gem = gemUserActivityType.getGem();
