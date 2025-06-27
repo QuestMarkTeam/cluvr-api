@@ -7,6 +7,8 @@ import com.example.cluvrapi.domain.applicationForm.dto.request.UpdateProblemForm
 import com.example.cluvrapi.domain.applicationForm.dto.response.CreateProblemFormResponseDto;
 import com.example.cluvrapi.domain.applicationForm.dto.response.InfoProblemFormResponseDto;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.global.annotation.IsClubAdmin;
+import com.example.cluvrapi.global.annotation.IsClubOwner;
 import com.example.cluvrapi.global.exception.BusinessException;
 
 public interface ProblemFormService {
@@ -22,6 +24,7 @@ public interface ProblemFormService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubAdmin
 	CreateProblemFormResponseDto createProblemForm(Long userId,
 		Long clubId, CreateProblemFormRequestDto createProblemFormRequestDto);
 
@@ -47,6 +50,7 @@ public interface ProblemFormService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubOwner
 	PageResponseDto<InfoProblemFormResponseDto> findAllProblemForm(Long clubId, Pageable pageable);
 
 	/**
@@ -71,6 +75,7 @@ public interface ProblemFormService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubOwner
 	void updateProblemForm(Long userId, Long clubId,
 		Long problemFormId, UpdateProblemFormRequestDto updateProblemFormRequestDto);
 
@@ -86,6 +91,7 @@ public interface ProblemFormService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubOwner
 	void deleteProblem(Long userId, Long clubId, Long problemFormId);
 
 	/**
@@ -99,5 +105,6 @@ public interface ProblemFormService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubOwner
 	void changeActivationState(Long id, Long clubId, Long problemFormId, Boolean active);
 }

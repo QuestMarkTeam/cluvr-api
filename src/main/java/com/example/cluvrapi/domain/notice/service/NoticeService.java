@@ -7,6 +7,7 @@ import com.example.cluvrapi.domain.notice.dto.reqeust.CreateNoticeRequestDto;
 import com.example.cluvrapi.domain.notice.dto.reqeust.UpdateNoticeRequestDto;
 import com.example.cluvrapi.domain.notice.dto.response.CreateNoticeResponseDto;
 import com.example.cluvrapi.domain.notice.dto.response.InfoNoticeResponseDto;
+import com.example.cluvrapi.global.annotation.IsClubAdmin;
 import com.example.cluvrapi.global.exception.BusinessException;
 
 public interface NoticeService {
@@ -20,6 +21,8 @@ public interface NoticeService {
 	 * @throws BusinessException {404 NotFound}
 	 * @author {sinyoung0403}
 	 */
+
+	@IsClubAdmin
 	CreateNoticeResponseDto createNotice(Long userId, Long clubId, CreateNoticeRequestDto createNoticeRequestDto);
 
 	/**
@@ -30,6 +33,7 @@ public interface NoticeService {
 	 * @return InfoNoticeResponseDto {공지사항 정보}
 	 * @author {sinyoung0403}
 	 */
+
 	InfoNoticeResponseDto findNoticeById(Long clubId, Long noticeId);
 
 	/**
@@ -40,6 +44,7 @@ public interface NoticeService {
 	 * @return PageResponseDto<InfoNoticeResponseDto> {페이징 처리 된 공지사항 정보}
 	 * @author {sinyoung0403}
 	 */
+
 	PageResponseDto<InfoNoticeResponseDto> findAllNotice(Long clubId, Pageable pageable);
 
 	/**
@@ -52,6 +57,8 @@ public interface NoticeService {
 	 * @throws BusinessException {404 NotFound}
 	 * @author {sinyoung0403}
 	 */
+
+	@IsClubAdmin
 	void updateNotice(Long userId, Long clubId, Long noticeId, UpdateNoticeRequestDto updateNoticeRequestDto);
 
 	/**
@@ -65,5 +72,7 @@ public interface NoticeService {
 	 * @throws BusinessException {404 NotFound}
 	 * @author {sinyoung0403}
 	 */
+
+	@IsClubAdmin
 	void deleteNotice(Long userId, Long clubId, Long noticeId);
 }

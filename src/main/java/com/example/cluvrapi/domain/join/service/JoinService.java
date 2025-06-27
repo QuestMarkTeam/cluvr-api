@@ -11,6 +11,7 @@ import com.example.cluvrapi.domain.join.dto.response.CreateJoinResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.InfoJoinRequestResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.MyClubJoinResponseDto;
 import com.example.cluvrapi.domain.join.dto.response.MyJoinRequestResponseDto;
+import com.example.cluvrapi.global.annotation.IsClubAdmin;
 import com.example.cluvrapi.global.exception.BusinessException;
 
 /**
@@ -47,6 +48,7 @@ public interface JoinService {
 	 * @author sinyoung0403
 	 */
 
+	@IsClubAdmin
 	PageResponseDto<MyClubJoinResponseDto> findJoinRequestByClubId(Long userId, Long clubId, Pageable pageable);
 
 	/**
@@ -103,6 +105,18 @@ public interface JoinService {
 	 */
 
 	void cancelJoinRequest(Long userId, Long clubId, Long joinRequestId);
+
+	/**
+	 * 설명: 초대 코드를 기반으로 클럽 가입 요청을 생성하는 메서드
+	 *
+	 * <p> 유효한 초대 코드인 경우에만 가입 요청이 생성되며, 중복 요청 방지 및 클럽 상태 검증 로직이 포함될 수 있다.
+	 *
+	 * @param userId                            {설명: 유저 고유 식별자}
+	 * @param createJoinRequestByCodeRequestDto {설명: 초대 코드 및 요청 관련 정보가 담긴 DTO}
+	 * @return CreateJoinRequestByCodeResponseDto {설명: 가입 요청 생성 결과 응답 DTO}
+	 * @throws BusinessException {ResponseCode.INVALID_REQUEST, ResponseCode.NOT_FOUND 등}
+	 * @author sinyoung0403
+	 */
 
 	CreateJoinRequestByCodeResponseDto createJoinRequestByInviteCode(Long userId,
 		CreateJoinRequestByCodeRequestDto createJoinRequestByCodeRequestDto);
