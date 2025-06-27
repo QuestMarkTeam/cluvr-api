@@ -75,6 +75,7 @@ public class SecurityConfig {
 				UsernamePasswordAuthenticationFilter.class
 			)
 			.authorizeHttpRequests(auth -> auth
+				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				.anyRequest().authenticated()
 			);
 
