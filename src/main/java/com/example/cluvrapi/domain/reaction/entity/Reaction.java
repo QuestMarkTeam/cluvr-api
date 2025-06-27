@@ -8,6 +8,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -22,7 +23,9 @@ import com.example.cluvrapi.domain.reply.entity.Reply;
 import com.example.cluvrapi.domain.user.entity.User;
 
 @Entity
-@Table(name = "reactions")
+@Table(name = "reactions", indexes = {
+	@Index(name = "read_reactionx", columnList = "user_id, board_id, reply_id")
+})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Reaction {

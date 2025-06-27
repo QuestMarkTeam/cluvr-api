@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -21,7 +22,10 @@ import com.example.cluvrapi.domain.common.entity.BaseTimeEntity;
 import com.example.cluvrapi.domain.user.entity.User;
 
 @Entity
-@Table(name = "replies")
+@Table(name = "replies", indexes = {
+		@Index(name = "idx_id", columnList = "board_id, is_deleted")
+	}
+)
 @Getter
 @SQLDelete(sql = "UPDATE replies SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
