@@ -18,6 +18,11 @@
     const orderId = urlParams.get("orderId");
     const amount = urlParams.get("amount");
 
+    console.log('urlParams -> ' + urlParams);
+    console.log('paymentKey -> ' + paymentKey);
+    console.log('orderId -> ' + orderId);
+    console.log('amount -> ' + amount);
+
     async function confirm() {
         const requestData = {
             paymentKey: paymentKey,
@@ -49,6 +54,10 @@
     const paymentKeyElement = document.getElementById("paymentKey");
     const orderIdElement = document.getElementById("orderId");
     const amountElement = document.getElementById("amount");
+
+    console.log('paymentKeyElement -> ' + paymentKeyElement);
+    console.log('orderIdElement -> ' + orderIdElement);
+    console.log('amountElement -> ' + amountElement);
 
     orderIdElement.textContent = "주문번호: " + orderId;
     amountElement.textContent = "결제 금액: " + amount;
