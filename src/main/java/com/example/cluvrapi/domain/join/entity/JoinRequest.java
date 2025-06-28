@@ -103,11 +103,13 @@ public class JoinRequest {
 	}
 
 	/**
-	 * 설명: 가입 상태를 취소로 바꾸어주는 메서드
 	 * 설명: 가입 요청을 Soft Deleted 해주는 메서드
 	 *
 	 * @author sinyoung0403
 	 */
+	public void delete() {
+		this.isDeleted = true;
+	}
 
 	/**
 	 * 설명: 가입 요청을 approve 해주는 메서드

@@ -178,9 +178,8 @@ public class JoinServiceImpl implements JoinService {
 			throw new BusinessException(ResponseCode.ACCESS_DENIED, "신청한 본인만 취소할 수 있습니다.");
 		}
 
-		// 2) Join Status 를 Cancel 로 수정
-		findJoinRequest.updateJoinStatus();
-		joinRequestRepository.delete(findJoinRequest);
+		// 2) Join Status 를 SoftDeleted
+		findJoinRequest.delete();
 
 		// 3) JoinRequest Answer 이 존재한다면, 삭제
 		joinRequestRepository.findJoinRequestAnswerByIdAndClubId(clubId, joinRequestId)
