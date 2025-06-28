@@ -107,6 +107,9 @@ public class JoinRequest {
 	 *
 	 * @author sinyoung0403
 	 */
+	public void delete() {
+		this.isDeleted = true;
+	}
 
 	public void delete() {
 		this.isDeleted = true;
