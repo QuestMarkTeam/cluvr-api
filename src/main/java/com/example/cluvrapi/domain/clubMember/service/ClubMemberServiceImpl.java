@@ -39,6 +39,19 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 	private final ClubRepository clubRepository;
 	private final UserRepository userRepository;
 
+	/**
+	 * 클럽 가입 요청을 승인 또는 거절 처리합니다.
+	 *
+	 * 클럽 ID와 가입 요청 ID로 해당 요청을 조회하고, 요청 상태가 대기 중(PENDING)인 경우에만 처리합니다.
+	 * 승인 시 클럽 최대 인원 제한을 확인하며, 인원이 초과되면 예외를 발생시킵니다.
+	 * 승인 또는 거절 외의 상태가 입력되면 예외가 발생합니다.
+	 *
+	 * @param clubId 클럽의 식별자
+	 * @param joinRequestId 가입 요청의 식별자
+	 * @param dto 가입 요청 처리 상태를 담은 DTO
+	 * @param approver 요청을 처리하는 사용자 정보
+	 * @throws BusinessException 요청이 존재하지 않거나, 이미 처리된 요청이거나, 최대 인원을 초과하거나, 유효하지 않은 상태가 입력된 경우 발생합니다.
+	 */
 	@Transactional
 	@Override
 	public void handleJoinRequest(Long clubId, Long joinRequestId, HandleJoinStatusRequestDto dto, AuthUser approver) {
@@ -112,6 +125,15 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 
 		target.changeRole(newRole);
 	}
+	/**
+	 * 사용자가 클럽에서 탈퇴하도록 처리합니다.
+	 *
+	 * 클럽의 활성 멤버가 아닌 경우 예외를 발생시키며, 탈퇴 시 해당 멤버의 상태를 변경하고 관련 가입 요청(JoinRequest)을 소프트 삭제합니다.
+	 *
+	 * @param clubId 탈퇴할 클럽의 ID
+	 * @param user   탈퇴를 요청하는 사용자 정보
+	 * @throws BusinessException 가입된 멤버가 아니거나 이미 탈퇴/강퇴된 경우, 또는 가입 요청이 존재하지 않는 경우 발생
+	 */
 	@Override
 	@Transactional
 	public void withdrawFromClub(Long clubId, AuthUser user) {
@@ -130,6 +152,14 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 		joinRequest.delete();
 	}
 
+	/**
+	 * 클럽에서 특정 멤버를 강퇴합니다.
+	 *
+	 * 대상 멤버가 클럽의 활성 멤버가 아닐 경우 예외를 발생시키며, 강퇴 후 연관된 가입 요청을 소프트 삭제합니다.
+	 *
+	 * @param clubId 클럽의 ID
+	 * @param targetMemberId 강퇴할 멤버의 ID
+	 */
 	@Override
 	@Transactional
 	public void kickMember(Long clubId, AuthUser operator, Long targetMemberId) {
@@ -152,6 +182,13 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 		joinRequest.delete();
 	}
 
+	/**
+	 * 클럽의 활성화된 멤버 목록을 페이지 단위로 조회합니다.
+	 *
+	 * @param clubId    조회할 클럽의 ID
+	 * @param pageable  페이지네이션 정보
+	 * @return          각 멤버의 정보가 담긴 ClubMemberInfoResponseDto의 페이지 객체
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public Page<ClubMemberInfoResponseDto> listMembers(Long clubId, AuthUser authUser, Pageable pageable) {
@@ -205,12 +242,10 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 	}
 
 	/**
-	 * 설명: 사용자가 속한 클럽 목록을 조회하는 API 입니다.
+	 * 사용자가 현재 가입되어 있는 클럽 목록을 조회합니다.
 	 *
-	 * <p> 요청한 사용자가 속한 클럽 목록을 조회합니다.
-	 *
-	 * @param userId 사용자 ID
-	 * @return 클럽 목록 응답 DTO
+	 * @param userId 클럽 목록을 조회할 사용자 ID
+	 * @return 사용자가 소속된 클럽의 정보를 담은 DTO 리스트
 	 */
 	@Override
 	@Transactional(readOnly = true)
@@ -223,8 +258,13 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 	}
 
 	/**
-	 * 가입 요청 승인 처리 메서드.
-	 * 기존 ClubMember 상태를 확인하여 예외 처리 또는 복귀/신규 생성 후, 가입 요청 상태를 APPROVED 로 변경한다.
+	 * 클럽 가입 요청을 승인 처리한다.
+	 *
+	 * 기존에 클럽 멤버십이 존재하는 경우 상태에 따라 예외를 발생시키거나 복귀 처리하며, 없는 경우 신규 멤버로 등록한다. 이후 해당 가입 요청의 상태를 승인(Approved)으로 변경한다.
+	 *
+	 * @param club 가입 요청이 승인될 클럽
+	 * @param user 가입 요청을 한 사용자
+	 * @param joinRequest 승인 처리할 가입 요청
 	 */
 
 	private void handleApproval(Club club, User user, JoinRequest joinRequest) {

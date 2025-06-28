@@ -28,15 +28,15 @@ import com.example.cluvrapi.global.exception.BusinessException;
 public interface ClubMemberService {
 
 	/**
-	 * 설명: 클럽 가입 요청을 승인 또는 거절 처리합니다.
+	 * 클럽 가입 요청을 승인하거나 거절합니다.
 	 *
-	 * <p>가입 요청 상태를 업데이트하고, 승인 시 클럽 멤버로 추가합니다.
+	 * 가입 요청의 상태를 변경하며, 승인 시 해당 사용자를 클럽 멤버로 추가합니다.
 	 *
-	 * @param clubId        설명: 처리할 클럽의 식별자
-	 * @param joinRequestId 설명: 승인/거절할 가입 요청의 식별자
-	 * @param dto        설명: 처리할 상태(승인 또는 거절)를 담은 DTO
-	 * @param approver      설명: 요청을 승인/거절하는 운영자 정보
-	 * @throws BusinessException 설명: 요청이 존재하지 않거나 권한이 없을 경우 발생
+	 * @param clubId 처리할 클럽의 ID
+	 * @param joinRequestId 승인 또는 거절할 가입 요청의 ID
+	 * @param dto 승인 또는 거절 상태 정보를 담은 DTO
+	 * @param approver 요청을 처리하는 운영자 정보
+	 * @throws BusinessException 요청이 존재하지 않거나 권한이 없을 경우 발생
 	 */
 	@IsClubAdmin
 	void handleJoinRequest(Long clubId, Long joinRequestId, HandleJoinStatusRequestDto dto, AuthUser approver);

@@ -115,6 +115,14 @@ public class JoinServiceImpl implements JoinService {
 		return CreateJoinResponseDto.from(joinRequest.getId());
 	}
 
+	/**
+	 * 특정 클럽의 가입 요청 목록을 페이지 단위로 조회합니다.
+	 *
+	 * @param userId  요청을 수행하는 사용자의 ID
+	 * @param clubId  조회할 클럽의 ID
+	 * @param pageable 페이지네이션 정보
+	 * @return 클럽의 가입 요청 목록에 대한 페이지 응답 DTO
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public PageResponseDto<MyClubJoinResponseDto> findJoinRequestByClubId(Long userId, Long clubId, Pageable pageable) {
@@ -127,6 +135,17 @@ public class JoinServiceImpl implements JoinService {
 		return joinRequestRepository.findMyJoinRequests(userId, pageable);
 	}
 
+	/**
+	 * 클럽의 특정 가입 요청 상세 정보를 조회합니다.
+	 *
+	 * 가입 요청 작성자 본인 또는 해당 클럽의 클랜장/운영진만 상세 정보를 조회할 수 있습니다.
+	 *
+	 * @param userId 조회를 시도하는 사용자 ID
+	 * @param clubId 클럽 ID
+	 * @param joinRequestId 가입 요청 ID
+	 * @return 가입 요청 상세 정보 DTO
+	 * @throws BusinessException 가입 요청이 존재하지 않거나 접근 권한이 없는 경우 발생합니다.
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public InfoJoinRequestResponseDto findJoinRequestById(Long userId, Long clubId, Long joinRequestId) {
@@ -165,6 +184,18 @@ public class JoinServiceImpl implements JoinService {
 		findJoinRequestAnswer.updateAnswer(updateJoinRequestDto.getAnswer());
 	}
 
+	/**
+	 * 사용자가 자신의 클럽 가입 신청을 취소합니다.
+	 *
+	 * 주어진 사용자 ID, 클럽 ID, 가입 신청 ID를 기반으로 해당 가입 신청을 찾아 소프트 삭제 처리하며,
+	 * 관련된 가입 신청 답변이 존재할 경우 함께 삭제합니다.
+	 *
+	 * 신청자가 아닌 경우 접근이 거부됩니다.
+	 *
+	 * @param userId    취소를 요청하는 사용자 ID
+	 * @param clubId    가입 신청이 속한 클럽 ID
+	 * @param joinRequestId 취소할 가입 신청 ID
+	 */
 	@Override
 	@Transactional
 	public void cancelJoinRequest(Long userId, Long clubId, Long joinRequestId) {
@@ -212,14 +243,13 @@ public class JoinServiceImpl implements JoinService {
 	}
 
 	/**
-	 * 설명: Join request 가 유효한 신청인지 확인하는 검증 메서드
+	 * 클럽 가입 신청이 유효한지 검증한다.
 	 *
-	 * <p> 중복신청과 이미 가입된 유저인지 확인한다.
+	 * 중복된 가입 신청, 이미 가입된 회원, 강퇴된 회원, 또는 클럽 정원이 초과된 경우 예외를 발생시킨다.
 	 *
-	 * @param club {설명: 클럽}
-	 * @param user {설명: 유저}
-	 * @throws BusinessException {400 BadRequest}
-	 * @author sinyoung0403
+	 * @param club 검증할 대상 클럽
+	 * @param user 가입을 신청하는 유저
+	 * @throws BusinessException 중복 신청, 이미 가입 또는 강퇴된 회원, 정원 초과 시 발생
 	 */
 	private void validateJoinRequest(Club club, User user) {
 		// 1. 중복 신청 조회

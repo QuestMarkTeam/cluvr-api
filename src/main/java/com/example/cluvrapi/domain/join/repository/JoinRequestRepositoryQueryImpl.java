@@ -33,6 +33,13 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 
 	private final JPAQueryFactory jpaQueryFactory;
 
+	/**
+	 * 주어진 클럽 ID와 사용자 ID에 해당하며 삭제되지 않은 가입 요청을 조회합니다.
+	 *
+	 * @param clubId 조회할 클럽의 ID
+	 * @param userId 조회할 사용자의 ID
+	 * @return 조건에 맞는 가입 요청이 존재하면 Optional에 담아 반환하며, 없으면 빈 Optional을 반환합니다.
+	 */
 	@Override
 	public Optional<JoinRequest> findJoinByClubIdAndUserId(Long clubId, Long userId) {
 		return Optional.ofNullable(
@@ -45,6 +52,13 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 		);
 	}
 
+	/**
+	 * 지정된 클럽의 모든 가입 요청 목록을 페이지네이션하여 반환합니다.
+	 *
+	 * @param clubId 조회할 클럽의 ID
+	 * @param pageable 페이지네이션 정보
+	 * @return 클럽의 가입 요청 목록과 페이지네이션 정보를 담은 PageResponseDto
+	 */
 	@Override
 	public PageResponseDto<MyClubJoinResponseDto> findJoinRequestByClubId(Long clubId, Pageable pageable) {
 		List<MyClubJoinResponseDto> content = jpaQueryFactory

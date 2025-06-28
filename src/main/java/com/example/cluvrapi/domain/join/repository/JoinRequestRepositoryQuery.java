@@ -17,14 +17,13 @@ import com.example.cluvrapi.domain.join.entity.JoinRequestAnswer;
 
 public interface JoinRequestRepositoryQuery {
 
-	/**
-	 * 설명: 주어진 유저 ID와 클럽 ID에 해당하는 가입 요청이 존재하는지 여부를 확인하는 쿼리문
-	 *
-	 * @param clubId 클럽 고유 식별자
-	 * @param userId 유저 고유 식별자
-	 * @return Optional<JoinRequest> 가입 요청
-	 * @author sinyoung0403
-	 */
+	/****
+ * 주어진 클럽 ID와 유저 ID에 해당하는 가입 요청을 조회합니다.
+ *
+ * @param clubId 클럽의 고유 식별자
+ * @param userId 유저의 고유 식별자
+ * @return 해당 조건에 맞는 가입 요청이 존재하면 Optional로 반환하며, 없으면 빈 Optional을 반환합니다.
+ */
 
 	Optional<JoinRequest> findJoinByClubIdAndUserId(Long clubId, Long userId);
 

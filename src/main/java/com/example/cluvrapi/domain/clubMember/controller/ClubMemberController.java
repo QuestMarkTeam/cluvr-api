@@ -39,13 +39,11 @@ public class ClubMemberController {
 	private final ClubMemberService clubMemberService;
 
 	/**
-	 * 가입 요청 승인 또는 거절 처리
+	 * 클럽 가입 요청을 승인하거나 거절합니다.
 	 *
-	 * @param clubId 클럽 ID
-	 * @param joinRequestId 가입 요청 ID
-	 * @param dto 요청 상태 정보 (ACCEPTED / REJECTED 등)
-	 * @param authUser 인증된 사용자 정보
-	 * @author alpomjeong
+	 * 클럽 ID와 가입 요청 ID, 요청 상태 정보를 받아 해당 가입 요청의 상태를 변경합니다.
+	 *
+	 * @return 처리 결과에 대한 성공 응답
 	 */
 
 	@PostMapping("/join-requests/{joinRequestId}/status")
@@ -61,13 +59,13 @@ public class ClubMemberController {
 	}
 
 	/**
-	 * 특정 멤버의 클럽 내 역할(Role) 변경
+	 * 클럽 내 특정 멤버의 역할을 변경합니다.
 	 *
-	 * @param clubId 클럽 ID
-	 * @param targetMemberId 역할을 변경할 대상 멤버 ID
-	 * @param dto 새로운 역할 정보
-	 * @param authUser 인증된 사용자 정보
-	 * @author alpomjeong
+	 * @param clubId 클럽의 고유 식별자입니다.
+	 * @param targetMemberId 역할을 변경할 대상 멤버의 고유 식별자입니다.
+	 * @param dto 변경할 새로운 역할 정보를 담고 있는 객체입니다.
+	 * @param authUser 인증된 사용자 정보입니다.
+	 * @return 역할 변경 성공 시 성공 응답을 반환합니다.
 	 */
 
 	@PatchMapping("/members/{memberId}/role")
@@ -83,11 +81,13 @@ public class ClubMemberController {
 	}
 
 	/**
-	 * 현재 로그인한 사용자의 클럽 탈퇴 처리
+	 * 현재 로그인한 사용자가 해당 클럽에서 탈퇴하도록 처리합니다.
 	 *
-	 * @param clubId 클럽 ID
+	 * 클럽 ID와 인증된 사용자 정보를 받아 사용자의 클럽 탈퇴를 수행합니다.
+	 *
+	 * @param clubId 클럽의 고유 식별자
 	 * @param authUser 인증된 사용자 정보
-	 * @author alpomjeong
+	 * @return 클럽 탈퇴 완료 메시지와 성공 응답 코드가 포함된 ResponseEntity
 	 */
 
 	@DeleteMapping("/members/me")
@@ -106,12 +106,12 @@ public class ClubMemberController {
 	}
 
 	/**
-	 * 특정 멤버를 클럽에서 강퇴
+	 * 클럽에서 지정한 멤버를 강제로 탈퇴시킵니다.
 	 *
-	 * @param clubId 클럽 ID
-	 * @param memberId 강퇴 대상 멤버 ID
+	 * @param clubId 클럽의 고유 식별자
+	 * @param memberId 강퇴할 멤버의 고유 식별자
 	 * @param authUser 인증된 사용자 정보
-	 * @author alpomjeong
+	 * @return 강퇴 완료 메시지와 함께 성공 응답을 반환합니다.
 	 */
 
 	@DeleteMapping("/members/{memberId}")
@@ -131,12 +131,13 @@ public class ClubMemberController {
 	}
 
 	/**
-	 * 클럽 멤버 목록 조회 (페이징 처리)
+	 * 클럽의 멤버 목록을 페이징하여 조회합니다.
 	 *
-	 * @param clubId 클럽 ID
-	 * @param authUser 인증된 사용자 정보
-	 * @param pageable 페이징 정보
-	 * @author alpomjeong
+	 * 클럽 ID에 해당하는 클럽의 멤버 정보를 페이지 단위로 반환합니다.
+	 *
+	 * @param clubId 조회할 클럽의 ID
+	 * @param pageable 페이지 및 정렬 정보
+	 * @return 페이징된 클럽 멤버 정보 목록이 포함된 응답
 	 */
 
 	@GetMapping("/members")
@@ -151,12 +152,12 @@ public class ClubMemberController {
 	}
 
 	/**
-	 * 특정 유저의 클럽 내 역할(Role) 조회
+	 * 특정 유저의 클럽 내 역할 정보를 조회한다.
 	 *
-	 * @param clubId 클럽 ID
-	 * @param targetUserId 조회 대상 유저 ID
+	 * @param clubId 클럽의 고유 식별자
+	 * @param targetUserId 역할을 조회할 대상 유저의 고유 식별자
 	 * @param authUser 인증된 사용자 정보
-	 * @author alpomjeong
+	 * @return 해당 유저의 클럽 내 역할 정보를 담은 응답
 	 */
 
 	@GetMapping("/members/{userId}/role")
@@ -171,12 +172,12 @@ public class ClubMemberController {
 	}
 
 	/**
-	 * 클럽장 권한을 다른 멤버에게 이양
+	 * 클럽의 소유권을 지정한 멤버에게 이양합니다.
 	 *
-	 * @param clubId 클럽 ID
-	 * @param targetMemberId 새로운 클럽장으로 지정할 멤버 ID
+	 * @param clubId 클럽의 고유 식별자
+	 * @param targetMemberId 새 클럽장으로 지정할 멤버의 고유 식별자
 	 * @param authUser 인증된 사용자 정보
-	 * @author alpomjeong
+	 * @return 소유권 이양 성공 시 성공 응답을 반환합니다.
 	 */
 
 	@PostMapping("/{targetMemberId}/transfer-owner")

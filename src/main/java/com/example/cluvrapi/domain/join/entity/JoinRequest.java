@@ -86,14 +86,12 @@ public class JoinRequest {
 	private boolean isDeleted = false;
 
 	/**
-	 * 설명: 생성자 메서드
+	 * 새로운 가입 신청 엔티티를 생성한다.
 	 *
-	 * @param user       {설명: 유저}
-	 * @param club       {설명: 클럽}
-	 * @param joinStatus {설명: 가입 신청 상태}
-	 * @param joinType   {설명: 가입 방식}
-	 * @return JoinRequest
-	 * @author sinyoung0403
+	 * @param user 가입을 신청한 사용자
+	 * @param club 가입 대상 클럽
+	 * @param joinStatus 초기 가입 신청 상태
+	 * @param joinType 가입 신청 방식
 	 */
 	public JoinRequest(User user, Club club, JoinStatus joinStatus, JoinType joinType) {
 		this.user = user;
@@ -103,18 +101,16 @@ public class JoinRequest {
 	}
 
 	/**
-	 * 설명: 가입 요청을 Soft Deleted 해주는 메서드
+	 * 가입 요청 엔티티를 소프트 삭제 처리합니다.
 	 *
-	 * @author sinyoung0403
+	 * 이 메서드는 해당 가입 요청의 `isDeleted` 플래그를 `true`로 설정하여 실제로 삭제하지 않고 논리적으로 삭제 상태로 만듭니다.
 	 */
 	public void delete() {
 		this.isDeleted = true;
 	}
 
 	/**
-	 * 설명: 가입 요청을 approve 해주는 메서드
-	 *
-	 * @author sinyoung0403
+	 * 가입 요청의 상태를 승인(Approved)으로 변경합니다.
 	 */
 
 	public void approve() {
@@ -122,9 +118,7 @@ public class JoinRequest {
 	}
 
 	/**
-	 * 설명: 가입 요청을 reject 해주는 메서드
-	 *
-	 * @author sinyoung0403
+	 * 가입 요청의 상태를 거절(REJECTED)로 변경합니다.
 	 */
 
 	public void reject() {
