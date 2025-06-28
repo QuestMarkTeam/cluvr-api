@@ -35,7 +35,7 @@ public interface ClubMemberService {
 	 *
 	 * @param clubId        설명: 처리할 클럽의 식별자
 	 * @param joinRequestId 설명: 승인/거절할 가입 요청의 식별자
-	 * @param status        설명: 처리할 상태(승인 또는 거절)
+	 * @param dto        설명: 처리할 상태(승인 또는 거절)를 담은 DTO
 	 * @param approver      설명: 요청을 승인/거절하는 운영자 정보
 	 * @throws BusinessException 설명: 요청이 존재하지 않거나 권한이 없을 경우 발생
 	 */

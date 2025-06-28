@@ -22,7 +22,7 @@ public interface JoinRequestRepositoryQuery {
 	 *
 	 * @param clubId 클럽 고유 식별자
 	 * @param userId 유저 고유 식별자
-	 * @return 가입 요청이 존재하면 true, 그렇지 않으면 false
+	 * @return Optional<JoinRequest> 가입 요청
 	 * @author sinyoung0403
 	 */
 
