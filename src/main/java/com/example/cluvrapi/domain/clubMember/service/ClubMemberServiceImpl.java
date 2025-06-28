@@ -145,7 +145,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 		target.kick();
 
 		// JoinRequest SoftDeleted 적용
-		JoinRequest joinRequest = joinRequestRepository.findJoinByClubIdAndUserId(clubId, target.getUser().getId()).orElseThrow(
+		JoinRequest joinRequest = joinRequestRepository.findJoinByClubIdAndUserId(clubId, operator.id()).orElseThrow(
 			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "가입된 요청이 없습니다.")
 		);
 
