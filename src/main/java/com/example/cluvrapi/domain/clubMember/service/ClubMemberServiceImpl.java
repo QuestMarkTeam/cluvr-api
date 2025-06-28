@@ -121,6 +121,13 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 탈퇴 또는 강퇴된 멤버입니다.");
 		}
 		me.withdraw();
+
+		// JoinRequest SoftDeleted 적용
+		JoinRequest joinRequest = joinRequestRepository.findJoinByClubIdAndUserId(clubId, user.id()).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "가입된 요청이 없습니다.")
+		);
+
+		joinRequest.delete();
 	}
 
 	@Override
@@ -134,7 +141,15 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 		if (target.getClubMemberStatus() != ClubMemberStatus.ACTIVE) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 탈퇴 또는 강퇴된 멤버입니다.");
 		}
+
 		target.kick();
+
+		// JoinRequest SoftDeleted 적용
+		JoinRequest joinRequest = joinRequestRepository.findJoinByClubIdAndUserId(clubId, operator.id()).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "가입된 요청이 없습니다.")
+		);
+
+		joinRequest.delete();
 	}
 
 	@Override
