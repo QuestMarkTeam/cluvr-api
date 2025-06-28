@@ -26,7 +26,7 @@ public interface JoinRequestRepositoryQuery {
 	 * @author sinyoung0403
 	 */
 
-	boolean existsJoinByClubIdAndUserId(Long clubId, Long userId);
+	Optional<JoinRequest> findJoinByClubIdAndUserId(Long clubId, Long userId);
 
 	/**
 	 * 설명: 특정 클럽에 대한 모든 가입 요청 목록을 페이징하여 조회하는 쿼리문

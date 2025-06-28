@@ -1,6 +1,7 @@
 package com.example.cluvrapi.domain.join.service;
 
 import java.util.Map;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -229,6 +230,8 @@ public class JoinServiceImpl implements JoinService {
 		if (alreadyRequested) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입 신청한 클럽입니다.");
 		}
+		Optional<JoinRequest> alreadyRequested = joinRequestRepository.findJoinByClubIdAndUserId(club.getId(),
+			user.getId());
 
 		// 2. 이미 가입된 유저인지 조회
 		if (clubMemberRepository.findByClubIdAndUserId(club.getId(), user.getId()).isPresent()) {
