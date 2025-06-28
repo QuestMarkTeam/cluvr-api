@@ -55,7 +55,7 @@ public class ClubMemberController {
 		@RequestBody HandleJoinStatusRequestDto dto,
 		@Auth AuthUser authUser
 	) {
-		clubMemberService.handleJoinRequest(clubId, joinRequestId, dto.getStatus(), authUser);
+		clubMemberService.handleJoinRequest(clubId, joinRequestId, dto, authUser);
 		return ResponseEntity
 			.ok(BaseResponse.success(ResponseCode.OK));
 	}

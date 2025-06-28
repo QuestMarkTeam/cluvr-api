@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
+import com.example.cluvrapi.domain.clubMember.dto.request.HandleJoinStatusRequestDto;
 import com.example.cluvrapi.domain.clubMember.dto.response.ClubMemberInfoResponseDto;
 import com.example.cluvrapi.domain.clubMember.dto.response.GetMemberRoleResponseDto;
 import com.example.cluvrapi.domain.clubMember.entity.ClubMember;
@@ -40,8 +41,9 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 
 	@Transactional
 	@Override
-	public void handleJoinRequest(Long clubId, Long joinRequestId, JoinStatus status, AuthUser approver) {
-		JoinRequest jr = joinRequestRepository.joinRequestByIdAndClubId(clubId, joinRequestId)
+	public void handleJoinRequest(Long clubId, Long joinRequestId, HandleJoinStatusRequestDto dto, AuthUser approver) {
+		// 1. 요청 정보 조회
+		JoinRequest joinRequest = joinRequestRepository.joinRequestByIdAndClubId(clubId, joinRequestId)
 			.orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND, "가입 요청을 찾을 수 없습니다."));
 
 		if (jr.getJoinStatus() != JoinStatus.PENDING) {

@@ -2,22 +2,21 @@ package com.example.cluvrapi.domain.clubMember.service;
 
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.example.cluvrapi.domain.club.entity.Club;
+import com.example.cluvrapi.domain.club.dto.response.MyClubResponseDto;
+import com.example.cluvrapi.domain.clubMember.dto.request.HandleJoinStatusRequestDto;
 import com.example.cluvrapi.domain.clubMember.dto.response.ClubMemberInfoResponseDto;
 import com.example.cluvrapi.domain.clubMember.dto.response.GetMemberRoleResponseDto;
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
-import com.example.cluvrapi.domain.join.enums.JoinStatus;
 import com.example.cluvrapi.global.annotation.IsClubAdmin;
 import com.example.cluvrapi.global.annotation.IsClubMember;
 import com.example.cluvrapi.global.annotation.IsClubOwner;
 import com.example.cluvrapi.global.exception.BusinessException;
-import com.example.cluvrapi.domain.club.dto.response.MyClubResponseDto;
-
-import jakarta.validation.constraints.NotNull;
 
 /**
  * 설명: 클럽 멤버 관련 핵심 비즈니스 로직을 제공하는 서비스 인터페이스입니다.
@@ -40,7 +39,7 @@ public interface ClubMemberService {
 	 * @throws BusinessException 설명: 요청이 존재하지 않거나 권한이 없을 경우 발생
 	 */
 	@IsClubAdmin
-	void handleJoinRequest(Long clubId, Long joinRequestId, JoinStatus status, AuthUser approver);
+	void handleJoinRequest(Long clubId, Long joinRequestId, HandleJoinStatusRequestDto dto, AuthUser approver);
 
 	/**
 	 * 설명: 클럽 내 특정 멤버의 역할을 변경합니다.
