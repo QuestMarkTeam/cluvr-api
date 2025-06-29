@@ -89,21 +89,7 @@ public class PaymentViewController {
 		return ResponseEntity.status(code).body(jsonObject);
 	}
 
-	/**
-	 * 설명: 결제 UI 호출
-	 *
-	 * @return {반환값에 대한 설명}
-	 *
-	 * @author {작성자 이름}
-	 */
-	@PostMapping("/api/checkout")
-	public ResponseEntity<BaseResponse<PaymentPrepareResponseDto>> redirectToCheck(
-		@RequestBody PaymentPrepareRequestDto requestDto,
-		@Auth AuthUser authUser
-	) {
-		PaymentPrepareResponseDto responseDto = paymentService.savePaymentInfo(authUser.id(), requestDto);
-		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.OK));
-	}
+
 	@GetMapping("/api/fail")
 	public String redirectToFail() {
 		return "redirect:/payment/fail.html";
