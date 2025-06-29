@@ -290,6 +290,21 @@ public class AuthServiceImpl implements AuthService {
 			throw new BusinessException(ResponseCode.INTERNAL_ERROR);
 		}
 
+		AuthenticationResultType authResult = cognitoClient
+			.adminInitiateAuth(builder -> builder
+				.authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
+				.userPoolId(userPoolId)
+				.clientId(clientId)
+				.authParameters(Map.of(
+					"USERNAME", dto.getEmail(),
+					"PASSWORD", dto.getPassword(),
+					"SECRET_HASH", calculateSecretHash(clientId, clientSecret, dto.getEmail())
+				))
+			).authenticationResult();
+
+		Jwt jwt = jwtDecoder.decode(authResult.idToken());
+		String sub = jwt.getSubject();
+
 		// 로컬 DB 저장
 		String emailLower = dto.getEmail().toLowerCase();
 		String domain = emailLower.substring(emailLower.indexOf('@') + 1);
@@ -308,7 +323,8 @@ public class AuthServiceImpl implements AuthService {
 			passwordEncoder.encode(dto.getPassword()),
 			0,
 			dto.getImageUrl(),
-			false
+			false,
+			sub
 		);
 		User saved = userRepository.save(user);
 
@@ -339,6 +355,21 @@ public class AuthServiceImpl implements AuthService {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비밀번호와 확인이 일치하지 않습니다.");
 		}
 
+		AuthenticationResultType authResult = cognitoClient
+			.adminInitiateAuth(builder -> builder
+				.authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
+				.userPoolId(userPoolId)
+				.clientId(clientId)
+				.authParameters(Map.of(
+					"USERNAME", dto.getEmail(),
+					"PASSWORD", dto.getPassword(),
+					"SECRET_HASH", calculateSecretHash(clientId, clientSecret, dto.getEmail())
+				))
+			).authenticationResult();
+
+		Jwt jwt = jwtDecoder.decode(authResult.idToken());
+		String sub = jwt.getSubject();
+
 		User user = new User(
 			null,                        // id (자동 생성)
 			dto.getName(),
@@ -351,7 +382,8 @@ public class AuthServiceImpl implements AuthService {
 			passwordEncoder.encode(dto.getPassword()),
 			0,                           // 초기 포인트 등
 			dto.getImageUrl(),
-			false                        // isDeleted=false
+			false,                        // isDeleted=false
+			sub
 		);
 
 		User saved = userRepository.save(user);
