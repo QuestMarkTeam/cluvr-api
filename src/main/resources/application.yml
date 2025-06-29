@@ -3,6 +3,12 @@ server:
     include-message: always
   port: 80
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cognito-idp.us-west-2.amazonaws.com/${USER_POOL_ID}
+
   application:
     name: cluvr
   data:
@@ -62,3 +68,25 @@ app:
       - http://localhost:63342
       - http://localhost:3000
       - http://54.200.146.243
+
+
+cognito:
+  userPoolId: ${USER_POOL_ID}
+  clientId: ${CLIENT_ID}
+  jwkSetUri: https://cognito-idp.us-west-2.amazonaws.com/${USER_POOL_ID}/.well-known/jwks.json
+  clientSecret: ${CLIENT_SECRET}
+
+cloud:
+  aws:
+    region:
+      static: us-west-2
+    credentials:
+      access-key: ${ACCESS_AWS}
+      secret-key: ${SECRET_AWS}
+
+logging:
+  level:
+    root: INFO
+    software.amazon.awssdk: DEBUG
+    com.amazonaws: DEBUG
+    com.example.cluvrapi: DEBUG

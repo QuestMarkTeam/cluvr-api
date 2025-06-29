@@ -1,17 +1,17 @@
 package com.example.cluvrapi.domain.user.repository;
 
-import static com.example.cluvrapi.domain.user.entity.QUser.*;
-import static java.util.Objects.*;
+import static com.example.cluvrapi.domain.user.entity.QUser.user;
+import static java.util.Objects.requireNonNullElse;
 
 import java.util.List;
 import java.util.Optional;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Repository;
 
 import com.example.cluvrapi.domain.user.entity.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-
-import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
@@ -86,4 +86,5 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 			.fetchOne();
 		return requireNonNullElse(cnt, 0L) > 0;
 	}
+
 }

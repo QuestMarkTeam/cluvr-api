@@ -1,47 +1,35 @@
 package com.example.cluvrapi.global.config;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.http.HttpMethod;
-
-import com.example.cluvrapi.global.jwt.CustomUserDetailsService;
-import com.example.cluvrapi.global.jwt.JwtAuthenticationFilter;
-import com.example.cluvrapi.global.jwt.JwtUtil;
-import com.example.cluvrapi.global.jwt.RefreshTokenService;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-	private final CustomUserDetailsService userDetailsService;
-	private final JwtUtil jwtUtil;
-	private final RefreshTokenService refreshTokenService;
-
+	private final JwtDecoder jwtDecoder;
 	private final CorsProperties corsProperties;
 
-	public SecurityConfig(CustomUserDetailsService userDetailsService,
-		JwtUtil jwtUtil,
-		RefreshTokenService refreshTokenService,
-		CorsProperties corsProperties) {
-		this.userDetailsService = userDetailsService;
-		this.jwtUtil = jwtUtil;
-		this.refreshTokenService = refreshTokenService;
+	public SecurityConfig(
+		JwtDecoder jwtDecoder,
+		CorsProperties corsProperties
+	) {
+		this.jwtDecoder = jwtDecoder;
 		this.corsProperties = corsProperties;
 	}
 
@@ -60,8 +48,7 @@ public class SecurityConfig {
 
 	@Bean
 	@Order(1)
-	public SecurityFilterChain clubChain(HttpSecurity http,
-		CustomUserDetailsService userDetailsService) throws Exception {
+	public SecurityFilterChain clubChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher("/api/clubs/**")  // 이 체인은 이 경로에만 적용
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -69,10 +56,9 @@ public class SecurityConfig {
 			.formLogin(form -> form.disable())
 			.httpBasic(basic -> basic.disable())
 			.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			.userDetailsService(userDetailsService)
-			.addFilterBefore(
-				new JwtAuthenticationFilter(jwtUtil, userDetailsService, refreshTokenService),
-				UsernamePasswordAuthenticationFilter.class
+			// Cognito JWT 사용
+			.oauth2ResourceServer(oauth2 -> oauth2
+				.jwt(jwt -> jwt.decoder(jwtDecoder))
 			)
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -95,22 +81,21 @@ public class SecurityConfig {
 			.sessionManagement(sm ->
 				sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			)
-			.userDetailsService(userDetailsService)
 			.authorizeHttpRequests(auth -> auth
+				// 회원가입·로그인만 공개
+				.requestMatchers("api/auth/**", "/my-monitor/**").permitAll()
+				// /admin/** 은 ADMIN 권한 필요
 				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/verify", "/my-monitor/**",  "/favicon.ico", "/api/auth/test-signup").permitAll()
+				.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/verify", "/my-monitor/**",
+					"/favicon.ico", "/api/auth/test-signup").permitAll()
 				.requestMatchers("/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated()
-			)
-			.addFilterBefore(
-				new JwtAuthenticationFilter(jwtUtil, userDetailsService, refreshTokenService),
-				UsernamePasswordAuthenticationFilter.class
+			).oauth2ResourceServer(oauth2 -> oauth2
+				.jwt(jwt -> jwt.decoder(jwtDecoder))
 			);
 
 		return http.build();
 	}
-
-
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {

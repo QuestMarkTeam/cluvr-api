@@ -14,6 +14,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,6 @@ import com.example.cluvrapi.domain.gem.service.GemEvent;
 import com.example.cluvrapi.global.annotation.EventGem;
 import com.example.cluvrapi.global.annotation.UpdateGem;
 import com.example.cluvrapi.global.exception.BusinessException;
-import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.response.ResponseCode;
 
 @Aspect
@@ -36,8 +36,8 @@ public class GemAspect {
 
 	private final ApplicationEventPublisher publisher; // 이벤트 발행
 
-
 	private final List<GemMethodHandler> handlers;
+
 	/**
 	 * 설명: 이벤트와 관련된 Gem 처리
 	 *
@@ -95,30 +95,30 @@ public class GemAspect {
 		return result;
 	}
 
-	public void setEvent(GemActionType flowType, Integer gem, GemUserActivityType gemUserActivityType){
+	public void setEvent(GemActionType flowType, Integer gem, GemUserActivityType gemUserActivityType) {
 		LocalDateTime createdTime = flowType.getEventDate();
 		LocalDateTime deletedTime = flowType.getDeleteDate();
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null && auth.isAuthenticated()) {
 			Object principal = auth.getPrincipal();
-			if (principal instanceof CustomUserDetails userDetails) {
-				Long userId = userDetails.getUser().getId();
+			if (principal instanceof Jwt jwt) {
+				Long userId = Long.valueOf(jwt.getClaim("custom:userId"));
 				// 각자에 알맞는 비지니스 로직으로 보내줌
 				execute(gemUserActivityType, userId, gem, flowType);
 				publisher.publishEvent(
 					GemEvent.createEvent(userId, gem, gemUserActivityType.getDescription(), createdTime, deletedTime,
 						gemUserActivityType.getFlowType(), gemUserActivityType.name())
 				);
-			}else {
+			} else {
 				throw new BusinessException(ResponseCode.AUTH_REQUIRED);
 			}
-		}else {
+		} else {
 			throw new BusinessException(ResponseCode.AUTH_REQUIRED);
 		}
 	}
 
-	public Integer getGem(ProceedingJoinPoint pjp){
+	public Integer getGem(ProceedingJoinPoint pjp) {
 		GemUpdateDto earnDto = Arrays.stream(pjp.getArgs())
 			.filter(GemUpdateDto.class::isInstance)
 			.map(GemUpdateDto.class::cast)

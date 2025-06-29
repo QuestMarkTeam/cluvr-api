@@ -73,4 +73,5 @@ public interface UserRepositoryCustom {
 	 * @return boolean 설명: 이미 존재하면 true, 아니면 false
 	 */
 	boolean existsByPhoneNumber(String phoneNumber);
+
 }
