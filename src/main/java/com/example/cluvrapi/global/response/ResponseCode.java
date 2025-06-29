@@ -20,6 +20,10 @@ public enum ResponseCode {
 	VALID_FAIL(HttpStatus.BAD_REQUEST, "유효성 검증에 실패하였습니다."),
 	NOT_FOUND(HttpStatus.NOT_FOUND, "NOT FOUND"),
 
+	// cognito
+	INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Cognito 가입 중 오류가 발생하였습니다."),
+	ALREADY_COGNITO(HttpStatus.BAD_REQUEST, "이미 존재하는 Cognito 계정입니다."),
+	NO_COGNITO_SUB(HttpStatus.NOT_FOUND, "cognito에 sub가 존재하지 않습니다."),
 
 	/* 인증, 인가 */
 	LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "아이디(로그인 이메일) 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요."),
@@ -30,7 +34,8 @@ public enum ResponseCode {
 	TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
 	TOKEN_BLACKLISTED(HttpStatus.FORBIDDEN, "다시 로그인 해주세요."),
 	AUTH_REQUIRED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
-
+	EMAIL_NOT_VERIFIED(HttpStatus.NOT_FOUND, "이메일 인증이 완료되지 않았습니다."),
+	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이메일의 사용자를 찾을 수 없습니다."),
 	/* 서버 */
 	UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류"),
 

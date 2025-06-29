@@ -11,11 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.auth.dto.request.LoginUserRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.RefreshTokenDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyRequestDto;
 import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
@@ -53,10 +53,9 @@ public class AuthController {
 
 	@PostMapping("/logout")
 	public ResponseEntity<BaseResponse<String>> logout(
-		@RequestHeader("Authorization") String authorizationHeader
+		@RequestBody RefreshTokenDto dto
 	) {
-		String accessToken = resolveBearer(authorizationHeader);
-		authService.logout(accessToken);
+		authService.logout(dto.getRefreshToken());
 		return ResponseEntity.ok(BaseResponse.success("로그아웃 되었습니다.", OK));
 	}
 

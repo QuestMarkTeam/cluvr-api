@@ -1,17 +1,17 @@
 package com.example.cluvrapi.global.security;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberStatus;
 import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
-import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.response.ResponseCode;
-
-import lombok.RequiredArgsConstructor;
 
 @Component("clubSec")
 @RequiredArgsConstructor
@@ -19,10 +19,17 @@ public class ClubSecurityService {
 
 	private final ClubMemberRepository clubMemberRepository;
 
-	private Long currentUserId(){
+	private Long currentUserId() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails user = (CustomUserDetails) auth.getPrincipal();
-		return user.getId();
+		if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) {
+			throw new BusinessException(
+				ResponseCode.AUTH_REQUIRED
+			);
+		}
+		Long userId = jwt.getClaim("custom:userId");
+
+		return userId;
+
 	}
 
 	public boolean isMember(Long clubId) {

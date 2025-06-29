@@ -3,6 +3,7 @@ package com.example.cluvrapi.global.resolver;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -12,7 +13,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
-import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.response.ResponseCode;
 
 @Component
@@ -38,17 +38,25 @@ public class AuthenticationArgumentResolver implements HandlerMethodArgumentReso
 		}
 
 		Object principal = authentication.getPrincipal();
-		if (!(principal instanceof CustomUserDetails)) {
+		if (!(principal instanceof Jwt jwt)) {
 			throw new ResponseStatusException(
 				ResponseCode.TOKEN_INVALID.getStatus(),
 				ResponseCode.TOKEN_INVALID.getDefaultMessage()
 			);
 		}
 
-		CustomUserDetails userDetails = (CustomUserDetails)principal;
-		return new AuthUser(
-			userDetails.getUser().getId(),
-			userDetails.getUser().getEmail()
-		);
+		// sub -> 사용자 ID, email은 클레임에 따라 없을 수도 있음
+		String sub = jwt.getSubject();
+		String email = jwt.getClaim("email"); // claim 없으면 null
+
+		Long userId = jwt.getClaim("custom:userId");
+		if (userId == null) {
+			throw new ResponseStatusException(
+				ResponseCode.TOKEN_INVALID.getStatus(),
+				ResponseCode.TOKEN_BLACKLISTED.getDefaultMessage()
+			);
+		}
+
+		return new AuthUser(userId, email);
 	}
 }

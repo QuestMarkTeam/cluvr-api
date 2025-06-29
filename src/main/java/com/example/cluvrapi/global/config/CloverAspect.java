@@ -13,6 +13,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,6 @@ import com.example.cluvrapi.domain.clover.service.CloverEvent;
 import com.example.cluvrapi.domain.clover.service.CloverService;
 import com.example.cluvrapi.global.annotation.UpdateClover;
 import com.example.cluvrapi.global.exception.BusinessException;
-import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.response.ResponseCode;
 
 @Aspect
@@ -57,24 +57,23 @@ public class CloverAspect {
 		// 시큐리티에 인증된 유저 정보
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-		if (auth != null && auth.isAuthenticated()) {
-			Object principal = auth.getPrincipal();
-			if (principal instanceof CustomUserDetails userDetails) {
-				Long userId = userDetails.getUser().getId();
-				// 클로버 업데이트
-				cloverService.updateClover(new UpdateCloverRequestDto(flowType.apply(clover), userId));
-				publisher.publishEvent(
-					CloverEvent.createEvent(userId, clover, createdTime, deletedTime, cloverUserActivityType));
-			} else {
-				throw new BusinessException(ResponseCode.AUTH_REQUIRED);
+		if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof Jwt jwt) {
+			Long userId = jwt.getClaim("custom:userId");
+
+			if (userId == null) {
+				throw new BusinessException(ResponseCode.TOKEN_INVALID);
 			}
+			// 클로버 업데이트
+			cloverService.updateClover(new UpdateCloverRequestDto(clover, userId));
+			publisher.publishEvent(
+				CloverEvent.createEvent(userId, clover, createdTime, deletedTime, cloverUserActivityType));
 		} else {
 			throw new BusinessException(ResponseCode.AUTH_REQUIRED);
 		}
 		return result;
 	}
 
-	public Integer getCloverData(ProceedingJoinPoint pjp){
+	public Integer getCloverData(ProceedingJoinPoint pjp) {
 		CloverUpdateDto earnDto = Arrays.stream(pjp.getArgs())
 			.filter(CloverUpdateDto.class::isInstance)
 			.map(CloverUpdateDto.class::cast)

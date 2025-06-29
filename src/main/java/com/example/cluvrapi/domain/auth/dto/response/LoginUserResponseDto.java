@@ -1,29 +1,30 @@
 package com.example.cluvrapi.domain.auth.dto.response;
 
-import com.example.cluvrapi.domain.user.entity.User;
-
 import lombok.Getter;
 
 @Getter
 public class LoginUserResponseDto {
-	private final Long id;
 	private final String name;
 	private final String email;
 	private final String accessToken;
 	private final String refreshToken;
+	private final String idToken;
 
-	public LoginUserResponseDto(Long id, String name, String email, String accessToken, String refreshToken) {
-		this.id = id;
+	public LoginUserResponseDto(String name, String email, String accessToken, String refreshToken,
+		String idToken) {
 		this.name = name;
 		this.email = email;
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
+		this.idToken = idToken;
 	}
 
 	/**
 	 * User 엔티티와 생성된 토큰 두 개를 받아서 DTO를 생성합니다.
 	 */
-	public static LoginUserResponseDto from(User user, String accessToken, String refreshToken) {
-		return new LoginUserResponseDto(user.getId(), user.getName(), user.getEmail(), accessToken, refreshToken);
+	public static LoginUserResponseDto from(String email, String name, String accessToken, String refreshToken,
+		String idToken) {
+		return new LoginUserResponseDto(name, email, accessToken, refreshToken,
+			idToken);
 	}
 }
