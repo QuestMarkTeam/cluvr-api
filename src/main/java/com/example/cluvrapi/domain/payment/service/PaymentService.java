@@ -1,5 +1,6 @@
 package com.example.cluvrapi.domain.payment.service;
 
+import com.example.cluvrapi.domain.payment.dto.response.FindPaymentPrepareResponseDto;
 import com.example.cluvrapi.domain.payment.dto.request.PaymentPrepareRequestDto;
 import com.example.cluvrapi.domain.payment.dto.request.PaymentRequestDto;
 import com.example.cluvrapi.domain.payment.dto.response.PaymentPrepareResponseDto;
@@ -19,4 +20,5 @@ public interface PaymentService {
 
 	PaymentPrepareResponseDto savePaymentInfo(Long userId, PaymentPrepareRequestDto requestDto);
 
+	FindPaymentPrepareResponseDto findPaymentPending(Long id, String orderId);
 }
