@@ -2,6 +2,7 @@ package com.example.cluvrapi.domain.auth.service;
 
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminConfirmSignUpRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
@@ -282,7 +283,15 @@ public class AuthServiceImpl implements AuthService {
 				.username(username)
 				.build();
 			cognitoClient.adminConfirmSignUp(confirmRequest);
-
+			AdminUpdateUserAttributesRequest updateRequest = AdminUpdateUserAttributesRequest.builder()
+				.userPoolId(userPoolId)
+				.username(username)
+				.userAttributes(AttributeType.builder()
+					.name("email_verified")
+					.value("true")
+					.build())
+				.build();
+			cognitoClient.adminUpdateUserAttributes(updateRequest);
 		} catch (UsernameExistsException e) {
 			throw new BusinessException(ResponseCode.ALREADY_COGNITO);
 		} catch (CognitoIdentityProviderException e) {
