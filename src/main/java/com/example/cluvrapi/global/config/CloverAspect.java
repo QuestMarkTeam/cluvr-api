@@ -23,6 +23,8 @@ import com.example.cluvrapi.domain.clover.enums.CloverActionType;
 import com.example.cluvrapi.domain.clover.enums.CloverUserActivityType;
 import com.example.cluvrapi.domain.clover.service.CloverEvent;
 import com.example.cluvrapi.domain.clover.service.CloverService;
+import com.example.cluvrapi.domain.user.entity.User;
+import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.annotation.UpdateClover;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
@@ -34,6 +36,7 @@ public class CloverAspect {
 
 	private final CloverService cloverService; // 내부에서 트랜잭션 공유 가능하도록
 	private final ApplicationEventPublisher publisher; // 이벤트 발행
+	private final UserRepository userRepository;
 
 	@Transactional
 	@Around("@annotation(com.example.cluvrapi.global.annotation.UpdateClover)")
@@ -58,7 +61,11 @@ public class CloverAspect {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 		if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof Jwt jwt) {
-			Long userId = jwt.getClaim("custom:userId");
+			String sub = jwt.getSubject();
+			User user = userRepository.findBySub(sub)
+				.orElseThrow(() -> new BusinessException(ResponseCode.USER_NOT_FOUND));
+
+			Long userId = user.getId();
 
 			if (userId == null) {
 				throw new BusinessException(ResponseCode.TOKEN_INVALID);
