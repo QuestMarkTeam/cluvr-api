@@ -34,14 +34,15 @@ public class JoinRequestRepositoryQueryImpl implements JoinRequestRepositoryQuer
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
-	public boolean existsJoinByClubIdAndUserId(Long clubId, Long userId) {
-		return jpaQueryFactory
-			.selectOne()
-			.from(joinRequest)
-			.where(joinRequest.club.id.eq(clubId)
-				.and(joinRequest.user.id.eq(userId))
-				.and(joinRequest.isDeleted.isFalse()))
-			.fetchFirst() != null;
+	public Optional<JoinRequest> findJoinByClubIdAndUserId(Long clubId, Long userId) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.selectFrom(joinRequest)
+				.where(joinRequest.club.id.eq(clubId)
+					.and(joinRequest.user.id.eq(userId))
+					.and(joinRequest.isDeleted.isFalse()))
+				.fetchOne()
+		);
 	}
 
 	@Override

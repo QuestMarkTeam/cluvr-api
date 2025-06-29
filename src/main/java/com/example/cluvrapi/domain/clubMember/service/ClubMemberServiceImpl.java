@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.club.entity.Club;
 import com.example.cluvrapi.domain.club.repository.ClubRepository;
+import com.example.cluvrapi.domain.clubMember.dto.request.HandleJoinStatusRequestDto;
 import com.example.cluvrapi.domain.clubMember.dto.response.ClubMemberInfoResponseDto;
 import com.example.cluvrapi.domain.clubMember.dto.response.GetMemberRoleResponseDto;
 import com.example.cluvrapi.domain.clubMember.entity.ClubMember;
@@ -40,46 +41,32 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 
 	@Transactional
 	@Override
-	public void handleJoinRequest(Long clubId, Long joinRequestId, JoinStatus status, AuthUser approver) {
-		JoinRequest jr = joinRequestRepository.joinRequestByIdAndClubId(clubId, joinRequestId)
+	public void handleJoinRequest(Long clubId, Long joinRequestId, HandleJoinStatusRequestDto dto, AuthUser approver) {
+		// 1. 요청 정보 조회
+		JoinRequest joinRequest = joinRequestRepository.joinRequestByIdAndClubId(clubId, joinRequestId)
 			.orElseThrow(() -> new BusinessException(ResponseCode.NOT_FOUND, "가입 요청을 찾을 수 없습니다."));
 
-		if (jr.getJoinStatus() != JoinStatus.PENDING) {
+		// 2. 가입 요청 상태 검증
+		if (joinRequest.getJoinStatus() != JoinStatus.PENDING) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 처리된 요청입니다.");
 		}
 
-		Club club = jr.getClub();
-		long activeCount = clubMemberRepository.countByClubIdAndStatus(clubId, ClubMemberStatus.ACTIVE);
-		if (activeCount >= club.getMaxMemberCount()) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "클럽 최대 인원을 초과했습니다.");
-		}
-		var user = jr.getUser();
+		// 3. 클럽, 유저, DTO 정보 추출
+		Club club = joinRequest.getClub();
+		User user = joinRequest.getUser();
+		JoinStatus status = dto.getStatus();
 
-		if (status == JoinStatus.APPROVED) {
-			Optional<ClubMember> existing = clubMemberRepository.findByClubAndUserWithAnyStatus(club, user);
-
-			if (existing.isPresent()) {
-				ClubMember cm = existing.get();
-				switch (cm.getClubMemberStatus()) {
-					case ACTIVE:
-						throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입된 유저입니다.");
-					case KICKED:
-						throw new BusinessException(ResponseCode.INVALID_REQUEST, "강퇴된 유저는 재가입할 수 없습니다.");
-					case WITHDRAWN:
-						cm.rejoin();
-						break;
+		// 4. 승인 또는 거절 처리
+		switch (status) {
+			case APPROVED -> {
+				Long activeCount = clubMemberRepository.countByClubIdAndStatus(clubId, ClubMemberStatus.ACTIVE);
+				if (activeCount >= club.getMaxMemberCount()) {
+					throw new BusinessException(ResponseCode.INVALID_REQUEST, "클럽 최대 인원을 초과했습니다.");
 				}
-			} else {
-				ClubMember nm = new ClubMember(club, user, ClubMemberRole.MEMBER, ClubMemberStatus.ACTIVE);
-				clubMemberRepository.save(nm);
+				handleApproval(club, user, joinRequest);
 			}
-
-			jr.approve();
-
-		} else if (status == JoinStatus.REJECTED) {
-			jr.reject();
-		} else {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "승인 또는 거절만 가능합니다.");
+			case REJECTED -> joinRequest.reject();
+			default -> throw new BusinessException(ResponseCode.INVALID_REQUEST, "승인 또는 거절만 가능합니다.");
 		}
 	}
 
@@ -134,6 +121,13 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 탈퇴 또는 강퇴된 멤버입니다.");
 		}
 		me.withdraw();
+
+		// JoinRequest SoftDeleted 적용
+		JoinRequest joinRequest = joinRequestRepository.findJoinByClubIdAndUserId(clubId, user.id()).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "가입된 요청이 없습니다.")
+		);
+
+		joinRequest.delete();
 	}
 
 	@Override
@@ -147,7 +141,15 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 		if (target.getClubMemberStatus() != ClubMemberStatus.ACTIVE) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 탈퇴 또는 강퇴된 멤버입니다.");
 		}
+
 		target.kick();
+
+		// JoinRequest SoftDeleted 적용
+		JoinRequest joinRequest = joinRequestRepository.findJoinByClubIdAndUserId(clubId, target.getUser().getId()).orElseThrow(
+			() -> new BusinessException(ResponseCode.INVALID_REQUEST, "가입된 요청이 없습니다.")
+		);
+
+		joinRequest.delete();
 	}
 
 	@Override
@@ -220,5 +222,27 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 			.collect(Collectors.toList());
 	}
 
+	/**
+	 * 가입 요청 승인 처리 메서드.
+	 * 기존 ClubMember 상태를 확인하여 예외 처리 또는 복귀/신규 생성 후, 가입 요청 상태를 APPROVED 로 변경한다.
+	 */
+
+	private void handleApproval(Club club, User user, JoinRequest joinRequest) {
+		Optional<ClubMember> clubMemberOpt = clubMemberRepository.findByClubAndUserWithAnyStatus(club, user);
+
+		if (clubMemberOpt.isPresent()) {
+			ClubMember cm = clubMemberOpt.get();
+			switch (cm.getClubMemberStatus()) {
+				case ACTIVE -> throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입된 유저입니다.");
+				case KICKED -> throw new BusinessException(ResponseCode.INVALID_REQUEST, "강퇴된 유저는 재가입할 수 없습니다.");
+				case WITHDRAWN -> cm.rejoin();
+			}
+		} else {
+			ClubMember nm = new ClubMember(club, user, ClubMemberRole.MEMBER, ClubMemberStatus.ACTIVE);
+			clubMemberRepository.save(nm);
+		}
+
+		joinRequest.approve();
+	}
 }
 

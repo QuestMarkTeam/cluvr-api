@@ -1,6 +1,7 @@
 package com.example.cluvrapi.domain.join.service;
 
 import java.util.Map;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -61,7 +62,6 @@ public class JoinServiceImpl implements JoinService {
 	private final NotificationProducer notificationProducer;
 	private final JoinRedisService joinRedisService;
 	private final ClubMemberRepository clubMemberRepository;
-	private final ClubValidator clubValidator;
 
 	/**
 	 * 상수 선언
@@ -118,11 +118,6 @@ public class JoinServiceImpl implements JoinService {
 	@Override
 	@Transactional(readOnly = true)
 	public PageResponseDto<MyClubJoinResponseDto> findJoinRequestByClubId(Long userId, Long clubId, Pageable pageable) {
-		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
-			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "해당하는 멤버가 존재하지 않습니다."));
-
-		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
-
 		return joinRequestRepository.findJoinRequestByClubId(clubId, pageable);
 	}
 
@@ -148,7 +143,10 @@ public class JoinServiceImpl implements JoinService {
 		ClubMember findClubMember = clubMemberRepository.findByClubIdAndUserId(clubId, userId)
 			.orElseThrow(() -> new BusinessException(ResponseCode.ACCESS_DENIED, "접근할 수 없습니다."));
 
-		clubValidator.validateOwnerAndAdminRole(findClubMember.getClubMemberRole());
+		if (findClubMember.getClubMemberRole() != ClubMemberRole.OWNER
+			&& findClubMember.getClubMemberRole() != ClubMemberRole.ADMIN) {
+			throw new BusinessException(ResponseCode.ACCESS_DENIED, "클랜장과 운영진만 조회 가능합니다.");
+		}
 
 		return infoJoinRequestResponseDto;
 	}
@@ -178,9 +176,8 @@ public class JoinServiceImpl implements JoinService {
 			throw new BusinessException(ResponseCode.ACCESS_DENIED, "신청한 본인만 취소할 수 있습니다.");
 		}
 
-		// 2) Join Status 를 Cancel 로 수정
-		findJoinRequest.updateJoinStatus();
-		joinRequestRepository.delete(findJoinRequest);
+		// 2) Join Status 를 SoftDeleted
+		findJoinRequest.delete();
 
 		// 3) JoinRequest Answer 이 존재한다면, 삭제
 		joinRequestRepository.findJoinRequestAnswerByIdAndClubId(clubId, joinRequestId)
@@ -226,15 +223,25 @@ public class JoinServiceImpl implements JoinService {
 	 */
 	private void validateJoinRequest(Club club, User user) {
 		// 1. 중복 신청 조회
-		boolean alreadyRequested = joinRequestRepository.existsJoinByClubIdAndUserId(club.getId(), user.getId());
-		if (alreadyRequested) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입 신청한 클럽입니다.");
-		}
+		Optional<JoinRequest> alreadyRequested = joinRequestRepository.findJoinByClubIdAndUserId(club.getId(),
+			user.getId());
+
+		alreadyRequested.ifPresent(joinRequest -> {
+			if (joinRequest.getJoinStatus() == JoinStatus.PENDING
+				|| joinRequest.getJoinStatus() == JoinStatus.APPROVED) {
+				throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입 신청한 클럽입니다.");
+			}
+		});
 
 		// 2. 이미 가입된 유저인지 조회
-		if (clubMemberRepository.findByClubIdAndUserId(club.getId(), user.getId()).isPresent()) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입된 클럽입니다.");
-		}
+		clubMemberRepository.findByClubAndUserWithAnyStatus(club, user).ifPresent(
+			clubMember -> {
+				switch(clubMember.getClubMemberStatus()) {
+					case ACTIVE: throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입 신청한 클럽입니다.");
+					case KICKED: throw new BusinessException(ResponseCode.INVALID_REQUEST, "강퇴한 당한 클럽은 가입 불가합니다.");
+				}
+			}
+		);
 
 		// 3. 클럽원 다 찼는지 확인
 		if (clubMemberRepository.countByClubIdAndStatus(club.getId(), ClubMemberStatus.ACTIVE)

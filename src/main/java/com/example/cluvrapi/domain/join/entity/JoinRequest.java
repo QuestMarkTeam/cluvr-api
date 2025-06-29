@@ -103,17 +103,29 @@ public class JoinRequest {
 	}
 
 	/**
-	 * 설명: 가입 상태를 취소로 바꾸어주는 메서드
+	 * 설명: 가입 요청을 Soft Deleted 해주는 메서드
 	 *
 	 * @author sinyoung0403
 	 */
-	public void updateJoinStatus() {
-		this.joinStatus = JoinStatus.CANCELED;
+	public void delete() {
+		this.isDeleted = true;
 	}
+
+	/**
+	 * 설명: 가입 요청을 approve 해주는 메서드
+	 *
+	 * @author sinyoung0403
+	 */
 
 	public void approve() {
 		this.joinStatus = JoinStatus.APPROVED;
 	}
+
+	/**
+	 * 설명: 가입 요청을 reject 해주는 메서드
+	 *
+	 * @author sinyoung0403
+	 */
 
 	public void reject() {
 		this.joinStatus = JoinStatus.REJECTED;
