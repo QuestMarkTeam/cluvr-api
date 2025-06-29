@@ -74,5 +74,4 @@ public interface UserRepositoryCustom {
 	 */
 	boolean existsByPhoneNumber(String phoneNumber);
 
-	Optional<User> findByEmail(String email);
 }
