@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Cluvr - 로그인</title>
+  <link rel="stylesheet" href="css/main.css">
+  <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1">
+  <style>
+    .login-card { background:#F0FFF4; border-radius:16px; box-shadow:0 1px 4px #0001; padding:32px 24px 24px 24px; width:100%; max-width:340px; margin:40px auto 0 auto; display:flex; flex-direction:column; align-items:center; }
+    .login-title { font-size:2rem; font-weight:bold; color:#6EE7B7; margin-bottom:24px; }
+    .login-input { width:100%; margin-bottom:12px; border-radius:6px; border:1px solid #e5e5e5; padding:10px; font-size:1rem; }
+    .login-btn { width:100%; background:#6EE7B7; color:#fff; border:none; border-radius:8px; font-size:1.1rem; padding:12px 0; font-weight:bold; margin-bottom:8px; }
+    .login-social-btn { width:100%; border:none; border-radius:8px; font-size:1.1rem; padding:12px 0; font-weight:bold; margin-bottom:8px; }
+    .login-kakao { background:#FEE500; color:#222; }
+    .login-google { background:#fff; color:#222; border:1px solid #e5e5e5; }
+    .login-link { color:#6EE7B7; text-decoration:none; font-size:1rem; margin:0 8px; }
+    .error-message { color: #ff4444; font-size: 0.9rem; margin-bottom: 8px; text-align: center; }
+  </style>
+</head>
+<body>
+  <main class="main-content" style="display:flex; flex-direction:column; align-items:center;">
+    <form class="login-card" id="loginForm">
+      <div class="login-title">Cluvr</div>
+      <input name="email" type="email" class="login-input" placeholder="이메일" required>
+      <input name="password" type="password" class="login-input" placeholder="비밀번호" required>
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
+      <button type="submit" class="login-btn">로그인</button>
+      <button type="button" class="login-social-btn login-kakao">카카오 로그인</button>
+      <button type="button" class="login-social-btn login-google">구글 로그인</button>
+      <div style="margin-top:8px;">
+        <a href="signup.html" class="login-link">회원가입</a>
+        <a href="forget-password.html" class="login-link">비밀번호 찾기</a>
+      </div>
+    </form>
+  </main>
+  
+  <script>
+    // API 엔드포인트
+    const API_DOMAIN_URL = 'http://localhost:8080'; // 개발용
+    // const API_DOMAIN_URL = 'http://44.239.99.137:80'; // 배포용
+
+    document.getElementById('loginForm').onsubmit = async function(e) {
+      e.preventDefault();
+      
+      const form = e.target;
+      const submitBtn = form.querySelector('button[type="submit"]');
+      
+      // 로딩 상태 표시
+      submitBtn.disabled = true;
+      submitBtn.textContent = '로그인 중...';
+      hideError();
+      
+      try {
+        const requestBody = {
+          email: form.email.value,
+          password: form.password.value
+        };
+        
+        const response = await fetch(`${API_DOMAIN_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          // 로그인 성공 - 토큰 저장
+          const loginData = result.data;
+          localStorage.setItem('accessToken', loginData.accessToken);
+          localStorage.setItem('refreshToken', loginData.refreshToken);
+          localStorage.setItem('userId', loginData.id);
+          localStorage.setItem('userName', loginData.name);
+          localStorage.setItem('userEmail', loginData.email);
+          
+          alert('로그인 성공!');
+          location.href = 'home.html';
+        } else {
+          // 로그인 실패
+          const errorMessage = result.result?.message || '로그인에 실패했습니다.';
+          showError(errorMessage);
+        }
+      } catch (error) {
+        console.error('로그인 오류:', error);
+        showError('서버 연결에 실패했습니다.');
+      } finally {
+        // 로딩 상태 해제
+        submitBtn.disabled = false;
+        submitBtn.textContent = '로그인';
+      }
+    };
+    
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+    }
+    
+    function hideError() {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.style.display = 'none';
+    }
+    
+    // 페이지 로드 시 이미 로그인된 상태인지 확인
+    window.onload = function() {
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
+        // 이미 로그인된 상태면 홈으로 리다이렉트
+        location.href = 'home.html';
+      }
+    };
+  </script>
+</body>
+</html> 

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Cluvr - 홈</title>
+  <link rel="stylesheet" href="css/main.css">
+  <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1">
+</head>
+<body>
+  <!-- 상단바 -->
+  <header class="app-bar">
+<!--    <button class="icon-btn">&#9776;</button>-->
+    <h1 class="app-title">Cluvr</h1>
+    <button class="icon-btn bell">&#128276;</button>
+  </header>
+
+  <!-- 배너 슬라이드 -->
+  <section class="banner">
+    <div class="banner-container" id="banner-container">
+      <div class="banner-slide">
+        <img src="/static/img/banner1.png" alt="배너1">
+      </div>
+      <div class="banner-slide">
+        <img src="/static/img/banner2.png" alt="배너2">
+      </div>
+      <div class="banner-slide">
+        <img src="/static/img/banner3.png" alt="배너3">
+      </div>
+    </div>
+    <button class="banner-btn prev" onclick="prevSlide()">&#10094;</button>
+    <button class="banner-btn next" onclick="nextSlide()">&#10095;</button>
+    <div class="banner-dots" id="banner-dots">
+      <div class="banner-dot active"></div>
+      <div class="banner-dot"></div>
+      <div class="banner-dot"></div>
+    </div>
+  </section>
+
+  <!-- 클럽 미리보기 -->
+  <main class="main-content">
+    <div class="category-header">
+      <h2>Study Group</h2>
+      <a href="club.html" class="more-link">더보기 &gt;</a>
+    </div>
+    <ul class="group-list" id="home-club-list"></ul>
+
+    <!-- 최신 게시글 미리보기 -->
+    <div class="category-header">
+      <h2>최신 게시글</h2>
+      <a href="board.html" class="more-link">더보기 &gt;</a>
+    </div>
+    <ul class="group-list" id="home-latest-posts-list"></ul>
+  </main>
+
+  <!-- 하단 네비게이션 -->
+  <nav class="tab-bar">
+    <a href="home.html" class="tab active">Home</a>
+    <a href="club.html" class="tab">Club</a>
+    <a href="board.html" class="tab">Board</a>
+    <a href="myClub.html" class="tab">My Clubs</a>
+    <a href="profile.html" class="tab">Profile</a>
+  </nav>
+  <script>
+    // API 엔드포인트
+    const API_DOMAIN_URL = 'http://localhost:8080'; // 개발용
+    // const API_DOMAIN_URL = 'http://44.239.99.137:80'; // 배포용
+
+    // 배너 슬라이드 기능
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.banner-slide');
+    const dots = document.querySelectorAll('.banner-dot');
+    const container = document.getElementById('banner-container');
+    
+    function showSlide(index) {
+      currentSlide = index;
+      container.style.transform = `translateX(-${index * 100}%)`;
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+      });
+    }
+    
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides.length;
+      showSlide(currentSlide);
+    }
+    
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+      showSlide(currentSlide);
+    }
+    
+    // 자동 슬라이드
+    setInterval(nextSlide, 3000);
+    
+    // 클럽 미리보기
+    async function fetchHomeClubs() {
+      const res = await fetch(`${API_DOMAIN_URL}/api/clubs?clubType=STUDY`);
+      const data = await res.json();
+      const clubs = (data.data && data.data.content) ? data.data.content.slice(0,2) : [];
+      const list = document.getElementById('home-club-list');
+      list.innerHTML = '';
+      if (!clubs.length) {
+        list.innerHTML = '<div style="color:#888;text-align:center;">클럽이 없습니다.</div>';
+        return;
+      }
+      clubs.forEach(club => {
+        list.innerHTML += `
+          <li class="group-card">
+            <img src="${club.posterUrl || 'static/img/study-coding.png'}" class="group-thumb">
+            <div class="group-info">
+              <div class="group-title">${club.name}</div>
+              <div class="group-desc">${club.greeting}</div>
+              <div class="group-meta">멤버 ${club.maxMemberCounter}명</div>
+            </div>
+          </li>
+        `;
+      });
+    }
+    // 최신 게시글 미리보기
+    async function fetchHomeLatestPosts() {
+      // 임시로 DEVELOPMENT 카테고리 사용 (나중에 백엔드에서 카테고리 없이 가져오는 API 추가 필요)
+      const res = await fetch(`${API_DOMAIN_URL}/api/boards?category=DEVELOPMENT`);
+      const data = await res.json();
+      const boards = (data.data && data.data.content) ? data.data.content.slice(0,5) : [];
+      const list = document.getElementById('home-latest-posts-list');
+      list.innerHTML = '';
+      if (!boards.length) {
+        list.innerHTML = '<div style="color:#888;text-align:center;">게시글이 없습니다.</div>';
+        return;
+      }
+      boards.forEach(board => {
+        list.innerHTML += `
+          <li class="group-card" onclick="location.href='board-detail.html?boardId=${board.id}'">
+            <div class="group-info">
+              <div class="group-title">${board.title}</div>
+              <div class="group-meta">by ${board.userName || '익명'} · ${board.createdAt ? board.createdAt.split('T')[0] : ''}</div>
+            </div>
+          </li>
+        `;
+      });
+    }
+    fetchHomeClubs();
+    fetchHomeLatestPosts();
+  </script>
+</body>
+</html> 

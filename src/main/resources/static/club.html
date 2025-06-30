@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Cluvr - Club</title>
+  <link rel="stylesheet" href="css/main.css">
+  <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1">
+  <style>
+    .club-tabs { 
+      display: flex; 
+      margin: 16px 0 8px 0; 
+      gap: 4px;
+    }
+    .club-tab-btn {
+      flex: 1; 
+      padding: 8px 4px; 
+      border: none; 
+      background: #F0FFF4; 
+      color: #6EE7B7; 
+      font-size: 0.9rem;
+      font-weight: bold; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      transition: background 0.2s;
+    }
+    .club-tab-btn.active { background: #6EE7B7; color: #fff; }
+  </style>
+</head>
+<body>
+  <!-- 상단바 -->
+  <header class="app-bar">
+    <button class="icon-btn" onclick="location.href='home.html'"> ← </button>
+    <h1 class="app-title">Club</h1>
+    <span style="width:2rem"></span>
+  </header>
+
+  <!-- 클럽 타입 탭 -->
+  <div class="club-tabs">
+    <button class="club-tab-btn active" id="tab-study" onclick="switchClubType('STUDY')">스터디</button>
+    <button class="club-tab-btn" id="tab-project" onclick="switchClubType('PROJECT')">프로젝트</button>
+    <button class="club-tab-btn" id="tab-hobby" onclick="switchClubType('HOBBY')">취미</button>
+  </div>
+
+  <!-- 그룹 리스트 -->
+  <main class="main-content" style="padding-top:0;">
+    <ul class="group-list" id="club-list">
+      <!-- JS로 동적 렌더링 -->
+    </ul>
+    <button class="main-btn" onclick="openCreateModal()">Create Club</button>
+  </main>
+
+  <!-- 하단 네비게이션 -->
+  <nav class="tab-bar">
+    <a href="home.html" class="tab">Home</a>
+    <a href="club.html" class="tab active">Club</a>
+    <a href="board.html" class="tab">Board</a>
+    <a href="myClub.html" class="tab">My Clubs</a>
+    <a href="profile.html" class="tab">Profile</a>
+  </nav>
+
+  <!-- 클럽 생성 모달 -->
+  <div id="create-modal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:#0005; z-index:999; align-items:center; justify-content:center;">
+    <form id="create-form" style="background:#fff; border-radius:12px; padding:24px; width:90%; max-width:340px; margin:auto; display:flex; flex-direction:column; gap:8px;">
+      <h3 style="margin-top:0;">클럽 생성</h3>
+      <input id="club-name" name="name" placeholder="클럽명" required>
+      <input id="club-greeting" name="greeting" placeholder="소개말" required>
+      <input id="club-max-member" name="maxMemberCounter" type="number" placeholder="최대 인원수" min="2" max="100" value="10" required>
+      <select id="club-type" name="clubType" required>
+        <option value="STUDY">스터디</option>
+        <option value="PROJECT">프로젝트</option>
+        <option value="HOBBY">취미</option>
+      </select>
+      <button type="button" onclick="createClub()" class="main-btn">생성</button>
+      <button type="button" onclick="closeCreateModal()" style="width:100%; margin-top:8px;">취소</button>
+    </form>
+  </div>
+
+  <script>
+    // API 엔드포인트
+    const API_DOMAIN_URL = 'http://localhost:8080'; // 개발용
+    // const API_DOMAIN_URL = 'http://44.239.99.137:80'; // 배포용
+
+    let currentClubType = 'STUDY';
+
+    function switchClubType(type) {
+      currentClubType = type;
+      
+      // 모든 탭 비활성화
+      document.querySelectorAll('.club-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // 선택된 탭 활성화
+      document.getElementById(`tab-${type.toLowerCase()}`).classList.add('active');
+      
+      fetchClubs();
+    }
+
+    // 클럽 목록 가져오기
+    async function fetchClubs() {
+      const res = await fetch(`${API_DOMAIN_URL}/api/clubs?clubType=${currentClubType}`);
+      const data = await res.json();
+      const clubs = (data.data && data.data.content) ? data.data.content : [];
+      const list = document.getElementById('club-list');
+      list.innerHTML = '';
+      if (!clubs.length) {
+        list.innerHTML = '<div style="color:#888;text-align:center;">클럽이 없습니다.</div>';
+        return;
+      }
+      clubs.forEach(club => {
+        list.innerHTML += `
+          <li class="group-card" onclick="showClubDetail(${club.clubId})">
+            <img src="${club.posterUrl || 'static/img/study-coding.png'}" class="group-thumb">
+            <div class="group-info">
+              <div class="group-title">${club.name}</div>
+              <div class="group-desc">${club.greeting}</div>
+              <div class="group-meta">멤버 ${club.maxMemberCounter}명</div>
+            </div>
+          </li>
+        `;
+      });
+    }
+    fetchClubs();
+
+    // 클럽 생성 모달
+    function openCreateModal() {
+      document.getElementById('create-modal').style.display = 'flex';
+    }
+    function closeCreateModal() {
+      document.getElementById('create-modal').style.display = 'none';
+    }
+
+    // 클럽 생성
+    async function createClub() {
+      const name = document.getElementById('club-name').value;
+      const greeting = document.getElementById('club-greeting').value;
+      const maxMemberCounter = document.getElementById('club-max-member').value;
+      const clubType = document.getElementById('club-type').value;
+
+      if (!name || !greeting || !maxMemberCounter) {
+        alert('모든 필드를 입력해주세요.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_DOMAIN_URL}/api/clubs`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            name,
+            greeting,
+            maxMemberCounter: parseInt(maxMemberCounter),
+            clubType
+          })
+        });
+
+        if (res.ok) {
+          alert('클럽이 생성되었습니다!');
+          closeCreateModal();
+          fetchClubs();
+        } else {
+          const error = await res.json();
+          alert(error.message || '클럽 생성에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('클럽 생성 중 오류가 발생했습니다.');
+      }
+    }
+  </script>
+</body>
+</html> 

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Cluvr - 회원가입</title>
+  <link rel="stylesheet" href="css/main.css">
+  <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1">
+  <style>
+    .signup-card { background:#F0FFF4; border-radius:16px; box-shadow:0 1px 4px #0001; padding:32px 24px 24px 24px; width:100%; max-width:340px; margin:40px auto 0 auto; display:flex; flex-direction:column; align-items:center; }
+    .signup-title { font-size:2rem; font-weight:bold; color:#6EE7B7; margin-bottom:24px; }
+    .signup-input { width:100%; margin-bottom:12px; border-radius:6px; border:1px solid #e5e5e5; padding:10px; font-size:1rem; }
+    .signup-select { width:100%; margin-bottom:12px; border-radius:6px; border:1px solid #e5e5e5; padding:10px; font-size:1rem; background: white; }
+    .signup-btn { width:100%; background:#6EE7B7; color:#fff; border:none; border-radius:8px; font-size:1.1rem; padding:12px 0; font-weight:bold; margin-bottom:8px; }
+    .signup-link { color:#6EE7B7; text-decoration:none; font-size:1rem; margin:0 8px; }
+    .error-message { color: #ff4444; font-size: 0.9rem; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <main class="main-content" style="display:flex; flex-direction:column; align-items:center;">
+    <form class="signup-card" id="signupForm">
+      <div class="signup-title">Sign Up</div>
+      
+      <input name="name" type="text" class="signup-input" placeholder="이름 (최대 10자)" maxlength="10" required>
+      
+      <input name="birthday" type="date" class="signup-input" required>
+      
+      <input name="email" type="email" class="signup-input" placeholder="이메일" required>
+      
+      <input name="phoneNumber" type="tel" class="signup-input" placeholder="전화번호 (10-11자리)" pattern="[0-9]{10,11}" required>
+      
+      <select name="gender" class="signup-select" required>
+        <option value="">성별 선택</option>
+        <option value="MALE">남성</option>
+        <option value="FEMALE">여성</option>
+        <option value="OTHER">기타</option>
+      </select>
+      
+      <select name="categoryType" class="signup-select" required>
+        <option value="">카테고리 선택</option>
+        <option value="DEVELOPMENT">개발</option>
+        <option value="ALGORITHMS_CODING_TESTS">알고리즘</option>
+        <option value="INTERVIEW_PREPARATION">면접</option>
+        <option value="CERTIFICATIONS_EXAMS">자격증</option>
+        <option value="DESIGN">디자인</option>
+        <option value="LANGUAGE_LEARNING">언어</option>
+        <option value="AI_DATA_SCIENCE">AI/데이터</option>
+        <option value="EXTRACURRICULAR_COMPETITIONS">대외활동</option>
+        <option value="MUSIC_EDUCATION">음악</option>
+        <option value="OTHERS">기타</option>
+      </select>
+      
+      <input name="password" type="password" class="signup-input" placeholder="비밀번호 (8-20자)" minlength="8" maxlength="20" required>
+      
+      <input name="confirmPassword" type="password" class="signup-input" placeholder="비밀번호 확인" required>
+      
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
+      
+      <button type="submit" class="signup-btn">회원가입</button>
+      <div style="margin-top:8px;">
+        <a href="login.html" class="signup-link">로그인으로 돌아가기</a>
+      </div>
+    </form>
+  </main>
+  
+  <script>
+    // API 엔드포인트
+    const API_DOMAIN_URL = 'http://localhost:8080'; // 개발용
+    // const API_DOMAIN_URL = 'http://44.239.99.137:80'; // 배포용
+
+    document.getElementById('signupForm').onsubmit = async function(e) {
+      e.preventDefault();
+      
+      const form = e.target;
+      const errorDiv = document.getElementById('errorMessage');
+      
+      // 비밀번호 확인
+      if (form.password.value !== form.confirmPassword.value) {
+        showError('비밀번호가 일치하지 않습니다.');
+        return;
+      }
+      
+      // 생년월일 검증
+      const birthday = new Date(form.birthday.value);
+      const today = new Date();
+      if (birthday >= today) {
+        showError('생년월일은 과거 날짜여야 합니다.');
+        return;
+      }
+      
+      // 전화번호 형식 검증
+      const phoneRegex = /^\d{10,11}$/;
+      if (!phoneRegex.test(form.phoneNumber.value)) {
+        showError('전화번호는 10-11자리 숫자여야 합니다.');
+        return;
+      }
+      
+      try {
+        const requestBody = {
+          name: form.name.value,
+          birthday: form.birthday.value,
+          email: form.email.value,
+          phoneNumber: form.phoneNumber.value,
+          gender: form.gender.value,
+          categoryType: form.categoryType.value,
+          imageUrl: null, // 선택사항이므로 null로 설정
+          password: form.password.value,
+          confirmPassword: form.confirmPassword.value
+        };
+        
+        const response = await fetch(`${API_DOMAIN_URL}/api/auth/signup/default`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+        
+        // 응답 상태 확인
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('서버 응답:', response.status, errorText);
+          
+          let errorMessage = '회원가입에 실패했습니다.';
+          try {
+            const errorResult = JSON.parse(errorText);
+            errorMessage = errorResult.result?.message || errorMessage;
+          } catch (e) {
+            // JSON 파싱 실패 시 상태 코드에 따른 메시지
+            if (response.status === 403) {
+              errorMessage = '접근이 거부되었습니다. (403)';
+            } else if (response.status === 500) {
+              errorMessage = '서버 오류가 발생했습니다. (500)';
+            } else {
+              errorMessage = `오류가 발생했습니다. (${response.status})`;
+            }
+          }
+          showError(errorMessage);
+          return;
+        }
+        
+        // 성공 응답 처리
+        const result = await response.json();
+        
+        // 회원가입 성공 - 토큰 저장
+        const signupData = result.data;
+        localStorage.setItem('accessToken', signupData.accessToken);
+        localStorage.setItem('refreshToken', signupData.refreshToken);
+        localStorage.setItem('userId', signupData.id);
+        localStorage.setItem('userName', signupData.name);
+        localStorage.setItem('userEmail', signupData.email);
+        
+        alert('회원가입이 완료되었습니다!');
+        location.href = 'home.html';
+      } catch (error) {
+        console.error('회원가입 오류:', error);
+        showError('서버 연결에 실패했습니다.');
+      }
+    };
+    
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+    }
+  </script>
+</body>
+</html> 
