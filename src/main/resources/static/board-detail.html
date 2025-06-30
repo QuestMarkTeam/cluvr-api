@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 상세 - Cluvr</title>
+  <link rel="stylesheet" href="css/main.css">
+  <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1">
+  <style>
+    .detail-card { background: #F0FFF4; border-radius: 12px; padding: 20px; margin: 24px 0; }
+    .detail-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 6px; }
+    .detail-meta { color: #6EE7B7; font-size: 0.95rem; margin-bottom: 10px; }
+    .detail-content { font-size: 1.05rem; color: #222; margin-bottom: 16px; }
+    .comment-list { list-style: none; padding: 0; margin: 0 0 16px 0; }
+    .comment-item { background: #fff; border-radius: 8px; margin-bottom: 8px; padding: 10px 12px; box-shadow: 0 1px 4px #0001; }
+    .comment-meta { color: #6EE7B7; font-size: 0.92rem; margin-bottom: 2px; }
+    .comment-content { font-size: 1rem; color: #222; }
+    .comment-form { display: flex; gap: 8px; }
+    .comment-form input { flex: 1; border-radius: 6px; border: 1px solid #e5e5e5; padding: 8px; font-size: 1rem; }
+    .comment-form button { background: #6EE7B7; color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <!-- 상단바 -->
+  <header class="app-bar">
+    <button class="icon-btn" onclick="location.href='board.html'">&#8592;</button>
+    <h1 class="app-title">게시글</h1>
+    <span style="width:2rem"></span>
+  </header>
+
+  <main class="main-content" style="padding-top:0;">
+    <div class="detail-card" id="boardDetail">
+      <!-- JS로 동적 렌더링 -->
+    </div>
+    <h3 style="margin:16px 0 8px 0;">댓글</h3>
+    <ul class="comment-list" id="commentList">
+      <!-- JS로 동적 렌더링 -->
+    </ul>
+    <form class="comment-form" id="commentForm">
+      <input name="content" placeholder="댓글을 입력하세요" required>
+      <button type="submit">등록</button>
+    </form>
+  </main>
+
+  <!-- 하단 네비게이션 -->
+  <nav class="tab-bar">
+    <a href="home.html" class="tab">Home</a>
+    <a href="club.html" class="tab">Club</a>
+    <a href="board.html" class="tab active">Board</a>
+    <a href="myClub.html" class="tab">My Clubs</a>
+    <a href="profile.html" class="tab">Profile</a>
+  </nav>
+
+  <script>
+    // API 엔드포인트
+    const API_DOMAIN_URL = 'http://localhost:8080'; // 개발용
+    // const API_DOMAIN_URL = 'http://44.239.99.137:80'; // 배포용
+
+    // 쿼리스트링에서 boardId 추출
+    function getBoardId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('boardId');
+    }
+    const boardId = getBoardId();
+
+    // 게시글 상세 불러오기
+    async function fetchBoardDetail() {
+      const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}`);
+      const data = await res.json();
+      const board = data.data || {};
+      document.getElementById('boardDetail').innerHTML = `
+        <div class="detail-title">${board.title || ''}</div>
+        <div class="detail-content">${board.content || ''}</div>
+        <div class="detail-meta">by ${board.userName || '익명'} · ${board.createdAt ? board.createdAt.split('T')[0] : ''}</div>
+      `;
+    }
+
+    // 댓글 불러오기
+    async function fetchComments() {
+      const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}/replies`);
+      const data = await res.json();
+      const comments = data.data?.content || [];
+      const list = document.getElementById('commentList');
+      list.innerHTML = '';
+      if (!comments.length) {
+        list.innerHTML = '<div style="color:#888;text-align:center;">댓글이 없습니다.</div>';
+        return;
+      }
+      comments.forEach(comment => {
+        list.innerHTML += `
+          <li class="comment-item">
+            <div class="comment-meta">${comment.userName || '익명'} · ${comment.createdAt ? comment.createdAt.split('T')[0] : ''}</div>
+            <div class="comment-content">${comment.content}</div>
+          </li>
+        `;
+      });
+    }
+
+    // 댓글 등록
+    document.getElementById('commentForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = { content: form.content.value };
+      const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}/replies`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+      if (res.ok) {
+        form.reset();
+        fetchComments();
+      } else {
+        alert('댓글 등록 실패');
+      }
+    }
+
+    fetchBoardDetail();
+    fetchComments();
+  </script>
+</body>
+</html> 

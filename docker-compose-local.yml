@@ -1,0 +1,58 @@
+version: '3.8'
+services:
+  # Redis (로컬, cluvr-chat과 포트 충돌 방지)
+  redis:
+    image: redis:7.2
+    container_name: cluvr-api-redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+    ports:
+      - "6380:6379"
+    networks:
+      - cluvr-local-net
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: cluvr-api-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin1234
+    networks:
+      - cluvr-local-net
+
+  # Spring Boot Application
+  spring:
+    build: .
+    container_name: cluvr-api
+    ports:
+      - "8080:80"
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RMQ_HOST=rabbitmq
+      - RMQ_PORT=5672
+      - RMQ_USERNAME=admin
+      - RMQ_PASSWORD=admin1234
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+    networks:
+      - cluvr-local-net
+
+volumes:
+  mysql_data:
+
+networks:
+  cluvr-local-net:
+    driver: bridge 

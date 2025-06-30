@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Cluvr - My Clubs</title>
+    <link rel="stylesheet" href="css/main.css">
+    <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1">
+    <style>
+        .empty-state { 
+            text-align: center; 
+            color: #888; 
+            padding: 40px 20px;
+            font-size: 1rem;
+        }
+        .club-card { 
+            background: #fff; 
+            border-radius: 12px; 
+            margin-bottom: 12px; 
+            padding: 16px; 
+            box-shadow: 0 1px 4px #0001;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .club-card:hover { 
+            transform: translateY(-2px);
+        }
+        .club-name { 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            color: #222; 
+            margin-bottom: 4px;
+        }
+        .club-description { 
+            font-size: 0.9rem; 
+            color: #666; 
+            margin-bottom: 8px;
+        }
+        .club-meta { 
+            font-size: 0.8rem; 
+            color: #6EE7B7; 
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- 상단바 -->
+    <header class="app-bar">
+        <button class="icon-btn" onclick="location.href='home.html'">&#8592;</button>
+        <h1 class="app-title">My Clubs</h1>
+        <span style="width:2rem"></span>
+    </header>
+
+    <!-- 내 클럽 리스트 -->
+    <main class="main-content">
+        <ul class="group-list" id="clubList">
+            <!-- JS로 동적 렌더링 -->
+        </ul>
+    </main>
+
+    <!-- 하단 네비게이션 -->
+    <nav class="tab-bar">
+        <a href="home.html" class="tab">Home</a>
+        <a href="club.html" class="tab">Club</a>
+        <a href="board.html" class="tab">Board</a>
+        <a href="myClub.html" class="tab active">My Clubs</a>
+        <a href="profile.html" class="tab">Profile</a>
+    </nav>
+
+    <script>
+        // API 엔드포인트
+        const API_DOMAIN_URL = 'http://localhost:8080'; // 백엔드 API 서버
+        const API_CHAT_URL = 'http://localhost:8082'; // 로컬 채팅 서버
+        // const API_CHAT_URL = 'http://54.200.146.243'; // 원격 채팅 서버
+
+
+        // 페이지 로드 시 클럽 리스트 불러오기
+        window.onload = function() {
+            fetchClubs();
+        };
+
+        async function fetchClubs() {
+            const accessToken = localStorage.getItem('accessToken');
+            
+            if (!accessToken) {
+                // 로그인되지 않은 경우
+                document.getElementById('clubList').innerHTML = `
+                    <div class="empty-state">
+                        <div style="margin-bottom: 16px;">로그인이 필요합니다</div>
+                        <button class="main-btn" onclick="location.href='login.html'">로그인하기</button>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_DOMAIN_URL}/api/clubs/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        // 토큰이 만료된 경우
+                        localStorage.removeItem('accessToken');
+                        localStorage.removeItem('refreshToken');
+                        localStorage.removeItem('userId');
+                        localStorage.removeItem('userName');
+                        localStorage.removeItem('userEmail');
+                        
+                        document.getElementById('clubList').innerHTML = `
+                            <div class="empty-state">
+                                <div style="margin-bottom: 16px;">로그인이 만료되었습니다</div>
+                                <button class="main-btn" onclick="location.href='login.html'">다시 로그인하기</button>
+                            </div>
+                        `;
+                        return;
+                    }
+                    throw new Error('클럽 리스트를 불러오지 못했습니다.');
+                }
+
+                const result = await response.json();
+                const clubs = result.data || [];
+                renderClubList(clubs);
+            } catch (error) {
+                console.error('클럽 리스트 오류:', error);
+                document.getElementById('clubList').innerHTML = `
+                    <div class="empty-state">
+                        <div style="margin-bottom: 16px;">클럽 리스트를 불러오지 못했습니다</div>
+                        <button class="main-btn" onclick="fetchClubs()">다시 시도</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderClubList(clubs) {
+            const clubListDiv = document.getElementById('clubList');
+            
+            if (!clubs.length) {
+                clubListDiv.innerHTML = `
+                    <div class="empty-state">
+                        <div style="margin-bottom: 16px;">가입된 클럽이 없습니다</div>
+                        <button class="main-btn" onclick="location.href='club.html'">클럽 둘러보기</button>
+                    </div>
+                `;
+                return;
+            }
+
+            clubListDiv.innerHTML = clubs.map(club => `
+                <li class="club-card" onclick="goToChat(${club.clubId})">
+                    <div class="club-name">${escapeHtml(club.name)}</div>
+                    <div class="club-description">${escapeHtml(club.description || '')}</div>
+                    <div class="club-meta">클럽으로 이동 →</div>
+                </li>
+            `).join('');
+        }
+
+        function goToChat(clubId) {
+            const accessToken = localStorage.getItem('accessToken');
+            if (!accessToken) {
+                alert('로그인이 필요합니다.');
+                location.href = 'login.html';
+                return;
+            }
+            
+            // 채팅 서버로 이동
+            window.location.href = `${API_CHAT_URL}/chatroomlist.html?clubId=${clubId}&token=${encodeURIComponent(accessToken)}`;
+
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html> 

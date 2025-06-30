@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 작성 - Cluvr</title>
+  <link rel="stylesheet" href="css/main.css">
+  <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1">
+  <style>
+    .write-form { background: #F0FFF4; border-radius: 12px; padding: 20px; margin: 24px 0; }
+    .write-form input, .write-form textarea, .write-form select { width: 100%; margin-bottom: 12px; border-radius: 6px; border: 1px solid #e5e5e5; padding: 10px; font-size: 1rem; }
+    .write-form button { width: 100%; }
+  </style>
+</head>
+<body>
+  <!-- 상단바 -->
+  <header class="app-bar">
+    <button class="icon-btn" onclick="location.href='board.html'">&#8592;</button>
+    <h1 class="app-title">글쓰기</h1>
+    <span style="width:2rem"></span>
+  </header>
+
+  <main class="main-content" style="padding-top:0;">
+    <form class="write-form" id="writeForm">
+      <select name="category" required>
+        <option value="CHITCHAT">자유게시판</option>
+        <option value="QUESTION">질문게시판</option>
+      </select>
+      <input name="title" placeholder="제목" required>
+      <textarea name="content" placeholder="내용" required style="resize:none; height:120px;"></textarea>
+      <button type="submit" class="main-btn">등록</button>
+    </form>
+  </main>
+
+  <!-- 하단 네비게이션 -->
+  <nav class="tab-bar">
+    <a href="home.html" class="tab">Home</a>
+    <a href="club.html" class="tab">Club</a>
+    <a href="board.html" class="tab active">Board</a>
+    <a href="myClub.html" class="tab">Message</a>
+    <a href="profile.html" class="tab">Profile</a>
+  </nav>
+
+  <script>
+    // API 엔드포인트
+    const API_DOMAIN_URL = 'http://localhost:8080'; // 개발용
+    // const API_DOMAIN_URL = 'http://44.239.99.137:80'; // 배포용
+
+    document.getElementById('writeForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = {
+        title: form.title.value,
+        content: form.content.value,
+        category: form.category.value
+      };
+      const res = await fetch(`${API_DOMAIN_URL}/api/boards`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+      if (res.ok) {
+        alert('게시글이 등록되었습니다!');
+        location.href = 'board.html';
+      } else {
+        alert('등록 실패');
+      }
+    }
+  </script>
+</body>
+</html> 
