@@ -47,11 +47,11 @@ pipeline {
                         echo "RMQ_USERNAME=${RMQ_USERNAME}" >> .env
                         echo "RMQ_PASSWORD=${RMQ_PASSWORD}" >> .env
                         echo "app_password=${app_password}" >> .env
-                        echo "app_password=${ACCESS_AWS}" >> .env
-                        echo "app_password=${CLIENT_ID}" >> .env
-                        echo "app_password=${CLIENT_SECRET}" >> .env
-                        echo "app_password=${SECRET_AWS}" >> .env
-                        echo "app_password=${USER_POOL_ID}" >> .env
+                        echo "ACCESS_AWS=${ACCESS_AWS}" >> .env
+                        echo "CLIENT_ID=${CLIENT_ID}" >> .env
+                        echo "CLIENT_SECRET=${CLIENT_SECRET}" >> .env
+                        echo "SECRET_AWS=${SECRET_AWS}" >> .env
+                        echo "USER_POOL_ID=${USER_POOL_ID}" >> .env
 
                         scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/id_rsa .env ubuntu@${EC2_IP}:${ENV_PATH}
                     """
