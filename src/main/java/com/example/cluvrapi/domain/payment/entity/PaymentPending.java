@@ -17,13 +17,18 @@ public class PaymentPending {
 	private Long id;
 
 	@Column(nullable = false, unique = true)
-	private String orderId; // 고유 주문번호 (UUID 등)
+	private String orderId; // 고유 주문번호
 
 	@Column(nullable = false)
 	private Long userId;
 
 	@Column(nullable = false)
+	private String uuid;
+
+	@Column(nullable = false)
 	private int finalAmount; // 최종 결제 금액
+
+	private String orderName;
 
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
@@ -38,15 +43,20 @@ public class PaymentPending {
 		this.committed = true;
 	}
 
-	public PaymentPending(String orderId, Long userId, int finalAmount, LocalDateTime createdAt,
-		LocalDateTime expiresAt,
-		boolean committed) {
+	public PaymentPending(String orderId, Long userId, String uuid, int finalAmount, String orderName,
+		LocalDateTime createdAt, LocalDateTime expiresAt, boolean committed) {
 		this.orderId = orderId;
 		this.userId = userId;
+		this.uuid = uuid;
 		this.finalAmount = finalAmount;
+		this.orderName = orderName;
 		this.createdAt = createdAt;
 		this.expiresAt = expiresAt;
 		this.committed = committed;
+	}
+
+	public void updateCommit(){
+		this.committed = true;
 	}
 
 	public boolean isExpired() {

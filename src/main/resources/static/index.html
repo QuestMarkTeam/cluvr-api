@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <link rel="stylesheet" href="css/style.css">
   <meta charset="UTF-8" />
   <title>로그인</title>
 </head>
@@ -10,6 +11,8 @@
 <!-- 로그인 완료 메시지 -->
 <div id="loginSuccess" style="display: none;">
   <p>✅ 로그인 완료!</p>
+  <label for="amount">충전 가격:</label>
+  <input type="amount" id="amount" required /><br />
 </div>
 
 <!-- 로그인 폼 -->
@@ -22,13 +25,15 @@
 
   <button type="submit">로그인</button>
 </form>
+
+<!-- 결제 페이지 이동 -->
 <button id="checkout-btn">결제하기</button>
+
 <script>
   const token = localStorage.getItem("accessToken");
   const loginForm = document.getElementById("loginForm");
   const loginSuccess = document.getElementById("loginSuccess");
 
-  // 이미 로그인 되어 있으면 메시지 표시
   if (token) {
     loginSuccess.style.display = "block";
   } else {
@@ -37,16 +42,13 @@
 
   loginForm.addEventListener("submit", async function (event) {
     event.preventDefault();
-
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
     try {
       const response = await fetch("http://localhost/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
       });
 
@@ -58,54 +60,26 @@
 
       const result = await response.json();
       const accessToken = result.data.accessToken;
-
-      // 토큰 저장하고 로그인 성공 처리
+      alert(accessToken);
       localStorage.setItem("accessToken", accessToken);
+
       loginForm.style.display = "none";
       loginSuccess.style.display = "block";
     } catch (err) {
-      console.error("에러 발생:", err);
       alert("⚠️ 네트워크 오류 또는 서버 문제");
     }
   });
-</script>
 
-<script>
-  document.getElementById('checkout-btn').addEventListener('click', async () => {
-    try {
-      const response = await fetch('/api/payments/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem("accessToken")
-        },
-        body: JSON.stringify({
-          amount: 2000,
-          orderName: "포인트 충전"
-        })
-      });
-
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`결제 요청 실패: ${response.status} - ${error}`);
-      }
-
-      const result = await response.json(); // 서버에서 orderId, amount 등 받음
-
-      // ✅ 쿼리스트링 만들기
-      const query = new URLSearchParams({
-        orderId: result.data.orderId
-      });
-
-      // ✅ checkout 페이지로 이동하면서 데이터 전달
-      window.location.href = `/payment/checkout.html?${query.toString()}`;
-
-    } catch (err) {
-      console.error("❌ 결제 요청 오류:", err.message);
-      alert("결제 요청 중 오류가 발생했습니다.");
+  document.getElementById('checkout-btn').addEventListener('click', () => {
+    const token = localStorage.getItem("accessToken");
+    const amount = document.getElementById("amount").value;
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      return;
     }
+    const query = new URLSearchParams({ amount });
+    window.location.href = "/payment/checkout.html?" + query.toString();
   });
 </script>
-
 </body>
 </html>

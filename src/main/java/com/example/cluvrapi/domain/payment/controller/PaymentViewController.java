@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -20,13 +19,7 @@ import java.util.Base64;
 
 import lombok.RequiredArgsConstructor;
 
-import com.example.cluvrapi.domain.common.annotation.Auth;
-import com.example.cluvrapi.domain.common.dto.AuthUser;
-import com.example.cluvrapi.domain.payment.dto.request.PaymentPrepareRequestDto;
-import com.example.cluvrapi.domain.payment.dto.response.PaymentPrepareResponseDto;
 import com.example.cluvrapi.domain.payment.service.PaymentService;
-import com.example.cluvrapi.global.response.BaseResponse;
-import com.example.cluvrapi.global.response.ResponseCode;
 
 @Controller
 @RequiredArgsConstructor
