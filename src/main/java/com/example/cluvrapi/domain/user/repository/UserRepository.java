@@ -7,4 +7,6 @@ import com.example.cluvrapi.domain.user.entity.User;
 
 public interface UserRepository extends BaseRepository<User, Long>, UserRepositoryCustom {
 	Optional<User> findByEmail(String email);
+
+	Optional<User> findBySub(String sub);
 }

@@ -24,6 +24,8 @@ import com.example.cluvrapi.domain.gem.enums.GemActionType;
 import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.gem.handler.GemMethodHandler;
 import com.example.cluvrapi.domain.gem.service.GemEvent;
+import com.example.cluvrapi.domain.user.entity.User;
+import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.annotation.EventGem;
 import com.example.cluvrapi.global.annotation.UpdateGem;
 import com.example.cluvrapi.global.exception.BusinessException;
@@ -37,6 +39,7 @@ public class GemAspect {
 	private final ApplicationEventPublisher publisher; // 이벤트 발행
 
 	private final List<GemMethodHandler> handlers;
+	private final UserRepository userRepository;
 
 	/**
 	 * 설명: 이벤트와 관련된 Gem 처리
@@ -103,7 +106,11 @@ public class GemAspect {
 		if (auth != null && auth.isAuthenticated()) {
 			Object principal = auth.getPrincipal();
 			if (principal instanceof Jwt jwt) {
-				Long userId = Long.valueOf(jwt.getClaim("custom:userId"));
+				String sub = jwt.getSubject();
+				User user = userRepository.findBySub(sub)
+					.orElseThrow(() -> new BusinessException(ResponseCode.USER_NOT_FOUND));
+
+				Long userId = user.getId();
 				// 각자에 알맞는 비지니스 로직으로 보내줌
 				execute(gemUserActivityType, userId, gem, flowType);
 				publisher.publishEvent(

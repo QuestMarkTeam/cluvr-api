@@ -2,6 +2,7 @@ package com.example.cluvrapi.domain.auth.service;
 
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminConfirmSignUpRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
@@ -26,6 +27,7 @@ import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -69,7 +71,6 @@ public class AuthServiceImpl implements AuthService {
 	private final UserRepository userRepository;
 	private final CategoryRepository categoryRepository;
 	private final JwtDecoder jwtDecoder;
-	private final CognitoIdentityProviderClient cognitoClient;
 	private final CloverService cloverService;
 	private final AppProperties appProperties;
 	private final RedisTemplate<String, Object> redisTemplate;
@@ -80,6 +81,12 @@ public class AuthServiceImpl implements AuthService {
 	private final JavaMailSender mailSender;
 
 	private static final Duration VERIFY_TTL = Duration.ofMinutes(10);
+
+	@Qualifier("cognitoUserClient")
+	private final CognitoIdentityProviderClient cognitoUserClient;
+
+	@Qualifier("cognitoAdminClient")
+	private final CognitoIdentityProviderClient cognitoAdminClient;
 
 	@Value("${spring.mail.username}")
 	private String mailFrom;
@@ -112,6 +119,7 @@ public class AuthServiceImpl implements AuthService {
 
 		redisTemplate.opsForValue().set(key, cacheDto, VERIFY_TTL);
 		SimpleMailMessage msg = new SimpleMailMessage();
+		msg.setFrom(dto.getEmail());
 		msg.setTo(emailLower);
 		msg.setSubject("【Cluvr】 회원가입 인증번호 안내");
 		msg.setText(
@@ -141,6 +149,7 @@ public class AuthServiceImpl implements AuthService {
 				"PASSWORD", requestDto.getPassword(),
 				"SECRET_HASH", calculateSecretHash(clientId, clientSecret, requestDto.getEmail())
 			);
+
 			// 2. Cognito 인증 요청
 			InitiateAuthRequest authRequest = InitiateAuthRequest.builder()
 				.authFlow(AuthFlowType.USER_PASSWORD_AUTH)
@@ -149,7 +158,7 @@ public class AuthServiceImpl implements AuthService {
 				.build();
 
 			// 3. Cognito에 로그인 요청 -> accessToken, idToken, refreshToken 반환
-			AuthenticationResultType result = cognitoClient
+			AuthenticationResultType result = cognitoUserClient
 				.initiateAuth(authRequest)
 				.authenticationResult();
 			// 4. 반환된 idToken을 Spring의 JwtDecoder로 디코딩해서 사용자 정보 추출
@@ -222,7 +231,7 @@ public class AuthServiceImpl implements AuthService {
 			.token(refreshToken)
 			.build();
 
-		cognitoClient.revokeToken(revokeTokenRequest);
+		cognitoUserClient.revokeToken(revokeTokenRequest);
 	}
 
 	private String calculateSecretHash(String clientId, String clientSecret, String username) {
@@ -260,7 +269,19 @@ public class AuthServiceImpl implements AuthService {
 
 		redisTemplate.delete(key);
 
+		log.info("📨 [VERIFY] 요청 이메일: {}", req.getEmail());
+		log.info("📨 [VERIFY] 캐시에서 꺼낸 이메일: {}", cache.getSignUpRequest().getEmail());
+		log.info("📨 [VERIFY] 캐시에서 꺼낸 코드: {}", cache.getVerificationCode());
+		log.info("📨 [VERIFY] 입력된 코드: {}", req.getCode());
+
 		SignUpUserRequestDto dto = cache.getSignUpRequest();
+		log.info("clientId: [{}]", clientId);
+		log.info("clientSecret (base64): [{}]",
+			Base64.getEncoder().encodeToString(clientSecret.getBytes(StandardCharsets.UTF_8)));
+		log.info("username={}", dto.getEmail());
+		log.info("clientId={}", clientId);
+		log.info("clientSecret(raw)={}", clientSecret);
+		log.info("secretHash={}", calculateSecretHash(clientId, clientSecret, dto.getEmail()));
 
 		//  Cognito에 등록
 		try {
@@ -275,13 +296,26 @@ public class AuthServiceImpl implements AuthService {
 					AttributeType.builder().name("name").value(dto.getName()).build()
 				))
 				.build();
-			cognitoClient.signUp(signUpRequest);
+			cognitoUserClient.signUp(signUpRequest);
+
+			log.info("🔑 SecretHash 생성용 username: {}, hash: {}", username,
+				calculateSecretHash(clientId, clientSecret, username));
 
 			AdminConfirmSignUpRequest confirmRequest = AdminConfirmSignUpRequest.builder()
 				.userPoolId(userPoolId)
 				.username(username)
 				.build();
-			cognitoClient.adminConfirmSignUp(confirmRequest);
+			cognitoAdminClient.adminConfirmSignUp(confirmRequest);
+
+			AdminUpdateUserAttributesRequest updateRequest = AdminUpdateUserAttributesRequest.builder()
+				.userPoolId(userPoolId)
+				.username(username)
+				.userAttributes(AttributeType.builder()
+					.name("email_verified")
+					.value("true")
+					.build())
+				.build();
+			cognitoAdminClient.adminUpdateUserAttributes(updateRequest);
 
 		} catch (UsernameExistsException e) {
 			throw new BusinessException(ResponseCode.ALREADY_COGNITO);
@@ -290,7 +324,7 @@ public class AuthServiceImpl implements AuthService {
 			throw new BusinessException(ResponseCode.INTERNAL_ERROR);
 		}
 
-		AuthenticationResultType authResult = cognitoClient
+		AuthenticationResultType authResult = cognitoAdminClient
 			.adminInitiateAuth(builder -> builder
 				.authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
 				.userPoolId(userPoolId)
@@ -301,6 +335,9 @@ public class AuthServiceImpl implements AuthService {
 					"SECRET_HASH", calculateSecretHash(clientId, clientSecret, dto.getEmail())
 				))
 			).authenticationResult();
+
+		log.info("SignUp username: [{}]", dto.getEmail());
+		log.info("SignUp secretHash: [{}]", calculateSecretHash(clientId, clientSecret, dto.getEmail()));
 
 		Jwt jwt = jwtDecoder.decode(authResult.idToken());
 		String sub = jwt.getSubject();
@@ -355,7 +392,7 @@ public class AuthServiceImpl implements AuthService {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비밀번호와 확인이 일치하지 않습니다.");
 		}
 
-		AuthenticationResultType authResult = cognitoClient
+		AuthenticationResultType authResult = cognitoUserClient
 			.adminInitiateAuth(builder -> builder
 				.authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
 				.userPoolId(userPoolId)

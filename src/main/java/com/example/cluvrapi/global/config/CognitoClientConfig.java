@@ -21,8 +21,16 @@ public class CognitoClientConfig {
 	@Value("${cloud.aws.credentials.secret-key}")
 	private String secretKey;
 
-	@Bean
-	public CognitoIdentityProviderClient cognitoIdentityProviderClient() {
+	@Bean(name = "cognitoUserClient")
+	public CognitoIdentityProviderClient cognitoUserClient() {
+		return CognitoIdentityProviderClient.builder()
+			.region(Region.of(region))
+			.build(); // 기본 Profile, 또는 secretHash 기반 요청에 맞게 구성
+	}
+
+	// 관리자 요청용 (AdminConfirmSignUp 등: IAM 전용)
+	@Bean(name = "cognitoAdminClient")
+	public CognitoIdentityProviderClient cognitoAdminClient() {
 		return CognitoIdentityProviderClient.builder()
 			.region(Region.of(region))
 			.credentialsProvider(

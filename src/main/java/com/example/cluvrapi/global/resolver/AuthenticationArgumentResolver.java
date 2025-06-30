@@ -13,10 +13,19 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
+import com.example.cluvrapi.domain.user.entity.User;
+import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
 @Component
 public class AuthenticationArgumentResolver implements HandlerMethodArgumentResolver {
+
+	private final UserRepository userRepository;
+
+	public AuthenticationArgumentResolver(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
@@ -45,11 +54,14 @@ public class AuthenticationArgumentResolver implements HandlerMethodArgumentReso
 			);
 		}
 
-		// sub -> 사용자 ID, email은 클레임에 따라 없을 수도 있음
-		String sub = jwt.getSubject();
 		String email = jwt.getClaim("email"); // claim 없으면 null
 
-		Long userId = jwt.getClaim("custom:userId");
+		// sub -> 사용자 ID, email은 클레임에 따라 없을 수도 있음
+		String sub = jwt.getSubject();
+		User user = userRepository.findBySub(sub)
+			.orElseThrow(() -> new BusinessException(ResponseCode.USER_NOT_FOUND));
+
+		Long userId = user.getId();
 		if (userId == null) {
 			throw new ResponseStatusException(
 				ResponseCode.TOKEN_INVALID.getStatus(),
