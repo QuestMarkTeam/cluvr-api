@@ -29,13 +29,6 @@ public class GemController {
 
 	private final GemService gemService;
 
-	@PostMapping("/charge")
-	public ResponseEntity<BaseResponse<UpdateGemResponseDto>> chargeGem(
-		@Auth AuthUser user,
-		@Valid @RequestBody UpdateGemRequestDto amount) {
-		return ResponseEntity.ok(BaseResponse.success(gemService.chargeGem(user.id(), amount), ResponseCode.OK));
-	}
-
 	@GetMapping
 	public ResponseEntity<BaseResponse<List<FindGemLogResponseDto>>> findGemLogByUserId(@Auth AuthUser user) {
 		return ResponseEntity.ok(BaseResponse.success(gemService.findGemLogByUserId(user.id()), ResponseCode.OK));

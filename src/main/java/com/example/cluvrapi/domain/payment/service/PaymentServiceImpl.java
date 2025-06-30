@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.payment.dto.PaymentConfirmResponseDto;
 import com.example.cluvrapi.domain.payment.dto.request.PaymentConfirmRequestDto;
 import com.example.cluvrapi.domain.payment.dto.response.CreatePaymentPrepareResponseDto;
@@ -27,6 +28,7 @@ import com.example.cluvrapi.domain.payment.entity.PaymentPending;
 import com.example.cluvrapi.domain.payment.repository.PaymentPendingRepository;
 import com.example.cluvrapi.domain.payment.repository.PaymentRepository;
 import com.example.cluvrapi.domain.payment.util.OrderIdGenerator;
+import com.example.cluvrapi.global.annotation.UpdateGem;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -72,11 +74,12 @@ public class PaymentServiceImpl implements PaymentService{
 	}
 
 	@Transactional
+	@UpdateGem(value = GemUserActivityType.CHARGE)
 	@Override
 	public PaymentConfirmResponseDto confirmPayment(Long userId, PaymentConfirmRequestDto requestDto) {
 		String orderId = requestDto.getOrderId();
 		String paymentKey = requestDto.getPaymentKey();
-		Integer amount = requestDto.getAmount();
+		Integer amount = requestDto.getGem();
 		PaymentPending paymentPending = paymentPendingRepository.findPaymentPrepareByOrderIdOrElseThrow(orderId);
 		if(paymentPending.getFinalAmount() != amount) {throw new BusinessException(ResponseCode.PAYMENT_AMOUNT_FAILED);}
 		paymentPending.updateCommit();
@@ -90,6 +93,7 @@ public class PaymentServiceImpl implements PaymentService{
 		);
 		paymentRepository.save(payment);
 
+		// 토스에 결제 승인 보내기
 		String encodedKey = Base64.getEncoder().encodeToString((secretKey + ":").getBytes());
 		WebClient webClient = WebClient.builder()
 			.baseUrl("https://api.tosspayments.com/v1")
