@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
+import com.example.cluvrapi.domain.payment.dto.PaymentConfirmResponseDto;
+import com.example.cluvrapi.domain.payment.dto.request.PaymentConfirmRequestDto;
+import com.example.cluvrapi.domain.payment.dto.response.CreatePaymentPrepareResponseDto;
 import com.example.cluvrapi.domain.payment.dto.response.FindPaymentPrepareResponseDto;
-import com.example.cluvrapi.domain.payment.dto.request.PaymentPrepareRequestDto;
+import com.example.cluvrapi.domain.payment.dto.request.CreatePaymentPrepareRequestDto;
 import com.example.cluvrapi.domain.payment.dto.request.PaymentRequestDto;
-import com.example.cluvrapi.domain.payment.dto.response.PaymentPrepareResponseDto;
 import com.example.cluvrapi.domain.payment.service.PaymentService;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
@@ -29,11 +31,13 @@ public class PaymentController {
 	private final PaymentService paymentService;
 
 	@PostMapping("/confirm")
-	public void confirmPayment(
-		@RequestParam PaymentRequestDto paymentRequestDto,
+	public ResponseEntity<BaseResponse<PaymentConfirmResponseDto>> confirmPayment(
+		@RequestBody PaymentConfirmRequestDto paymentRequestDto,
 		@Auth AuthUser authUser
 	) {
-		paymentService.confirmPayment(authUser.id(), paymentRequestDto);
+		PaymentConfirmResponseDto responseDto = paymentService.confirmPayment(authUser.id(), paymentRequestDto);
+		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.OK));
+
 	}
 
 	/**
@@ -44,12 +48,12 @@ public class PaymentController {
 	 *
 	 * @author {작성자 이름}
 	 */
-	@PostMapping("/checkout")
-	public ResponseEntity<BaseResponse<PaymentPrepareResponseDto>> preparePayment(
-		@RequestBody PaymentPrepareRequestDto requestDto,
+	@PostMapping("/prepare")
+	public ResponseEntity<BaseResponse<CreatePaymentPrepareResponseDto>> savePaymentPendingInfo(
+		@RequestBody CreatePaymentPrepareRequestDto requestDto,
 		@Auth AuthUser authUser
 	) {
-		PaymentPrepareResponseDto responseDto = paymentService.savePaymentInfo(authUser.id(), requestDto);
+		CreatePaymentPrepareResponseDto responseDto = paymentService.savePaymentPendingInfo(authUser.id(), requestDto);
 		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.OK));
 	}
 

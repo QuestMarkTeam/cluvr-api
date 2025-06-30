@@ -57,6 +57,7 @@ public enum ResponseCode {
 	REPLY_NOT_MATCHED_WITH_BOARD(HttpStatus.BAD_REQUEST, "채택한 댓글은 해당 게시물 소속의 댓글이 아닙니다."),
 	/* 결제 */
 	PAYMENT_PREPARE_NOT_FOUND(HttpStatus.BAD_REQUEST, "결제 정보가 존재하지 않습니다"),
+	PAYMENT_AMOUNT_FAILED(HttpStatus.BAD_REQUEST, "결제 금액이 동일하지 않습니다"),
 	;
 
 	private final HttpStatus status;
