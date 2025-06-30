@@ -1,6 +1,7 @@
 package com.example.cluvrapi.domain.gem.service;
 
 import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
+import com.example.cluvrapi.domain.gem.dto.request.UseGemRequestDto;
 import com.example.cluvrapi.domain.gem.dto.response.UpdateGemResponseDto;
 
 public interface GemService extends GemLogService {
@@ -30,7 +31,7 @@ public interface GemService extends GemLogService {
 	 * @author 나원준
 	 */
 
-	UpdateGemResponseDto useGem(Long userId, UpdateGemRequestDto requestDto);
+	UpdateGemResponseDto useGem(Long userId, UseGemRequestDto requestDto);
 
 	/**
 	 * 설명: {메서드에 대한 간략한 설명을 작성합니다.}

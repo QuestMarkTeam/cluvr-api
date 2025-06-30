@@ -22,7 +22,7 @@ public class GemUseHandler implements GemMethodHandler { // 이벤트 적립 처
 
 	@Override
 	public void handle(Long userId, UpdateGemRequestDto dto) {
-		gemService.useGem(userId, dto);
+
 	}
 
 }
