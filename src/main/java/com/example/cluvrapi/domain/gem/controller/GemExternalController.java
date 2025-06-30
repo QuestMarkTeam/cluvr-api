@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
+import com.example.cluvrapi.domain.gem.dto.request.UseGemRequestDto;
 import com.example.cluvrapi.domain.gem.dto.response.UpdateGemResponseDto;
 import com.example.cluvrapi.domain.gem.service.GemService;
 import com.example.cluvrapi.global.response.BaseResponse;
@@ -27,7 +28,7 @@ public class GemExternalController {
 
 	@PostMapping("/use")
 	public ResponseEntity<BaseResponse<UpdateGemResponseDto>> useGem(
-		 @RequestBody UpdateGemRequestDto amount,
+		 @RequestBody UseGemRequestDto amount,
 		 @Auth AuthUser authUser
 		) {
 		return ResponseEntity.ok(BaseResponse.success(gemService.useGem(authUser.id(), amount), ResponseCode.OK));
