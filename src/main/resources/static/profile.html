@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Cluvr - Profile</title>
+  <link rel="stylesheet" href="css/main.css">
+  <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1">
+  <style>
+    .profile-card { background:#F0FFF4; border-radius:16px; box-shadow:0 1px 4px #0001; padding:32px 24px 24px 24px; width:100%; max-width:340px; display:flex; flex-direction:column; align-items:center; margin-top:32px; position:relative; }
+    .profile-avatar { width:80px; height:80px; border-radius:50%; background:#e5e5e5; margin-bottom:16px; }
+    .profile-nickname { font-size:1.3rem; font-weight:bold; margin-bottom:4px; }
+    .profile-email { color:#666; font-size:0.9rem; margin-bottom:8px; }
+    .profile-gem { color:#6EE7B7; font-weight:bold; margin-bottom:8px; }
+    .profile-edit { position:absolute; right:24px; top:24px; background:none; border:none; font-size:1.5rem; color:#6EE7B7; cursor:pointer; }
+    .profile-login-btn { width:100%; background:#6EE7B7; color:#fff; border:none; border-radius:8px; font-size:1.1rem; padding:12px 0; font-weight:bold; margin-bottom:8px; }
+    .profile-menu { width:100%; max-width:340px; margin:32px auto 0 auto; }
+    .profile-menu-btn { width:100%; background:#fff; border:none; border-radius:8px; font-size:1.1rem; padding:14px 0; margin-bottom:10px; box-shadow:0 1px 4px #0001; color:#222; text-align:left; padding-left:20px; }
+    .logout-btn { width:100%; background:#ff4444; color:#fff; border:none; border-radius:8px; font-size:1.1rem; padding:14px 0; margin-bottom:10px; box-shadow:0 1px 4px #0001; }
+  </style>
+</head>
+<body>
+  <!-- 상단바 -->
+  <header class="app-bar">
+    <button class="icon-btn" onclick="location.href='home.html'">&#8592;</button>
+    <h1 class="app-title">Profile</h1>
+    <span style="width:2rem"></span>
+  </header>
+
+  <!-- 프로필 카드 -->
+  <main class="main-content" style="display:flex; flex-direction:column; align-items:center;">
+    <div class="profile-card" id="profileCard">
+      <!-- JS로 로그인 상태에 따라 내용 변경 -->
+    </div>
+    <div class="profile-menu" id="profileMenu">
+      <!-- JS로 로그인 상태에 따라 메뉴 변경 -->
+    </div>
+  </main>
+
+  <!-- 하단 네비게이션 -->
+  <nav class="tab-bar">
+    <a href="home.html" class="tab">Home</a>
+    <a href="club.html" class="tab">Club</a>
+    <a href="board.html" class="tab">Board</a>
+    <a href="myClub.html" class="tab">My Clubs</a>
+    <a href="profile.html" class="tab active">Profile</a>
+  </nav>
+  
+  <script>
+    // API 엔드포인트
+    const API_DOMAIN_URL = 'http://localhost:8080'; // 개발용
+    // const API_DOMAIN_URL = 'http://44.239.99.137:80'; // 배포용
+
+    // 로그인 상태 확인 (accessToken 기준)
+    const isLoggedIn = !!localStorage.getItem('accessToken');
+    const profileCard = document.getElementById('profileCard');
+    const profileMenu = document.getElementById('profileMenu');
+    
+    function loadProfile() {
+      if (isLoggedIn) {
+        // 로그인된 상태 - 사용자 정보 표시
+        const userName = localStorage.getItem('userName') || '사용자';
+        const userEmail = localStorage.getItem('userEmail') || '';
+        
+        profileCard.innerHTML = `
+          <img src="img/avatar-default.png" class="profile-avatar" onerror="this.style.display='none'">
+          <div class="profile-nickname">${userName}</div>
+          <div class="profile-email">${userEmail}</div>
+          <div class="profile-gem">Gem: 123</div>
+          <button class="profile-edit" onclick="goToEditProfile()">&#9881;</button>
+        `;
+        
+        profileMenu.innerHTML = `
+          <button class="profile-menu-btn" onclick="goToClubs()">My Clubs</button>
+          <button class="profile-menu-btn" onclick="goToMyQuestions()">나의 질문</button>
+          <button class="profile-menu-btn" onclick="goToMyAnswers()">나의 답변</button>
+          <button class="profile-menu-btn" onclick="goToSettings()">설정</button>
+          <button class="profile-menu-btn" onclick="goToSupport()">고객센터</button>
+          <button class="logout-btn" onclick="logout()">로그아웃</button>
+        `;
+      } else {
+        // 로그인되지 않은 상태
+        profileCard.innerHTML = `
+          <img src="img/avatar-default.png" class="profile-avatar" onerror="this.style.display='none'">
+          <button class="profile-login-btn" onclick="location.href='login.html'">로그인</button>
+        `;
+        
+        profileMenu.innerHTML = `
+          <button class="profile-menu-btn" onclick="goToSupport()">고객센터</button>
+        `;
+      }
+    }
+    
+    // 로그아웃 함수
+    async function logout() {
+      if (!confirm('정말 로그아웃하시겠습니까?')) {
+        return;
+      }
+      
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
+        try {
+          // 서버에 로그아웃 요청
+          const response = await fetch(`${API_DOMAIN_URL}/api/auth/logout`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          // 서버 응답과 관계없이 클라이언트에서 로그아웃 처리
+          console.log('로그아웃 요청 완료');
+        } catch (error) {
+          console.error('로그아웃 요청 실패:', error);
+        }
+      }
+      
+      // localStorage에서 모든 사용자 정보 삭제
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('userEmail');
+      
+      alert('로그아웃되었습니다.');
+      location.reload(); // 페이지 새로고침하여 UI 업데이트
+    }
+    
+    function goToClubs() { 
+      if (!isLoggedIn) {
+        alert('로그인 후 이용하세요!');
+        return;
+      }
+      window.open('http://54.200.146.243/chat.html', '_blank'); 
+    }
+    
+    function goToMyQuestions() { 
+      if (!isLoggedIn) {
+        alert('로그인 후 이용하세요!');
+        return;
+      }
+      location.href='my-questions.html'; 
+    }
+    
+    function goToMyAnswers() { 
+      if (!isLoggedIn) {
+        alert('로그인 후 이용하세요!');
+        return;
+      }
+      location.href='my-answers.html'; 
+    }
+    
+    function goToSettings() { 
+      if (!isLoggedIn) {
+        alert('로그인 후 이용하세요!');
+        return;
+      }
+      location.href='settings.html'; 
+    }
+    
+    function goToSupport() { 
+      location.href='support.html'; 
+    }
+    
+    function goToEditProfile() { 
+      if (!isLoggedIn) {
+        alert('로그인 후 이용하세요!');
+        return;
+      }
+      location.href='edit-profile.html'; 
+    }
+    
+    // 페이지 로드 시 프로필 로드
+    loadProfile();
+  </script>
+</body>
+</html> 

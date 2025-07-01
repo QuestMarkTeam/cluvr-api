@@ -231,7 +231,9 @@ public class AuthServiceImpl implements AuthService {
 			.token(refreshToken)
 			.build();
 
-		cognitoAdminClient.revokeToken(revokeTokenRequest);
+
+		cognitoUserClient.revokeToken(revokeTokenRequest);
+
 	}
 
 	private String calculateSecretHash(String clientId, String clientSecret, String username) {

@@ -29,6 +29,11 @@ pipeline {
                     string(credentialsId: 'RMQ_USERNAME', variable: 'RMQ_USERNAME'),
                     string(credentialsId: 'RMQ_PASSWORD', variable: 'RMQ_PASSWORD'),
                     string(credentialsId: 'app_password', variable: 'app_password'),
+                    string(credentialsId: 'ACCESS_AWS', variable: 'ACCESS_AWS'),
+                    string(credentialsId: 'CLIENT_ID', variable: 'CLIENT_ID'),
+                    string(credentialsId: 'CLIENT_SECRET', variable: 'CLIENT_SECRET'),
+                    string(credentialsId: 'SECRET_AWS', variable: 'SECRET_AWS'),
+                    string(credentialsId: 'USER_POOL_ID', variable: 'USER_POOL_ID'),
                 ]) {
                     sh """
                         echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" > .env
@@ -42,6 +47,11 @@ pipeline {
                         echo "RMQ_USERNAME=${RMQ_USERNAME}" >> .env
                         echo "RMQ_PASSWORD=${RMQ_PASSWORD}" >> .env
                         echo "app_password=${app_password}" >> .env
+                        echo "ACCESS_AWS=${ACCESS_AWS}" >> .env
+                        echo "CLIENT_ID=${CLIENT_ID}" >> .env
+                        echo "CLIENT_SECRET=${CLIENT_SECRET}" >> .env
+                        echo "SECRET_AWS=${SECRET_AWS}" >> .env
+                        echo "USER_POOL_ID=${USER_POOL_ID}" >> .env
 
                         scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/id_rsa .env ubuntu@${EC2_IP}:${ENV_PATH}
                     """

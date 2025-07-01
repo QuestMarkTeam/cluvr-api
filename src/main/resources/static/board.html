@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Cluvr - Board</title>
+  <link rel="stylesheet" href="css/main.css">
+  <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1">
+  <style>
+    .board-type-tabs { 
+      display: flex; 
+      margin: 16px 0 12px 0; 
+      background: #F0FFF4;
+      border-radius: 8px;
+      padding: 4px;
+    }
+    .board-type-btn {
+      flex: 1; 
+      padding: 12px 16px; 
+      border: none; 
+      background: transparent; 
+      color: #6EE7B7; 
+      font-size: 1rem;
+      font-weight: bold; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      transition: all 0.2s;
+    }
+    .board-type-btn.active { 
+      background: #6EE7B7; 
+      color: #fff; 
+      box-shadow: 0 2px 4px rgba(110, 231, 183, 0.3);
+    }
+    
+    .category-section {
+      margin: 16px 0;
+    }
+    
+    .category-title {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    .category-tabs { 
+      display: flex; 
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .category-tab-btn {
+      padding: 8px 12px; 
+      border: 1px solid #E0E0E0; 
+      background: #fff; 
+      color: #666; 
+      font-size: 0.85rem;
+      border-radius: 20px; 
+      cursor: pointer; 
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .category-tab-btn.active { 
+      background: #6EE7B7; 
+      color: #fff; 
+      border-color: #6EE7B7;
+    }
+    
+    .board-list-container {
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 상단바 -->
+  <header class="app-bar">
+    <button class="icon-btn" onclick="location.href='home.html'">&#8592;</button>
+    <h1 class="app-title">Board</h1>
+    <span style="width:2rem"></span>
+  </header>
+
+  <!-- 게시판 타입 탭 (대분류) -->
+  <div class="board-type-tabs">
+    <button class="board-type-btn active" id="tab-chitchat" onclick="switchBoardType('CHITCHAT')">자유게시판</button>
+    <button class="board-type-btn" id="tab-question" onclick="switchBoardType('QUESTION')">질문게시판</button>
+  </div>
+
+  <!-- 카테고리 필터 (소분류) -->
+  <div class="category-section">
+    <div class="category-title">카테고리</div>
+    <div class="category-tabs">
+      <button class="category-tab-btn active" id="cat-all" onclick="switchCategory('ALL')">전체</button>
+      <button class="category-tab-btn" id="cat-development" onclick="switchCategory('DEVELOPMENT')">개발</button>
+      <button class="category-tab-btn" id="cat-algorithms" onclick="switchCategory('ALGORITHMS_CODING_TESTS')">알고리즘</button>
+      <button class="category-tab-btn" id="cat-interview" onclick="switchCategory('INTERVIEW_PREPARATION')">면접</button>
+      <button class="category-tab-btn" id="cat-certifications" onclick="switchCategory('CERTIFICATIONS_EXAMS')">자격증</button>
+      <button class="category-tab-btn" id="cat-design" onclick="switchCategory('DESIGN')">디자인</button>
+      <button class="category-tab-btn" id="cat-language" onclick="switchCategory('LANGUAGE_LEARNING')">언어</button>
+      <button class="category-tab-btn" id="cat-ai" onclick="switchCategory('AI_DATA_SCIENCE')">AI/데이터</button>
+      <button class="category-tab-btn" id="cat-competitions" onclick="switchCategory('EXTRACURRICULAR_COMPETITIONS')">대외활동</button>
+      <button class="category-tab-btn" id="cat-music" onclick="switchCategory('MUSIC_EDUCATION')">음악</button>
+      <button class="category-tab-btn" id="cat-others" onclick="switchCategory('OTHERS')">기타</button>
+    </div>
+  </div>
+
+  <!-- 게시글 리스트 -->
+  <main class="main-content board-list-container">
+    <ul class="group-list" id="board-list">
+      <!-- JS로 동적 렌더링 -->
+    </ul>
+    <button class="main-btn" style="margin-bottom: 60px;" onclick="location.href='write-board.html'">글쓰기</button>
+  </main>
+
+  <!-- 하단 네비게이션 -->
+  <nav class="tab-bar">
+    <a href="home.html" class="tab">Home</a>
+    <a href="club.html" class="tab">Club</a>
+    <a href="board.html" class="tab active">Board</a>
+    <a href="myClub.html" class="tab">My Clubs</a>
+    <a href="profile.html" class="tab">Profile</a>
+  </nav>
+
+  <script>
+    // API 엔드포인트
+    const API_DOMAIN_URL = 'http://localhost:8080'; // 개발용
+    // const API_DOMAIN_URL = 'http://44.239.99.137:80'; // 배포용
+
+    let currentBoardType = 'CHITCHAT';
+    let currentCategory = 'ALL';
+    
+    function switchBoardType(boardType) {
+      currentBoardType = boardType;
+      
+      // 모든 게시판 타입 탭 비활성화
+      document.querySelectorAll('.board-type-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // 선택된 게시판 타입 탭 활성화
+      if (boardType === 'CHITCHAT') {
+        document.getElementById('tab-chitchat').classList.add('active');
+      } else if (boardType === 'QUESTION') {
+        document.getElementById('tab-question').classList.add('active');
+      }
+      
+      fetchBoards();
+    }
+    
+    function switchCategory(category) {
+      currentCategory = category;
+      
+      // 모든 카테고리 탭 비활성화
+      document.querySelectorAll('.category-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // 카테고리명을 HTML ID에 맞게 매핑
+      const categoryIdMap = {
+        'ALL': 'cat-all',
+        'DEVELOPMENT': 'cat-development',
+        'ALGORITHMS_CODING_TESTS': 'cat-algorithms',
+        'INTERVIEW_PREPARATION': 'cat-interview',
+        'CERTIFICATIONS_EXAMS': 'cat-certifications',
+        'DESIGN': 'cat-design',
+        'LANGUAGE_LEARNING': 'cat-language',
+        'AI_DATA_SCIENCE': 'cat-ai',
+        'EXTRACURRICULAR_COMPETITIONS': 'cat-competitions',
+        'MUSIC_EDUCATION': 'cat-music',
+        'OTHERS': 'cat-others'
+      };
+      
+      // 선택된 카테고리 탭 활성화
+      const tabId = categoryIdMap[category];
+      if (tabId) {
+        document.getElementById(tabId).classList.add('active');
+      }
+      
+      fetchBoards();
+    }
+    
+    async function fetchBoards() {
+      let url = `${API_DOMAIN_URL}/api/boards?boardType=${currentBoardType}`;
+      
+      // 카테고리가 'ALL'이 아닌 경우에만 카테고리 파라미터 추가
+      if (currentCategory !== 'ALL') {
+        url += `&category=${currentCategory}`;
+      }
+      
+      const res = await fetch(url);
+      const data = await res.json();
+      const boards = (data.data && data.data.content) ? data.data.content : [];
+      const list = document.getElementById('board-list');
+      list.innerHTML = '';
+      
+      if (!boards.length) {
+        list.innerHTML = '<div style="color:#888;text-align:center;padding:40px 0;">게시글이 없습니다.</div>';
+        return;
+      }
+      
+      boards.forEach(board => {
+        list.innerHTML += `
+          <li class="group-card" onclick="location.href='board-detail.html?boardId=${board.id}'">
+            <div class="group-info">
+              <div class="group-title">${board.title}</div>
+              <div class="group-desc">${board.content ? board.content.substring(0, 50) : ''}</div>
+              <div class="group-meta">by ${board.userName || '익명'} · ${board.createdAt ? board.createdAt.split('T')[0] : ''}</div>
+            </div>
+          </li>
+        `;
+      });
+    }
+    
+    fetchBoards();
+  </script>
+</body>
+</html> 
