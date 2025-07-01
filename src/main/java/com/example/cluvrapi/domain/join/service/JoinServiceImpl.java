@@ -21,7 +21,6 @@ import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberStatus;
 import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
-import com.example.cluvrapi.domain.common.validator.ClubValidator;
 import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestByCodeRequestDto;
 import com.example.cluvrapi.domain.join.dto.request.CreateJoinRequestDto;
 import com.example.cluvrapi.domain.join.dto.request.UpdateJoinRequestDto;
@@ -36,6 +35,8 @@ import com.example.cluvrapi.domain.join.enums.FormFieldType;
 import com.example.cluvrapi.domain.join.enums.JoinStatus;
 import com.example.cluvrapi.domain.join.repository.JoinRequestAnswerRepository;
 import com.example.cluvrapi.domain.join.repository.JoinRequestRepository;
+import com.example.cluvrapi.domain.join.service.handler.DirectJoinHandler;
+import com.example.cluvrapi.domain.join.validator.ClubJoinValidator;
 import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
 import com.example.cluvrapi.domain.notification.enums.NotificationType;
 import com.example.cluvrapi.domain.notification.event.NotificationEvent;
@@ -62,6 +63,8 @@ public class JoinServiceImpl implements JoinService {
 	private final NotificationProducer notificationProducer;
 	private final JoinRedisService joinRedisService;
 	private final ClubMemberRepository clubMemberRepository;
+	private final ClubJoinValidator clubJoinValidator;
+	private final DirectJoinHandler directJoinHandler;
 
 	/**
 	 * 상수 선언
@@ -74,7 +77,7 @@ public class JoinServiceImpl implements JoinService {
 		// 1) 검증
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
-		validateJoinRequest(findClub, findUser);
+		clubJoinValidator.validateJoinRequest(findClub, findUser);
 
 		// 2) 현재 Club 의 가입 방식과 가입 신청의 가입 방식이 같은지 확인
 		if (findClub.getJoinType() != joinRequestDto.getJoinType()) {
@@ -236,9 +239,11 @@ public class JoinServiceImpl implements JoinService {
 		// 2. 이미 가입된 유저인지 조회
 		clubMemberRepository.findByClubAndUserWithAnyStatus(club, user).ifPresent(
 			clubMember -> {
-				switch(clubMember.getClubMemberStatus()) {
-					case ACTIVE: throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입 신청한 클럽입니다.");
-					case KICKED: throw new BusinessException(ResponseCode.INVALID_REQUEST, "강퇴한 당한 클럽은 가입 불가합니다.");
+				switch (clubMember.getClubMemberStatus()) {
+					case ACTIVE:
+						throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입 신청한 클럽입니다.");
+					case KICKED:
+						throw new BusinessException(ResponseCode.INVALID_REQUEST, "강퇴한 당한 클럽은 가입 불가합니다.");
 				}
 			}
 		);
@@ -269,8 +274,7 @@ public class JoinServiceImpl implements JoinService {
 	 * @author sinyoung0403
 	 */
 	private void processDirectJoin(Club club, User user) {
-		ClubMember clubMember = new ClubMember(club, user, ClubMemberRole.MEMBER, ClubMemberStatus.ACTIVE);
-		clubMemberRepository.save(clubMember);
+		directJoinHandler.handle(club, user);
 	}
 
 	/**
@@ -281,9 +285,7 @@ public class JoinServiceImpl implements JoinService {
 	 * @author sinyoung0403
 	 */
 	private void processSimpleRequest() {
-		// 추후 필요한 로직 추가할 예정 - 현재까지는 어떠한 작업도 필요없다.
-		// 신청만하고. -> 클럽장이 승인
-		// 조회 -> 신청양식 없이 조회.
+		// 추후 확장 가능한 기능이 있을 경우 로직 추가할 예정 - 현재까지는 어떠한 작업도 필요없다.
 	}
 
 	/**
