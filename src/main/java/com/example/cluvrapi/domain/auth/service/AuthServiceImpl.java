@@ -1,36 +1,25 @@
 package com.example.cluvrapi.domain.auth.service;
 
-import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminConfirmSignUpRequest;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesRequest;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.InitiateAuthRequest;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.InvalidParameterException;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.NotAuthorizedException;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.RevokeTokenRequest;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.SignUpRequest;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException;
-
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -39,13 +28,19 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
+import com.example.cluvrapi.domain.auth.dto.request.CompleteProfileRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyCacheRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.SocialSignupRequestDto;
 import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
+import com.example.cluvrapi.domain.auth.dto.response.SocialLoginResponseDto;
 import com.example.cluvrapi.domain.auth.properties.AppProperties;
 import com.example.cluvrapi.domain.category.entity.Category;
 import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
@@ -62,6 +57,23 @@ import com.example.cluvrapi.domain.user.entity.enums.UserRole;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminConfirmSignUpRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.InitiateAuthRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.InvalidParameterException;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.NotAuthorizedException;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.RevokeTokenRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.SignUpRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException;
 
 @Slf4j
 @Service
@@ -87,6 +99,13 @@ public class AuthServiceImpl implements AuthService {
 
 	@Qualifier("cognitoAdminClient")
 	private final CognitoIdentityProviderClient cognitoAdminClient;
+	private final RestTemplate restTemplate;
+
+	@Value("${cognito.token-endpoint}")
+	private String tokenEndpoint;
+
+	@Value("${cognito.redirect-uri}")
+	private String redirectUri;
 
 	@Value("${spring.mail.username}")
 	private String mailFrom;
@@ -275,6 +294,23 @@ public class AuthServiceImpl implements AuthService {
 		log.info("📨 [VERIFY] 입력된 코드: {}", req.getCode());
 
 		SignUpUserRequestDto dto = cache.getSignUpRequest();
+
+		if (dto.getName() == null || dto.getName().isBlank()) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이름은 필수 입력값입니다.");
+		}
+		if (dto.getBirthday() == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "생년월일은 필수 입력값입니다.");
+		}
+		if (dto.getGender() == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "성별은 필수 입력값입니다.");
+		}
+		if (dto.getCategoryType() == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "카테고리 타입은 필수 입력값입니다.");
+		}
+		if (dto.getPhoneNumber() == null || dto.getPhoneNumber().isBlank()) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "전화번호는 필수 입력값입니다.");
+		}
+
 		log.info("clientId: [{}]", clientId);
 		log.info("clientSecret (base64): [{}]",
 			Base64.getEncoder().encodeToString(clientSecret.getBytes(StandardCharsets.UTF_8)));
@@ -380,6 +416,24 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	@Transactional
 	public SignUpUserResponseDto testSignUp(SignUpUserRequestDto dto) {
+
+		if (dto.getName() == null || dto.getName().isBlank()) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이름은 필수 입력값입니다.");
+		}
+		if (dto.getBirthday() == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "생년월일은 필수 입력값입니다.");
+		}
+		if (dto.getGender() == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "성별은 필수 입력값입니다.");
+		}
+		if (dto.getCategoryType() == null) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "카테고리 타입은 필수 입력값입니다.");
+		}
+		if (dto.getPhoneNumber() == null || dto.getPhoneNumber().isBlank()) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "전화번호는 필수 입력값입니다.");
+		}
+		// ────────────────────────────────
+
 		String emailLower = dto.getEmail().toLowerCase();
 
 		if (userRepository.existsByEmail(emailLower)) {
@@ -439,6 +493,121 @@ public class AuthServiceImpl implements AuthService {
 		return SignUpUserResponseDto.from(saved);
 	}
 
+
+	@Override
+	@Transactional
+	public SocialLoginResponseDto socialLogin(String code) {
+		// 1) Authorization Code → Token 교환
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBasicAuth(clientId, clientSecret);
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+		form.add("grant_type",    "authorization_code");
+		form.add("client_id",    clientId);
+		form.add("code",          code);  // "f45829b6-..." 같은 순수 코드 값
+		form.add("redirect_uri",  redirectUri);
+
+
+		HttpEntity<MultiValueMap<String, String>> requestEntity =
+			new HttpEntity<>(form, headers);
+
+		log.debug("▶ Cognito clientId = {}", clientId);
+
+		JsonNode tokenResp = restTemplate.postForObject(
+			tokenEndpoint,
+			requestEntity,
+			JsonNode.class
+		);
+
+		String accessToken  = tokenResp.get("access_token").asText();
+		form.add("client_id",    clientId);
+		String refreshToken = tokenResp.get("refresh_token").asText();
+		String idToken      = tokenResp.get("id_token").asText();
+
+		// 2) ID 토큰 디코딩 → 사용자 정보 추출
+		Jwt jwt      = jwtDecoder.decode(idToken);
+		String sub   = jwt.getSubject();
+		String email = jwt.getClaim("email");
+		String name  = jwt.getClaim("name");
+		String emailLower = email.toLowerCase();
+
+		// 3) 기존 사용자 조회, 없으면 persistSocialLocalUser 호출
+		User user = userRepository.findBySubAndNotDeleted(sub)
+			.orElseGet(() -> {
+				// socialLogin 에선 모든 DTO 필드가 일단 null → missing 필드로 처리
+				SocialSignupRequestDto dto = new SocialSignupRequestDto(
+					idToken,
+					/* birthday */      null,
+					/* phoneNumber */   null,
+					/* gender */        null,
+					/* categoryType */  null,
+					/* imageUrl */      null
+
+				);
+				return persistSocialLocalUser(sub, name, emailLower, dto);
+			});
+
+		// 4) 누락 필드 수집
+		List<String> missing = new ArrayList<>();
+		if (user.getName()           == null) missing.add("name");
+		if (user.getPhoneNumber()   == null) missing.add("phoneNumber");
+		if (user.getBirthday()      == null) missing.add("birthday");
+		if (user.getGender()        == null) missing.add("gender");
+		if (user.getCategoryType()  == null) missing.add("categoryType");
+
+		// 5) DTO에 access/refresh/id 토큰과 missingFields 담아 반환
+		return SocialLoginResponseDto.of(
+			accessToken,
+			refreshToken,
+			idToken,
+			missing
+		);
+	}
+
+
+	@Override
+	@Transactional
+	public User completeProfile(String internalToken, CompleteProfileRequestDto dto) {
+		// 1) Cognito ID 토큰 검증 및 subject(sub) 추출
+		Jwt jwt   = jwtDecoder.decode(internalToken);
+		String sub = jwt.getSubject();
+
+		// 2) sub 기준 활성 사용자 조회
+		User user = userRepository.findBySubAndNotDeleted(sub)
+			.orElseThrow(() -> new BusinessException(
+				ResponseCode.USER_NOT_FOUND,
+				"프로필을 완성할 사용자를 찾을 수 없습니다."
+			));
+
+		// 3) 누락 정보 업데이트
+		user.changeName(dto.getName());
+		user.changePhoneNumber(dto.getPhoneNumber());
+		user.changeBirthday(dto.getBirthday());
+		user.changeGender(dto.getGender());
+		user.changeCategoryType(dto.getCategoryType());
+
+		// 4) Category 엔티티 생성 또는 업데이트
+		Category existing = categoryRepository
+			.findByTargetIdAndTargetType(user.getId(), CategoryTargetType.USER)
+			.orElse(null);
+
+		if (existing == null) {
+			// 처음 설정하는 경우
+			categoryRepository.save(new Category(
+				user.getId(),
+				dto.getCategoryType(),
+				CategoryTargetType.USER
+			));
+		} else {
+			// 이미 있으면 타입만 업데이트
+			existing.changeType(dto.getCategoryType());
+		}
+
+		// 5) 변경 감지로 자동 저장 후 리턴
+		return user;
+	}
+
 	private void getReward(Long userId) {
 		GemUserActivityType gemUserActivityType = GemUserActivityType.LOGIN;
 		Integer gem = gemUserActivityType.getGem();
@@ -447,6 +616,55 @@ public class AuthServiceImpl implements AuthService {
 			GemEvent.createEvent(userId, gem, gemUserActivityType.getDescription(), LocalDateTime.now(), null,
 				gemUserActivityType.getFlowType(), gemUserActivityType.name())
 		);
+	}
+
+	private User persistSocialLocalUser(
+		String sub,
+		String name,
+		String email,
+		SocialSignupRequestDto dto
+	) {
+		// 1) 역할 결정
+		String domain = email.substring(email.indexOf('@') + 1);
+		UserRole role = appProperties.getAdminDomains().contains(domain)
+			? UserRole.ADMIN
+			: UserRole.USER;
+
+		// 2) 랜덤 패스워드 생성 (실제 사용자는 사용하지 않음)
+		String rawPassword    = UUID.randomUUID().toString();
+		String encodedPassword = passwordEncoder.encode(rawPassword);
+
+		// 3) User 엔티티 생성
+		User user = new User(
+			null,                       // id (auto-generated)
+			name,                       // name
+			dto.getBirthday(),          // birthday
+			email,                      // email
+			dto.getPhoneNumber(),       // phoneNumber
+			role,                       // userRole
+			dto.getGender(),            // gender
+			dto.getCategoryType(),      // categoryType
+			encodedPassword,            // password
+			0,                          // gem
+			dto.getImageUrl(),          // imageUrl
+			false,                      // isDeleted
+			sub                         // Cognito sub
+		);
+		User saved = userRepository.save(user);
+
+		// 4) Category 생성
+		categoryRepository.save(new Category(
+			saved.getId(),
+			dto.getCategoryType(),
+			CategoryTargetType.USER
+		));
+
+		// 5) Clover 초기화
+		cloverService.createClover(
+			CreateCloverRequestDto.from(0, Tier.SPROUT, saved.getId())
+		);
+
+		return saved;
 	}
 
 }

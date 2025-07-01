@@ -1,29 +1,33 @@
 package com.example.cluvrapi.domain.auth.controller;
 
-import static com.example.cluvrapi.global.response.ResponseCode.CREATED;
-import static com.example.cluvrapi.global.response.ResponseCode.OK;
-
-import jakarta.validation.Valid;
-
-import lombok.RequiredArgsConstructor;
+import static com.example.cluvrapi.global.response.ResponseCode.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.cluvrapi.domain.auth.dto.request.CompleteProfileRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.RefreshTokenDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.SocialLoginRequestDto;
 import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
+import com.example.cluvrapi.domain.auth.dto.response.SocialLoginResponseDto;
 import com.example.cluvrapi.domain.auth.service.AuthService;
+import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
+import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -87,5 +91,26 @@ public class AuthController {
 		return ResponseEntity
 			.status(HttpStatus.CREATED)
 			.body(BaseResponse.success(res, ResponseCode.CREATED));
+	}
+
+
+	@PostMapping("/social-login")
+	public ResponseEntity<BaseResponse<SocialLoginResponseDto>> socialLogin(
+		@Valid @RequestBody SocialLoginRequestDto req
+	) {
+		SocialLoginResponseDto resp = authService.socialLogin(req.getCode());
+		return ResponseEntity.ok(BaseResponse.success(resp, OK));
+	}
+
+	@PostMapping("/complete-profile")
+	public ResponseEntity<BaseResponse<GetUserMeResponseDto>> completeProfile(
+		@RequestHeader("Authorization") String bearer,
+		@Valid @RequestBody CompleteProfileRequestDto dto
+	) {
+		String token = bearer.replace("Bearer ", "");
+		User user = authService.completeProfile(token, dto);
+		return ResponseEntity.ok(BaseResponse.success(
+			GetUserMeResponseDto.from(user), OK
+		));
 	}
 }
