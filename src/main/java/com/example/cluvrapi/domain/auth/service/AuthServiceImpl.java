@@ -119,7 +119,7 @@ public class AuthServiceImpl implements AuthService {
 
 		redisTemplate.opsForValue().set(key, cacheDto, VERIFY_TTL);
 		SimpleMailMessage msg = new SimpleMailMessage();
-		msg.setFrom(dto.getEmail());
+		msg.setFrom(mailFrom);
 		msg.setTo(emailLower);
 		msg.setSubject("【Cluvr】 회원가입 인증번호 안내");
 		msg.setText(
@@ -231,7 +231,16 @@ public class AuthServiceImpl implements AuthService {
 			.token(refreshToken)
 			.build();
 
-		cognitoUserClient.revokeToken(revokeTokenRequest);
+		try {
+			cognitoUserClient.revokeToken(revokeTokenRequest);
+			log.info(" Refresh token 사라짐");
+		} catch (CognitoIdentityProviderException e) {
+			log.error(" Cognito 에러 발생: {}", e.awsErrorDetails().errorMessage());
+			throw e;
+		} catch (Exception e) {
+			log.error(" 일반 예외 발생", e);
+			throw e;
+		}
 	}
 
 	private String calculateSecretHash(String clientId, String clientSecret, String username) {
@@ -392,6 +401,40 @@ public class AuthServiceImpl implements AuthService {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비밀번호와 확인이 일치하지 않습니다.");
 		}
 
+		//바로 cognito 가입 & 확인
+		try {
+			String username = dto.getEmail();
+			cognitoUserClient.signUp(SignUpRequest.builder()
+				.clientId(clientId)
+				.username(username)
+				.password(dto.getPassword())
+				.secretHash(calculateSecretHash(clientId, clientSecret, username))
+				.userAttributes(List.of(
+					AttributeType.builder().name("email").value(dto.getEmail()).build(),
+					AttributeType.builder().name("name").value(dto.getName()).build()
+				))
+				.build());
+
+			cognitoAdminClient.adminConfirmSignUp(AdminConfirmSignUpRequest.builder()
+				.userPoolId(userPoolId)
+				.username(username)
+				.build());
+
+			cognitoAdminClient.adminUpdateUserAttributes(AdminUpdateUserAttributesRequest.builder()
+				.userPoolId(userPoolId)
+				.username(username)
+				.userAttributes(AttributeType.builder()
+					.name("email_verified")
+					.value("true")
+					.build())
+				.build());
+		} catch (UsernameExistsException e) {
+			throw new BusinessException(ResponseCode.ALREADY_COGNITO);
+		} catch (CognitoIdentityProviderException e) {
+			log.error("cognito 등록이 안됨 사유 : {}", e.awsErrorDetails().errorMessage(), e);
+			throw new BusinessException(ResponseCode.INTERNAL_ERROR);
+		}
+
 		AuthenticationResultType authResult = cognitoUserClient
 			.adminInitiateAuth(builder -> builder
 				.authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
@@ -407,13 +450,18 @@ public class AuthServiceImpl implements AuthService {
 		Jwt jwt = jwtDecoder.decode(authResult.idToken());
 		String sub = jwt.getSubject();
 
+		// 로컬 DB 저장
+		String domain = emailLower.substring(emailLower.indexOf('@') + 1);
+		UserRole role = appProperties.getAdminDomains().contains(domain)
+			? UserRole.ADMIN : UserRole.USER;
+
 		User user = new User(
 			null,                        // id (자동 생성)
 			dto.getName(),
 			dto.getBirthday(),
 			emailLower,
 			dto.getPhoneNumber(),
-			UserRole.USER,               // 기본 USER 권한
+			role,            // 기본 USER 권한
 			dto.getGender(),
 			dto.getCategoryType(),
 			passwordEncoder.encode(dto.getPassword()),
