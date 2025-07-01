@@ -13,27 +13,32 @@ spring:
     name: cluvr
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      ssl:
-        enabled: true
+      host: localhost
+      port: 6379
+#      host: ${REDIS_HOST}
+#      port: ${REDIS_PORT}
+#      ssl:
+#        enabled: true
   batch:
     job:
       enabled: false  # 앱 실행 시 자동 실행 방지 (직접 JobLauncher 사용하기 위함)
     jdbc:
       initialize-schema: never
 
-  rabbitmq:
-    host: ${RMQ_HOST}
-    port: ${RMQ_PORT}
-    username: ${RMQ_USERNAME}
-    password: ${RMQ_PASSWORD}
+#  rabbitmq:
+#    host: ${RMQ_HOST}
+#    port: ${RMQ_PORT}
+#    username: ${RMQ_USERNAME}
+#    password: ${RMQ_PASSWORD}
 
   datasource:
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: yong311
+    password: yong311
+#    username: ${DB_USERNAME}
+#    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+#    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/query?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
 
   jpa:
     hibernate:
@@ -49,7 +54,8 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: cluvrmails@gmail.com
-    password: ${app_password}
+    password: fyln relh ofbb wvtb
+#    password: ${app_password}
     properties:
       mail:
         smtp:
@@ -59,7 +65,8 @@ spring:
         debug: true
 jwt:
   secret:
-    key: ${jwt.secret.key}
+    key: "QWxhZGRpbjpvcGVuIHNlc2FtZSBub3QgdGhlIGJyaWdodCBmbGFtZQ=="
+#    key: ${jwt.secret.key}
 app:
   cors:
     allowed-origins:
@@ -68,7 +75,6 @@ app:
       - http://localhost:63342
       - http://localhost:3000
       - http://54.200.146.243
-
 
 cognito:
   userPoolId: ${USER_POOL_ID}

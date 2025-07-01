@@ -392,20 +392,21 @@ public class AuthServiceImpl implements AuthService {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "비밀번호와 확인이 일치하지 않습니다.");
 		}
 
-		AuthenticationResultType authResult = cognitoUserClient
-			.adminInitiateAuth(builder -> builder
-				.authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
-				.userPoolId(userPoolId)
-				.clientId(clientId)
-				.authParameters(Map.of(
-					"USERNAME", dto.getEmail(),
-					"PASSWORD", dto.getPassword(),
-					"SECRET_HASH", calculateSecretHash(clientId, clientSecret, dto.getEmail())
-				))
-			).authenticationResult();
-
-		Jwt jwt = jwtDecoder.decode(authResult.idToken());
-		String sub = jwt.getSubject();
+		// AuthenticationResultType authResult = cognitoUserClient
+		// 	.adminInitiateAuth(builder -> builder
+		// 		.authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
+		// 		.userPoolId(userPoolId)
+		// 		.clientId(clientId)
+		// 		.authParameters(Map.of(
+		// 			"USERNAME", dto.getEmail(),
+		// 			"PASSWORD", dto.getPassword(),
+		// 			"SECRET_HASH", calculateSecretHash(clientId, clientSecret, dto.getEmail())
+		// 		))
+		// 	).authenticationResult();
+		//
+		// Jwt jwt = jwtDecoder.decode(authResult.idToken());
+		// String sub = jwt.getSubject();
+		String sub = "abcd";
 
 		User user = new User(
 			null,                        // id (자동 생성)
