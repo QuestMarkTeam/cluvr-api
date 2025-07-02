@@ -2,6 +2,7 @@ package com.example.cluvrapi.domain.auth.controller;
 
 import static com.example.cluvrapi.global.response.ResponseCode.*;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -83,7 +84,7 @@ public class AuthController {
 			));
 	}
 
-
+	@Profile({"local", "test"})
 	@PostMapping("/test-signup")
 	public ResponseEntity<BaseResponse<SignUpUserResponseDto>> simpleSignUp(
 		@Valid @RequestBody SignUpUserRequestDto dto) {
