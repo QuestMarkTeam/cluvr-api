@@ -34,6 +34,9 @@ pipeline {
                     string(credentialsId: 'CLIENT_SECRET', variable: 'CLIENT_SECRET'),
                     string(credentialsId: 'SECRET_AWS', variable: 'SECRET_AWS'),
                     string(credentialsId: 'USER_POOL_ID', variable: 'USER_POOL_ID'),
+                    string(credentialsId: 'COGNITO_REDIRECT_URI', variable: 'COGNITO_REDIRECT_URI'),
+                    string(credentialsId: 'COGNITO_TOKEN_ENDPOINT', variable: 'COGNITO_TOKEN_ENDPOINT'),
+                    string(credentialsId: 'COGNITO_JWK_SET_URI', variable: 'COGNITO_JWK_SET_URI')
                 ]) {
                     sh """
                         echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" > .env
@@ -52,6 +55,9 @@ pipeline {
                         echo "CLIENT_SECRET=${CLIENT_SECRET}" >> .env
                         echo "SECRET_AWS=${SECRET_AWS}" >> .env
                         echo "USER_POOL_ID=${USER_POOL_ID}" >> .env
+                        echo "COGNITO_REDIRECT_URI=${COGNITO_REDIRECT_URI}" >> .env
+                        echo "COGNITO_TOKEN_ENDPOINT=${COGNITO_TOKEN_ENDPOINT}" >> .env
+                        echo "COGNITO_JWK_SET_URI=${COGNITO_JWK_SET_URI}" >> .env
 
                         scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/id_rsa .env ubuntu@${EC2_IP}:${ENV_PATH}
                     """

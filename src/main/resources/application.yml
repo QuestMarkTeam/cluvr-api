@@ -2,14 +2,30 @@ server:
   error:
     include-message: always
   port: 80
-spring:
-  profiles:
-    active: local
+
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: https://cognito-idp.us-west-2.amazonaws.com/${USER_POOL_ID}
+          jwk-set-uri: https://cognito-idp.us-west-2.amazonaws.com/${USER_POOL_ID}/.well-known/jwks.json
+      client:
+        registration:
+          cognito:
+            client-id: ${CLIENT_ID}
+            client-secret: ${CLIENT_SECRET}
+            client-name: cluvr-user-pool
+            provider: cognito
+            authorization-grant-type: authorization_code
+            redirect-uri: ${COGNITO_REDIRECT_URI}
+            scope:
+              - openid
+              - email
+              - profile
+        provider:
+          cognito:
+            issuer-uri: https://cognito-idp.us-west-2.amazonaws.com/${USER_POOL_ID}
+            user-name-attribute: sub
 
   application:
     name: cluvr
