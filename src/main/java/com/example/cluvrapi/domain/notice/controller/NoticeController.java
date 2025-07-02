@@ -28,7 +28,7 @@ import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
 @RestController
-@RequestMapping("/clubs/{clubId}/notices")
+@RequestMapping("api/clubs/{clubId}/notices")
 @RequiredArgsConstructor
 public class NoticeController {
 
