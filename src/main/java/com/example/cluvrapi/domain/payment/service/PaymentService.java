@@ -3,11 +3,8 @@ package com.example.cluvrapi.domain.payment.service;
 import com.example.cluvrapi.domain.payment.dto.PaymentConfirmResponseDto;
 import com.example.cluvrapi.domain.payment.dto.request.PaymentConfirmRequestDto;
 import com.example.cluvrapi.domain.payment.dto.response.CreatePaymentPrepareResponseDto;
-import com.example.cluvrapi.domain.payment.dto.request.CreatePaymentRequestDto;
-import com.example.cluvrapi.domain.payment.dto.response.CreatePaymentResponseDto;
 import com.example.cluvrapi.domain.payment.dto.response.FindPaymentPrepareResponseDto;
 import com.example.cluvrapi.domain.payment.dto.request.CreatePaymentPrepareRequestDto;
-import com.example.cluvrapi.domain.payment.dto.request.PaymentRequestDto;
 
 public interface PaymentService {
 
