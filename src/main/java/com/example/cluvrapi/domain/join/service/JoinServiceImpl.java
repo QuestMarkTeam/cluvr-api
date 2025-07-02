@@ -35,7 +35,7 @@ import com.example.cluvrapi.domain.join.enums.FormFieldType;
 import com.example.cluvrapi.domain.join.enums.JoinStatus;
 import com.example.cluvrapi.domain.join.repository.JoinRequestAnswerRepository;
 import com.example.cluvrapi.domain.join.repository.JoinRequestRepository;
-import com.example.cluvrapi.domain.join.service.handler.DirectJoinHandler;
+import com.example.cluvrapi.domain.join.service.lock.DirectJoinLock;
 import com.example.cluvrapi.domain.join.validator.ClubJoinValidator;
 import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
 import com.example.cluvrapi.domain.notification.enums.NotificationType;
@@ -64,7 +64,6 @@ public class JoinServiceImpl implements JoinService {
 	private final JoinRedisService joinRedisService;
 	private final ClubMemberRepository clubMemberRepository;
 	private final ClubJoinValidator clubJoinValidator;
-	private final DirectJoinHandler directJoinHandler;
 
 	/**
 	 * 상수 선언
@@ -77,30 +76,30 @@ public class JoinServiceImpl implements JoinService {
 		// 1) 검증
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
-		clubJoinValidator.validateJoinRequest(findClub, findUser);
 
 		// 2) 현재 Club 의 가입 방식과 가입 신청의 가입 방식이 같은지 확인
 		if (findClub.getJoinType() != joinRequestDto.getJoinType()) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "가입방식과 신청 가입방식이 일치하지 않습니다.");
 		}
 
-		// 3) 가입 방식에 따른 초기 상태값 설정
+		// 3) 검증
+		clubJoinValidator.validateJoinRequest(findClub, findUser);
+
+		// 4) 가입 방식에 따른 초기 상태값 설정
 		JoinStatus initJoinStatus = determineJoinStatus(joinRequestDto.getJoinType());
 
-		// 4) Join Request Entity 생성 및 저장
+		// 5) Join Request Entity 생성 및 저장
 		JoinRequest joinRequest = new JoinRequest(findUser, findClub, initJoinStatus, joinRequestDto.getJoinType());
-
 		joinRequestRepository.save(joinRequest);
 
-		// 5) 가입 양식에 따라, 분리된 로직 실행
+		// 6) 가입 양식에 따라, 분리된 로직 실행
 		switch (findClub.getJoinType()) {
-			case DIRECT_JOIN -> processDirectJoin(findClub, findUser);
 			case SIMPLE_REQUEST -> processSimpleRequest();
 			case SUBMISSION_FORM -> processFormSubmission(clubId, joinRequest, joinRequestDto.getAnswer());
 			case PROBLEM_FORM -> processFormProblem(clubId, joinRequest, joinRequestDto.getAnswer());
 		}
 
-		// 6) 클럽장에게 알림 전송
+		// 7) 클럽장에게 알림 전송
 		ClubMember clubOwner = clubMemberRepository.findOwnerByClub(findClub)
 			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "클럽장의 정보를 찾을 수 없습니다."));
 
@@ -116,6 +115,41 @@ public class JoinServiceImpl implements JoinService {
 		}
 
 		return CreateJoinResponseDto.from(joinRequest.getId());
+	}
+
+	@Transactional
+	@DirectJoinLock(clubId = "#clubId")
+	public void createDirectJoin(Long userId, Long clubId) {
+		// 1) Direct Join 일 경우 별도 처리 - Early Return
+		User findUser = userRepository.findByIdOrElseThrow(userId);
+		Club findClub = clubRepository.findByIdOrElseThrow(clubId);
+
+		// 2) 기본 검증 - 중복 가입, 클럽 상태 등
+		clubJoinValidator.validateJoinRequest(findClub, findUser);
+
+		// 3) 직접 가입 방식만 처리
+		if (findClub.getJoinType() != JoinType.DIRECT_JOIN) {
+			throw new BusinessException(ResponseCode.INVALID_REQUEST, "즉시 가입 방식이 아닙니다.");
+		}
+
+		// 4) 유저 회원가입
+		ClubMember member = new ClubMember(findClub, findUser, ClubMemberRole.MEMBER, ClubMemberStatus.ACTIVE);
+		clubMemberRepository.save(member);
+
+		// 5) 클럽장에게 알림 전송
+		ClubMember clubOwner = clubMemberRepository.findOwnerByClub(findClub)
+			.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_REQUEST, "클럽장의 정보를 찾을 수 없습니다."));
+
+		Long ownerUserId = clubOwner.getUser().getId();
+
+		if (!ownerUserId.equals(findUser.getId())) { // 자기 자신이 아닌 경우에만
+			String content = String.format("'%s'님이 '%s' 클럽에 가입 신청을 했습니다.", findUser.getName(), findClub.getName());
+
+			NotificationEvent event = NotificationEvent.from(ownerUserId,                 // 클럽장에게
+				NotificationType.JOIN_REQUEST, content, NotiTargetType.CLUB, clubId);
+
+			notificationProducer.send(event);
+		}
 	}
 
 	@Override
@@ -264,17 +298,6 @@ public class JoinServiceImpl implements JoinService {
 	 */
 	private JoinStatus determineJoinStatus(JoinType joinType) {
 		return joinType == JoinType.DIRECT_JOIN ? JoinStatus.APPROVED : JoinStatus.PENDING;
-	}
-
-	/**
-	 * 설명: Join Type 이 DIRECT_JOIN 일 경우의 분기 메서드
-	 *
-	 * <p> 추후에 수정 예정
-	 *
-	 * @author sinyoung0403
-	 */
-	private void processDirectJoin(Club club, User user) {
-		directJoinHandler.handle(club, user);
 	}
 
 	/**
