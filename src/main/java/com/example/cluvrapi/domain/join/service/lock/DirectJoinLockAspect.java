@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
@@ -27,10 +28,16 @@ public class DirectJoinLockAspect {
 	private final RedissonClient redissonClient;
 	private final PlatformTransactionManager transactionManager;
 
+	@Value("${lock.direct-join.wait-time:5}")
+	private long waitTime;
+
+	@Value("${lock.direct-join.lease-time:10}")
+	private long leaseTime;
+
 	@Around("@annotation(directJoinLock)")
 	public Object lock(ProceedingJoinPoint joinPoint, DirectJoinLock directJoinLock) throws Throwable {
 		// 메서드 시그니처
-		MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+		MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
 		String[] parameterNames = methodSignature.getParameterNames(); // 파라미터 이름 배열
 		Object[] args = joinPoint.getArgs(); // 실제 파라미터 값 배열
 
@@ -45,10 +52,11 @@ public class DirectJoinLockAspect {
 
 		// SpEL 평가
 		String clubId = parser.parseExpression(directJoinLock.clubId()).getValue(context, String.class);
+		if (clubId == null) {
+			throw new IllegalArgumentException("clubId 파라미터를 찾을 수 없습니다.");
+		}
 
 		String key = "direct-club-join:" + clubId;
-		long waitTime = 5;
-		long leaseTime = 10;
 
 		RLock lock = redissonClient.getLock(key);
 
@@ -65,10 +73,16 @@ public class DirectJoinLockAspect {
 
 			return transactionTemplate.execute(status -> {
 				try {
-					return joinPoint.proceed(); // 비즈니스 로직 실행
+					return joinPoint.proceed();
 				} catch (Throwable throwable) {
 					status.setRollbackOnly();
-					throw new RuntimeException(throwable);
+					if (throwable instanceof RuntimeException) {
+						throw (RuntimeException)throwable;
+					} else if (throwable instanceof Error) {
+						throw (Error)throwable;
+					} else {
+						throw new RuntimeException("트랜잭션 실행 중 오류 발생", throwable);
+					}
 				}
 			});
 		} finally {
