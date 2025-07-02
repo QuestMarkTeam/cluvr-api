@@ -68,6 +68,4 @@ public interface AuthService {
 	SignUpUserResponseDto testSignUp(SignUpUserRequestDto dto);
 
 	SocialLoginResponseDto socialLogin(String idToken);
-
-	User completeProfile(String internalToken, CompleteProfileRequestDto dto);
 }

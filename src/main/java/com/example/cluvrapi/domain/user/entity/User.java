@@ -34,11 +34,11 @@ public class User extends BaseTimeEntity {
 	private Long id;
 
 	/** 유저 이름 (varchar(10) */
-	@Column(name = "name", length = 10)
+	@Column(name = "name", length = 10,nullable = false)
 	private String name;
 
 	/** 생년월일 (date) */
-	@Column(name = "birthday")
+	@Column(name = "birthday",nullable = false)
 	private LocalDate birthday;
 
 	/** 이메일 (varchar(50), NOT NULL, UNIQUE) */
@@ -46,7 +46,7 @@ public class User extends BaseTimeEntity {
 	private String email;
 
 	/** 전화번호 (varchar(11) */
-	@Column(name = "phone_number", length = 11, unique = true)
+	@Column(name = "phone_number", length = 14,unique = true)
 	private String phoneNumber;
 
 	/**
@@ -61,7 +61,7 @@ public class User extends BaseTimeEntity {
 	 * 성별 (varchar(5), enum)
 	 * - EnumType.STRING 으로 저장
 	 */
-	@Column(name = "gender", length = 5)
+	@Column(name = "gender", length = 5,nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 
@@ -69,7 +69,7 @@ public class User extends BaseTimeEntity {
 	 * 클럽 하위 카테고리 (varchar(11),NULL, enum)
 	 * - EnumType.STRING 으로 저장
 	 */
-	@Column(name = "category_type", length = 11)
+	@Column(name = "category_type", length = 11,nullable = false)
 	@Enumerated(EnumType.STRING)
 	private CategoryType categoryType;
 

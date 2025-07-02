@@ -103,15 +103,4 @@ public class AuthController {
 		return ResponseEntity.ok(BaseResponse.success(resp, OK));
 	}
 
-	@PostMapping("/complete-profile")
-	public ResponseEntity<BaseResponse<GetUserMeResponseDto>> completeProfile(
-		@RequestHeader("Authorization") String bearer,
-		@Valid @RequestBody CompleteProfileRequestDto dto
-	) {
-		String token = bearer.replace("Bearer ", "");
-		User user = authService.completeProfile(token, dto);
-		return ResponseEntity.ok(BaseResponse.success(
-			GetUserMeResponseDto.from(user), OK
-		));
-	}
 }

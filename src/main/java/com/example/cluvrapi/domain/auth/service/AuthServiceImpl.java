@@ -3,6 +3,7 @@ package com.example.cluvrapi.domain.auth.service;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -44,6 +45,7 @@ import com.example.cluvrapi.domain.auth.dto.response.SocialLoginResponseDto;
 import com.example.cluvrapi.domain.auth.properties.AppProperties;
 import com.example.cluvrapi.domain.category.entity.Category;
 import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
+import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.category.repository.CategoryRepository;
 import com.example.cluvrapi.domain.clover.dto.request.CreateCloverRequestDto;
 import com.example.cluvrapi.domain.clover.enums.Tier;
@@ -53,6 +55,7 @@ import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.gem.service.GemEvent;
 import com.example.cluvrapi.domain.gem.service.GemService;
 import com.example.cluvrapi.domain.user.entity.User;
+import com.example.cluvrapi.domain.user.entity.enums.Gender;
 import com.example.cluvrapi.domain.user.entity.enums.UserRole;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
@@ -304,22 +307,6 @@ public class AuthServiceImpl implements AuthService {
 
 		SignUpUserRequestDto dto = cache.getSignUpRequest();
 
-		if (dto.getName() == null || dto.getName().isBlank()) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이름은 필수 입력값입니다.");
-		}
-		if (dto.getBirthday() == null) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "생년월일은 필수 입력값입니다.");
-		}
-		if (dto.getGender() == null) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "성별은 필수 입력값입니다.");
-		}
-		if (dto.getCategoryType() == null) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "카테고리 타입은 필수 입력값입니다.");
-		}
-		if (dto.getPhoneNumber() == null || dto.getPhoneNumber().isBlank()) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "전화번호는 필수 입력값입니다.");
-		}
-
 		log.info("clientId: [{}]", clientId);
 		log.info("clientSecret (base64): [{}]",
 			Base64.getEncoder().encodeToString(clientSecret.getBytes(StandardCharsets.UTF_8)));
@@ -425,23 +412,6 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	@Transactional
 	public SignUpUserResponseDto testSignUp(SignUpUserRequestDto dto) {
-
-		if (dto.getName() == null || dto.getName().isBlank()) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이름은 필수 입력값입니다.");
-		}
-		if (dto.getBirthday() == null) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "생년월일은 필수 입력값입니다.");
-		}
-		if (dto.getGender() == null) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "성별은 필수 입력값입니다.");
-		}
-		if (dto.getCategoryType() == null) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "카테고리 타입은 필수 입력값입니다.");
-		}
-		if (dto.getPhoneNumber() == null || dto.getPhoneNumber().isBlank()) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "전화번호는 필수 입력값입니다.");
-		}
-		// ────────────────────────────────
 
 		String emailLower = dto.getEmail().toLowerCase();
 
@@ -551,16 +521,13 @@ public class AuthServiceImpl implements AuthService {
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
 		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
-		form.add("grant_type",    "authorization_code");
-		form.add("client_id",    clientId);
-		form.add("code",          code);  // "f45829b6-..." 같은 순수 코드 값
-		form.add("redirect_uri",  redirectUri);
-
+		form.add("grant_type", "authorization_code");
+		form.add("client_id", clientId);
+		form.add("code", code);
+		form.add("redirect_uri", redirectUri);
 
 		HttpEntity<MultiValueMap<String, String>> requestEntity =
 			new HttpEntity<>(form, headers);
-
-		log.debug("▶ Cognito clientId = {}", clientId);
 
 		JsonNode tokenResp = restTemplate.postForObject(
 			tokenEndpoint,
@@ -569,7 +536,6 @@ public class AuthServiceImpl implements AuthService {
 		);
 
 		String accessToken  = tokenResp.get("access_token").asText();
-		form.add("client_id",    clientId);
 		String refreshToken = tokenResp.get("refresh_token").asText();
 		String idToken      = tokenResp.get("id_token").asText();
 
@@ -580,80 +546,20 @@ public class AuthServiceImpl implements AuthService {
 		String name  = jwt.getClaim("name");
 		String emailLower = email.toLowerCase();
 
-		// 3) 기존 사용자 조회, 없으면 persistSocialLocalUser 호출
+		String defaultName = emailLower.substring(0, emailLower.indexOf('@'));
+
+
+		// 3) 기존 사용자 조회, 없으면 기본값으로 가입
 		User user = userRepository.findBySubAndNotDeleted(sub)
-			.orElseGet(() -> {
-				// socialLogin 에선 모든 DTO 필드가 일단 null → missing 필드로 처리
-				SocialSignupRequestDto dto = new SocialSignupRequestDto(
-					idToken,
-					/* birthday */      null,
-					/* phoneNumber */   null,
-					/* gender */        null,
-					/* categoryType */  null,
-					/* imageUrl */      null
+			.orElseGet(() -> persistSocialLocalUser(sub, defaultName, emailLower));
 
-				);
-				return persistSocialLocalUser(sub, name, emailLower, dto);
-			});
-
-		// 4) 누락 필드 수집
-		List<String> missing = new ArrayList<>();
-		if (user.getName()           == null) missing.add("name");
-		if (user.getPhoneNumber()   == null) missing.add("phoneNumber");
-		if (user.getBirthday()      == null) missing.add("birthday");
-		if (user.getGender()        == null) missing.add("gender");
-		if (user.getCategoryType()  == null) missing.add("categoryType");
-
-		// 5) DTO에 access/refresh/id 토큰과 missingFields 담아 반환
+		// 4) 빈 missingFields와 함께 반환
 		return SocialLoginResponseDto.of(
 			accessToken,
 			refreshToken,
 			idToken,
-			missing
+			List.of()
 		);
-	}
-
-
-	@Override
-	@Transactional
-	public User completeProfile(String internalToken, CompleteProfileRequestDto dto) {
-		// 1) Cognito ID 토큰 검증 및 subject(sub) 추출
-		Jwt jwt   = jwtDecoder.decode(internalToken);
-		String sub = jwt.getSubject();
-
-		// 2) sub 기준 활성 사용자 조회
-		User user = userRepository.findBySubAndNotDeleted(sub)
-			.orElseThrow(() -> new BusinessException(
-				ResponseCode.USER_NOT_FOUND,
-				"프로필을 완성할 사용자를 찾을 수 없습니다."
-			));
-
-		// 3) 누락 정보 업데이트
-		user.changeName(dto.getName());
-		user.changePhoneNumber(dto.getPhoneNumber());
-		user.changeBirthday(dto.getBirthday());
-		user.changeGender(dto.getGender());
-		user.changeCategoryType(dto.getCategoryType());
-
-		// 4) Category 엔티티 생성 또는 업데이트
-		Category existing = categoryRepository
-			.findByTargetIdAndTargetType(user.getId(), CategoryTargetType.USER)
-			.orElse(null);
-
-		if (existing == null) {
-			// 처음 설정하는 경우
-			categoryRepository.save(new Category(
-				user.getId(),
-				dto.getCategoryType(),
-				CategoryTargetType.USER
-			));
-		} else {
-			// 이미 있으면 타입만 업데이트
-			existing.changeType(dto.getCategoryType());
-		}
-
-		// 5) 변경 감지로 자동 저장 후 리턴
-		return user;
 	}
 
 	private void getReward(Long userId) {
@@ -669,45 +575,44 @@ public class AuthServiceImpl implements AuthService {
 	private User persistSocialLocalUser(
 		String sub,
 		String name,
-		String email,
-		SocialSignupRequestDto dto
+		String email
 	) {
-		// 1) 역할 결정
+		// 역할 결정
 		String domain = email.substring(email.indexOf('@') + 1);
 		UserRole role = appProperties.getAdminDomains().contains(domain)
 			? UserRole.ADMIN
 			: UserRole.USER;
 
-		// 2) 랜덤 패스워드 생성 (실제 사용자는 사용하지 않음)
-		String rawPassword    = UUID.randomUUID().toString();
+		// 랜덤 패스워드 생성 (실제 사용자는 사용하지 않음)
+		String rawPassword = UUID.randomUUID().toString();
 		String encodedPassword = passwordEncoder.encode(rawPassword);
 
-		// 3) User 엔티티 생성
+		// User 엔티티 생성 (gender=MALE, categoryType=DEVELOPMENT 고정)
 		User user = new User(
 			null,                       // id (auto-generated)
 			name,                       // name
-			dto.getBirthday(),          // birthday
+			LocalDate.of(1970,1,1),     // 기본 birthday
 			email,                      // email
-			dto.getPhoneNumber(),       // phoneNumber
+			null,                         // 기본 phoneNumber
 			role,                       // userRole
-			dto.getGender(),            // gender
-			dto.getCategoryType(),      // categoryType
+			Gender.MALE,                // gender 고정: MALE
+			CategoryType.DEVELOPMENT,   // categoryType 고정: DEVELOPMENT
 			encodedPassword,            // password
-			0,                          // gem
-			dto.getImageUrl(),          // imageUrl
-			false,                      // isDeleted
+			0,                          // 초기 gem 포인트
+			"",                         // imageUrl 기본값
+			false,                      // isDeleted=false
 			sub                         // Cognito sub
 		);
 		User saved = userRepository.save(user);
 
-		// 4) Category 생성
+		// Category 생성
 		categoryRepository.save(new Category(
 			saved.getId(),
-			dto.getCategoryType(),
+			saved.getCategoryType(),
 			CategoryTargetType.USER
 		));
 
-		// 5) Clover 초기화
+		// Clover 초기화
 		cloverService.createClover(
 			CreateCloverRequestDto.from(0, Tier.SPROUT, saved.getId())
 		);
