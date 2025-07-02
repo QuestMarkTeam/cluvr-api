@@ -403,7 +403,8 @@ public class AuthServiceImpl implements AuthService {
 
 		//바로 cognito 가입 & 확인
 		try {
-			String username = dto.getEmail();
+			String[] email = dto.getEmail().split("@");
+			String username = email[0];
 			cognitoUserClient.signUp(SignUpRequest.builder()
 				.clientId(clientId)
 				.username(username)
@@ -449,6 +450,7 @@ public class AuthServiceImpl implements AuthService {
 
 		Jwt jwt = jwtDecoder.decode(authResult.idToken());
 		String sub = jwt.getSubject();
+		// String sub = "abcd";
 
 		// 로컬 DB 저장
 		String domain = emailLower.substring(emailLower.indexOf('@') + 1);

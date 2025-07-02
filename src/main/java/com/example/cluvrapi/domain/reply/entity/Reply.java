@@ -26,6 +26,7 @@ import com.example.cluvrapi.domain.user.entity.User;
 		@Index(name = "idx_id", columnList = "board_id, is_deleted")
 	}
 )
+// @Where(clause = "is_deleted = false")
 @Getter
 @SQLDelete(sql = "UPDATE replies SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

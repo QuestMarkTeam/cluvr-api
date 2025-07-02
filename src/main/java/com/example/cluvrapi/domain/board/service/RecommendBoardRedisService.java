@@ -19,7 +19,7 @@ import com.example.cluvrapi.domain.category.enums.CategoryType;
 @RequiredArgsConstructor
 @Slf4j
 public class RecommendBoardRedisService {
-
+	// 추후 자료구조 변경: zset, sortedSet
 	private final RedisTemplate<String, Long> redisTemplate;
 
 	private static final String REDIS_KEY_FORMAT = "recommend:board:%s:%d";
