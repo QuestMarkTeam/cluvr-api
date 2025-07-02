@@ -97,6 +97,7 @@ public class JoinServiceImpl implements JoinService {
 			case SIMPLE_REQUEST -> processSimpleRequest();
 			case SUBMISSION_FORM -> processFormSubmission(clubId, joinRequest, joinRequestDto.getAnswer());
 			case PROBLEM_FORM -> processFormProblem(clubId, joinRequest, joinRequestDto.getAnswer());
+			case DIRECT_JOIN -> throw new BusinessException(ResponseCode.INVALID_REQUEST, "즉시 가입은 별도의 API를 사용해주세요.");
 		}
 
 		// 7) 클럽장에게 알림 전송
@@ -239,54 +240,13 @@ public class JoinServiceImpl implements JoinService {
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 
 		// 3) 클럽 가입 유무 검증
-		validateJoinRequest(findClub, findUser);
+		clubJoinValidator.validateJoinRequest(findClub, findUser);
 
 		// 4) Join Request Entity 생성 및 저장
 		JoinRequest joinRequest = new JoinRequest(findUser, findClub, JoinStatus.PENDING, JoinType.INVITE_CODE);
 		joinRequestRepository.save(joinRequest);
 
 		return CreateJoinRequestByCodeResponseDto.from(joinRequest.getId());
-	}
-
-	/**
-	 * 설명: Join request 가 유효한 신청인지 확인하는 검증 메서드
-	 *
-	 * <p> 중복신청과 이미 가입된 유저인지 확인한다.
-	 *
-	 * @param club {설명: 클럽}
-	 * @param user {설명: 유저}
-	 * @throws BusinessException {400 BadRequest}
-	 * @author sinyoung0403
-	 */
-	private void validateJoinRequest(Club club, User user) {
-		// 1. 중복 신청 조회
-		Optional<JoinRequest> alreadyRequested = joinRequestRepository.findJoinByClubIdAndUserId(club.getId(),
-			user.getId());
-
-		alreadyRequested.ifPresent(joinRequest -> {
-			if (joinRequest.getJoinStatus() == JoinStatus.PENDING
-				|| joinRequest.getJoinStatus() == JoinStatus.APPROVED) {
-				throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입 신청한 클럽입니다.");
-			}
-		});
-
-		// 2. 이미 가입된 유저인지 조회
-		clubMemberRepository.findByClubAndUserWithAnyStatus(club, user).ifPresent(
-			clubMember -> {
-				switch (clubMember.getClubMemberStatus()) {
-					case ACTIVE:
-						throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 가입 신청한 클럽입니다.");
-					case KICKED:
-						throw new BusinessException(ResponseCode.INVALID_REQUEST, "강퇴한 당한 클럽은 가입 불가합니다.");
-				}
-			}
-		);
-
-		// 3. 클럽원 다 찼는지 확인
-		if (clubMemberRepository.countByClubIdAndStatus(club.getId(), ClubMemberStatus.ACTIVE)
-			>= club.getMaxMemberCount()) {
-			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이미 회원이 꽉 찼습니다.");
-		}
 	}
 
 	/**
