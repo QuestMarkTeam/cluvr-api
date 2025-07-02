@@ -3,6 +3,8 @@ server:
     include-message: always
   port: 80
 spring:
+  profiles:
+    active: local
   security:
     oauth2:
       resourceserver:
@@ -88,5 +90,6 @@ logging:
   level:
     root: INFO
     software.amazon.awssdk: DEBUG
+    software.amazon.awssdk.auth: DEBUG
     com.amazonaws: DEBUG
     com.example.cluvrapi: DEBUG
