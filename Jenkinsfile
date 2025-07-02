@@ -36,7 +36,11 @@ pipeline {
                     string(credentialsId: 'USER_POOL_ID', variable: 'USER_POOL_ID'),
                     string(credentialsId: 'COGNITO_REDIRECT_URI', variable: 'COGNITO_REDIRECT_URI'),
                     string(credentialsId: 'COGNITO_TOKEN_ENDPOINT', variable: 'COGNITO_TOKEN_ENDPOINT'),
-                    string(credentialsId: 'COGNITO_JWK_SET_URI', variable: 'COGNITO_JWK_SET_URI')
+                    string(credentialsId: 'COGNITO_JWK_SET_URI', variable: 'COGNITO_JWK_SET_URI'),
+                    string(credentialsId: 'SPRING_MAIL_HOST', variable: 'SPRING_MAIL_HOST'),
+                    string(credentialsId: 'SPRING_MAIL_PORT', variable: 'SPRING_MAIL_PORT'),
+                    string(credentialsId: 'SPRING_MAIL_USERNAME', variable: 'SPRING_MAIL_USERNAME'),
+                    string(credentialsId: 'SPRING_MAIL_PASSWORD', variable: 'SPRING_MAIL_PASSWORD')
                 ]) {
                     sh """
                         echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" > .env
@@ -58,6 +62,10 @@ pipeline {
                         echo "COGNITO_REDIRECT_URI=${COGNITO_REDIRECT_URI}" >> .env
                         echo "COGNITO_TOKEN_ENDPOINT=${COGNITO_TOKEN_ENDPOINT}" >> .env
                         echo "COGNITO_JWK_SET_URI=${COGNITO_JWK_SET_URI}" >> .env
+                        echo "SPRING_MAIL_HOST=${SPRING_MAIL_HOST}" >> .env
+                        echo "SPRING_MAIL_PORT=${SPRING_MAIL_PORT}" >> .env
+                        echo "SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}" >> .env
+                        echo "SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}" >> .env
 
                         scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/id_rsa .env ubuntu@${EC2_IP}:${ENV_PATH}
                     """
