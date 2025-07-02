@@ -111,10 +111,6 @@ public class JoinRequest {
 		this.isDeleted = true;
 	}
 
-	public void delete() {
-		this.isDeleted = true;
-	}
-
 	/**
 	 * 설명: 가입 요청을 approve 해주는 메서드
 	 *
