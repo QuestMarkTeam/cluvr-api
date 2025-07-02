@@ -217,7 +217,8 @@ public class AuthServiceImpl implements AuthService {
 			// 4) DTO 변환 후 반환
 			return LoginUserResponseDto.from(
 				email,
-				idToken.getClaim("name"), // name 클레임이 없으면 null 처리됨
+				// idToken.getClaim("name"), // name 클레임이 없으면 null 처리됨
+				user.getName(),
 				result.accessToken(),
 				result.refreshToken(),
 				result.idToken()

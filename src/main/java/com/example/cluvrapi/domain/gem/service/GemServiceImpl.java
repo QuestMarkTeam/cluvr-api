@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
+import com.example.cluvrapi.domain.gem.dto.request.UseGemRequestDto;
 import com.example.cluvrapi.domain.gem.dto.response.FindGemLogResponseDto;
 import com.example.cluvrapi.domain.gem.dto.response.UpdateGemResponseDto;
 import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
@@ -42,19 +43,18 @@ public class GemServiceImpl implements GemService {
 		return UpdateGemResponseDto.from(user.getGem()); // 충전 후 포인트 반환
 	}
 
-
-	@UpdateGem(value = GemUserActivityType.ITEM_PURCHASE)
+	@UpdateGem(value = GemUserActivityType.CHAT_CREATE)
 	@Transactional
 	@Override
-	public UpdateGemResponseDto useGem(Long userId, UpdateGemRequestDto requestDto) {
+	public UpdateGemResponseDto useGem(Long userId, UseGemRequestDto requestDto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		int gem = requestDto.getGem(); // 감소량
-		int currentGem = user.getGem(); // 현재 보유 포인트
+		Integer gem = requestDto.getGem(); // 감소량
+		Integer currentGem = user.getGem(); // 현재 보유 포인트
 
 		if (currentGem < gem) { // 포인트 부족하면 에러 발생
 			throw new BusinessException(ResponseCode.GEM_NOT_ENOUGH);
 		}
-		int finalGem = currentGem - gem;
+		Integer finalGem = currentGem - gem;
 		user.updateGem(finalGem);
 
 		return UpdateGemResponseDto.from(finalGem); // 남은 포인트 리턴

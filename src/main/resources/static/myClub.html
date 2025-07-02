@@ -72,6 +72,7 @@
         const API_CHAT_URL = 'http://localhost:8082'; // 로컬 채팅 서버
         // const API_CHAT_URL = 'http://54.200.146.243'; // 원격 채팅 서버
 
+        const token = localStorage.getItem("accessToken");
 
         // 페이지 로드 시 클럽 리스트 불러오기
         window.onload = function() {

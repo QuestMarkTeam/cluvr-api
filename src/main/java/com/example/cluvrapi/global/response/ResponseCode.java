@@ -54,7 +54,11 @@ public enum ResponseCode {
 	NO_PERMISSION_DELETE(HttpStatus.NOT_ACCEPTABLE, "현재 유저는 이 게시물을 삭제할 수 있는 권한이 없습니다."),
 	ALREADY_SELECTED(HttpStatus.BAD_REQUEST, "채택은 각 게시물 당 한 개만 가능합니다. 이미 채택을 하셨습니다."),
 	CANNOT_SELECT_OWN_REPLY(HttpStatus.BAD_REQUEST, "게시글 작성자와 댓글 작성자가 동일 인물이므로 채택할 수 없습니다."),
-	REPLY_NOT_MATCHED_WITH_BOARD(HttpStatus.BAD_REQUEST, "채택한 댓글은 해당 게시물 소속의 댓글이 아닙니다.");
+	REPLY_NOT_MATCHED_WITH_BOARD(HttpStatus.BAD_REQUEST, "채택한 댓글은 해당 게시물 소속의 댓글이 아닙니다."),
+	/* 결제 */
+	PAYMENT_PREPARE_NOT_FOUND(HttpStatus.BAD_REQUEST, "결제 정보가 존재하지 않습니다"),
+	PAYMENT_AMOUNT_FAILED(HttpStatus.BAD_REQUEST, "결제 금액이 동일하지 않습니다"),
+	;
 
 	private final HttpStatus status;
 	private final String defaultMessage;
