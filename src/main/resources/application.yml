@@ -2,7 +2,7 @@ server:
   error:
     include-message: always
   port: 80
-
+  
   security:
     oauth2:
       resourceserver:
