@@ -83,7 +83,8 @@ public class SecurityConfig {
 			)
 			.authorizeHttpRequests(auth -> auth
 				// 회원가입·로그인만 공개
-				.requestMatchers("/api/auth/**", "/my-monitor/**").permitAll()
+				.requestMatchers("/api/auth/**", "/my-monitor/**", "/api/users/sub/**").permitAll()
+
 				// /admin/** 은 ADMIN 권한 필요
 				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/verify", "/my-monitor/**",
