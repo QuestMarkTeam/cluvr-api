@@ -88,7 +88,13 @@ public class RedisConfig {
 	public RedissonClient redissonClient() {
 		Config config = new Config();
 		config.useSingleServer()
-			.setAddress("redis://" + redisHost + ":" + redisPort);
+			.setAddress("redis://" + redisHost + ":" + redisPort)
+			.setConnectionPoolSize(10)
+			.setConnectionMinimumIdleSize(5)
+			.setConnectTimeout(10000)
+			.setTimeout(3000)
+			.setRetryAttempts(3)
+			.setRetryInterval(1500);
 
 		return Redisson.create(config);
 	}
@@ -107,6 +113,5 @@ public class RedisConfig {
 
 		return redisObjectMapper;
 	}
-
 
 }
