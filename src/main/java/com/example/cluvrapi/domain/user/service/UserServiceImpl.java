@@ -63,22 +63,29 @@ public class UserServiceImpl implements UserService {
 				"해당 사용자를 찾을 수 없습니다. id=" + userId
 			));
 
-		if (updateDto.getEmail() != null && !updateDto.getEmail().isBlank()) {
-			String newEmail = updateDto.getEmail();
-			if (userRepository.existsByEmail(newEmail)
-				&& !user.getEmail().equals(newEmail)) {
-				throw new BusinessException(
-					ResponseCode.INVALID_REQUEST,
-					"이미 사용 중인 이메일입니다."
-				);
-			}
-			user.changeEmail(newEmail);
+		if (updateDto.getName() != null && !updateDto.getName().isBlank()) {
+			user.changeName(updateDto.getName());
+		}
+
+		if (updateDto.getBirthday() != null) {
+			user.changeBirthday(updateDto.getBirthday());
+		}
+
+		if (updateDto.getGender() != null) {
+			user.changeGender(updateDto.getGender());
 		}
 
 		if (updateDto.getPhoneNumber() != null && !updateDto.getPhoneNumber().isBlank()) {
-			String newPhone = updateDto.getPhoneNumber();
+			String newPhone = updateDto.getPhoneNumber().trim();
+			// 예시 정규식: 010-1234-5678 또는 02-123-4567 등
+			if (!newPhone.matches("^\\d{2,3}-\\d{3,4}-\\d{4}$")) {
+				throw new BusinessException(
+					ResponseCode.INVALID_REQUEST,
+					"전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678"
+				);
+			}
 			if (userRepository.existsByPhoneNumber(newPhone)
-				&& !user.getPhoneNumber().equals(newPhone)) {
+				&& !newPhone.equals(user.getPhoneNumber())) {
 				throw new BusinessException(
 					ResponseCode.INVALID_REQUEST,
 					"이미 등록된 전화번호입니다."
@@ -86,6 +93,7 @@ public class UserServiceImpl implements UserService {
 			}
 			user.changePhoneNumber(newPhone);
 		}
+
 
 		if (updateDto.getCategoryType() != null) {
 			user.changeCategoryType(updateDto.getCategoryType());

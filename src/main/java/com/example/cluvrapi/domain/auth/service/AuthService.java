@@ -1,10 +1,14 @@
 package com.example.cluvrapi.domain.auth.service;
 
+import com.example.cluvrapi.domain.auth.dto.request.CompleteProfileRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.SocialSignupRequestDto;
 import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
+import com.example.cluvrapi.domain.auth.dto.response.SocialLoginResponseDto;
+import com.example.cluvrapi.domain.user.entity.User;
 
 /**
  * 인증 관련 주요 기능(SignUp, Login, Logout)을 제공하는 서비스 인터페이스입니다.
@@ -63,5 +67,5 @@ public interface AuthService {
 
 	SignUpUserResponseDto testSignUp(SignUpUserRequestDto dto);
 
-
+	SocialLoginResponseDto socialLogin(String idToken);
 }

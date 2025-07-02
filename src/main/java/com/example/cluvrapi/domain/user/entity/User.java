@@ -33,24 +33,24 @@ public class User extends BaseTimeEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	/** 유저 이름 (varchar(10), NOT NULL) */
-	@Column(name = "name", nullable = false, length = 10)
+	/** 유저 이름 (varchar(10) */
+	@Column(name = "name", length = 10,nullable = false)
 	private String name;
 
-	/** 생년월일 (date, NOT NULL) */
-	@Column(name = "birthday", nullable = false)
+	/** 생년월일 (date) */
+	@Column(name = "birthday",nullable = false)
 	private LocalDate birthday;
 
 	/** 이메일 (varchar(50), NOT NULL, UNIQUE) */
 	@Column(name = "email", nullable = false, length = 50, unique = true)
 	private String email;
 
-	/** 전화번호 (varchar(11), NOT NULL) */
-	@Column(name = "phone_number", nullable = false, length = 11, unique = true)
+	/** 전화번호 (varchar(11) */
+	@Column(name = "phone_number", length = 14,unique = true)
 	private String phoneNumber;
 
 	/**
-	 * 역할 (varchar(11), NOT NULL, enum)
+	 * 역할 (varchar(11), enum)
 	 * - EnumType.STRING 으로 저장
 	 */
 	@Column(name = "user_role", nullable = false, length = 11)
@@ -58,18 +58,18 @@ public class User extends BaseTimeEntity {
 	private UserRole userRole;
 
 	/**
-	 * 성별 (varchar(5), NOT NULL, enum)
+	 * 성별 (varchar(5), enum)
 	 * - EnumType.STRING 으로 저장
 	 */
-	@Column(name = "gender", nullable = false, length = 5)
+	@Column(name = "gender", length = 5,nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 
 	/**
-	 * 클럽 하위 카테고리 (varchar(11), NOT NULL, enum)
+	 * 클럽 하위 카테고리 (varchar(11),NULL, enum)
 	 * - EnumType.STRING 으로 저장
 	 */
-	@Column(name = "category_type", nullable = false, length = 11)
+	@Column(name = "category_type", length = 11,nullable = false)
 	@Enumerated(EnumType.STRING)
 	private CategoryType categoryType;
 
@@ -132,5 +132,18 @@ public class User extends BaseTimeEntity {
 
 	public void updateGem(Integer gem) {
 		this.gem = gem;
+	}
+
+
+	public void changeBirthday(LocalDate birthday) {
+		this.birthday = birthday;
+	}
+
+	public void changeGender(Gender gender) {
+		this.gender = gender;
+	}
+
+	public void changeName(String name){
+		this.name = name;
 	}
 }

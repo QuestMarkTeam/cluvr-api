@@ -1,5 +1,69 @@
 package com.example.cluvrapi.domain.auth.service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+
+import com.example.cluvrapi.domain.auth.dto.request.CompleteProfileRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.LoginUserRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyCacheRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyRequestDto;
+import com.example.cluvrapi.domain.auth.dto.request.SocialSignupRequestDto;
+import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
+import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
+import com.example.cluvrapi.domain.auth.dto.response.SocialLoginResponseDto;
+import com.example.cluvrapi.domain.auth.properties.AppProperties;
+import com.example.cluvrapi.domain.category.entity.Category;
+import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
+import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.category.repository.CategoryRepository;
+import com.example.cluvrapi.domain.clover.dto.request.CreateCloverRequestDto;
+import com.example.cluvrapi.domain.clover.enums.Tier;
+import com.example.cluvrapi.domain.clover.service.CloverService;
+import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
+import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
+import com.example.cluvrapi.domain.gem.service.GemEvent;
+import com.example.cluvrapi.domain.gem.service.GemService;
+import com.example.cluvrapi.domain.user.entity.User;
+import com.example.cluvrapi.domain.user.entity.enums.Gender;
+import com.example.cluvrapi.domain.user.entity.enums.UserRole;
+import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.exception.BusinessException;
+import com.example.cluvrapi.global.response.ResponseCode;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminConfirmSignUpRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesRequest;
@@ -13,55 +77,6 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.NotAuthoriz
 import software.amazon.awssdk.services.cognitoidentityprovider.model.RevokeTokenRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.SignUpRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException;
-
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.example.cluvrapi.domain.auth.dto.request.LoginUserRequestDto;
-import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
-import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyCacheRequestDto;
-import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyRequestDto;
-import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
-import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
-import com.example.cluvrapi.domain.auth.properties.AppProperties;
-import com.example.cluvrapi.domain.category.entity.Category;
-import com.example.cluvrapi.domain.category.enums.CategoryTargetType;
-import com.example.cluvrapi.domain.category.repository.CategoryRepository;
-import com.example.cluvrapi.domain.clover.dto.request.CreateCloverRequestDto;
-import com.example.cluvrapi.domain.clover.enums.Tier;
-import com.example.cluvrapi.domain.clover.service.CloverService;
-import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
-import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
-import com.example.cluvrapi.domain.gem.service.GemEvent;
-import com.example.cluvrapi.domain.gem.service.GemService;
-import com.example.cluvrapi.domain.user.entity.User;
-import com.example.cluvrapi.domain.user.entity.enums.UserRole;
-import com.example.cluvrapi.domain.user.repository.UserRepository;
-import com.example.cluvrapi.global.exception.BusinessException;
-import com.example.cluvrapi.global.response.ResponseCode;
 
 @Slf4j
 @Service
@@ -87,6 +102,13 @@ public class AuthServiceImpl implements AuthService {
 
 	@Qualifier("cognitoAdminClient")
 	private final CognitoIdentityProviderClient cognitoAdminClient;
+	private final RestTemplate restTemplate;
+
+	@Value("${cognito.token-endpoint}")
+	private String tokenEndpoint;
+
+	@Value("${cognito.redirect-uri}")
+	private String redirectUri;
 
 	@Value("${spring.mail.username}")
 	private String mailFrom;
@@ -284,6 +306,7 @@ public class AuthServiceImpl implements AuthService {
 		log.info("📨 [VERIFY] 입력된 코드: {}", req.getCode());
 
 		SignUpUserRequestDto dto = cache.getSignUpRequest();
+
 		log.info("clientId: [{}]", clientId);
 		log.info("clientSecret (base64): [{}]",
 			Base64.getEncoder().encodeToString(clientSecret.getBytes(StandardCharsets.UTF_8)));
@@ -389,6 +412,7 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	@Transactional
 	public SignUpUserResponseDto testSignUp(SignUpUserRequestDto dto) {
+
 		String emailLower = dto.getEmail().toLowerCase();
 
 		if (userRepository.existsByEmail(emailLower)) {
@@ -487,6 +511,57 @@ public class AuthServiceImpl implements AuthService {
 		return SignUpUserResponseDto.from(saved);
 	}
 
+
+	@Override
+	@Transactional
+	public SocialLoginResponseDto socialLogin(String code) {
+		// 1) Authorization Code → Token 교환
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBasicAuth(clientId, clientSecret);
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+		form.add("grant_type", "authorization_code");
+		form.add("client_id", clientId);
+		form.add("code", code);
+		form.add("redirect_uri", redirectUri);
+
+		HttpEntity<MultiValueMap<String, String>> requestEntity =
+			new HttpEntity<>(form, headers);
+
+		JsonNode tokenResp = restTemplate.postForObject(
+			tokenEndpoint,
+			requestEntity,
+			JsonNode.class
+		);
+
+		String accessToken  = tokenResp.get("access_token").asText();
+		String refreshToken = tokenResp.get("refresh_token").asText();
+		String idToken      = tokenResp.get("id_token").asText();
+
+		// 2) ID 토큰 디코딩 → 사용자 정보 추출
+		Jwt jwt      = jwtDecoder.decode(idToken);
+		String sub   = jwt.getSubject();
+		String email = jwt.getClaim("email");
+		String name  = jwt.getClaim("name");
+		String emailLower = email.toLowerCase();
+
+		String defaultName = emailLower.substring(0, emailLower.indexOf('@'));
+
+
+		// 3) 기존 사용자 조회, 없으면 기본값으로 가입
+		User user = userRepository.findBySubAndNotDeleted(sub)
+			.orElseGet(() -> persistSocialLocalUser(sub, defaultName, emailLower));
+
+		// 4) 빈 missingFields와 함께 반환
+		return SocialLoginResponseDto.of(
+			accessToken,
+			refreshToken,
+			idToken,
+			List.of()
+		);
+	}
+
 	private void getReward(Long userId) {
 		GemUserActivityType gemUserActivityType = GemUserActivityType.LOGIN;
 		Integer gem = gemUserActivityType.getGem();
@@ -495,6 +570,54 @@ public class AuthServiceImpl implements AuthService {
 			GemEvent.createEvent(userId, gem, gemUserActivityType.getDescription(), LocalDateTime.now(), null,
 				gemUserActivityType.getFlowType(), gemUserActivityType.name())
 		);
+	}
+
+	private User persistSocialLocalUser(
+		String sub,
+		String name,
+		String email
+	) {
+		// 역할 결정
+		String domain = email.substring(email.indexOf('@') + 1);
+		UserRole role = appProperties.getAdminDomains().contains(domain)
+			? UserRole.ADMIN
+			: UserRole.USER;
+
+		// 랜덤 패스워드 생성 (실제 사용자는 사용하지 않음)
+		String rawPassword = UUID.randomUUID().toString();
+		String encodedPassword = passwordEncoder.encode(rawPassword);
+
+		// User 엔티티 생성 (gender=MALE, categoryType=DEVELOPMENT 고정)
+		User user = new User(
+			null,                       // id (auto-generated)
+			name,                       // name
+			LocalDate.of(1970,1,1),     // 기본 birthday
+			email,                      // email
+			null,                         // 기본 phoneNumber
+			role,                       // userRole
+			Gender.MALE,                // gender 고정: MALE
+			CategoryType.DEVELOPMENT,   // categoryType 고정: DEVELOPMENT
+			encodedPassword,            // password
+			0,                          // 초기 gem 포인트
+			"",                         // imageUrl 기본값
+			false,                      // isDeleted=false
+			sub                         // Cognito sub
+		);
+		User saved = userRepository.save(user);
+
+		// Category 생성
+		categoryRepository.save(new Category(
+			saved.getId(),
+			saved.getCategoryType(),
+			CategoryTargetType.USER
+		));
+
+		// Clover 초기화
+		cloverService.createClover(
+			CreateCloverRequestDto.from(0, Tier.SPROUT, saved.getId())
+		);
+
+		return saved;
 	}
 
 }

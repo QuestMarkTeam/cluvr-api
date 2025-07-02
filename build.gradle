@@ -109,6 +109,9 @@ dependencies {
 
     // Env
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
+    //oAuth2
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 }
 
 tasks.named('test') {

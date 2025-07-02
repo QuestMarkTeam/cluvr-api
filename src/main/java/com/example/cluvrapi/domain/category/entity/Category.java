@@ -28,7 +28,7 @@ public class Category {
     private Long targetId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column
     private CategoryType categoryType;
 
     @Enumerated(EnumType.STRING)
@@ -39,5 +39,9 @@ public class Category {
         this.targetId = targetId;
         this.categoryType = categoryType;
         this.targetType = targetType;
+    }
+
+    public void changeType(CategoryType newType) {
+        this.categoryType = newType;
     }
 }

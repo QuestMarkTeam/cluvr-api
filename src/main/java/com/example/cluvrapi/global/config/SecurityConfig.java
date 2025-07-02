@@ -12,11 +12,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.example.cluvrapi.global.security.OAuth2LoginSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -70,7 +73,7 @@ public class SecurityConfig {
 
 	@Bean
 	@Order(2)
-	public SecurityFilterChain defaultChain(HttpSecurity http) throws
+	public SecurityFilterChain defaultChain(HttpSecurity http, OAuth2LoginSuccessHandler OAuth2LoginSuccessHandler) throws
 		Exception {
 
 		http
@@ -88,12 +91,16 @@ public class SecurityConfig {
 				// /admin/** 은 ADMIN 권한 필요
 				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/verify", "/my-monitor/**",
-					"/favicon.ico", "/api/auth/test-signup").permitAll()
+					"/favicon.ico", "/api/auth/test-signup", "/api/auth/social-login", "/api/auth/complete-profile").permitAll()
 				.requestMatchers("/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated()
 			).oauth2ResourceServer(oauth2 -> oauth2
 				.jwt(jwt -> jwt.decoder(jwtDecoder))
-			);
+			)        .oauth2Login(oauth2 -> oauth2
+				.loginPage("/oauth2/authorization/cognito")
+				.userInfoEndpoint(userInfo -> userInfo.oidcUserService(new OidcUserService()))
+				.successHandler(OAuth2LoginSuccessHandler)
+			);;
 
 		return http.build();
 	}

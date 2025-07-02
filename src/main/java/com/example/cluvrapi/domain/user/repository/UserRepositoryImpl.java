@@ -87,4 +87,15 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 		return requireNonNullElse(cnt, 0L) > 0;
 	}
 
+	@Override
+	public Optional<User> findBySubAndNotDeleted(String sub) {
+		return Optional.ofNullable(
+			queryFactory
+				.selectFrom(user)
+				.where(user.sub.eq(sub)
+					.and(user.isDeleted.eq(false)))
+				.fetchOne()
+		);
+	}
+
 }

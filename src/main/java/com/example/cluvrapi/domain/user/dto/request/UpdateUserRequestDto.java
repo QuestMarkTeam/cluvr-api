@@ -1,6 +1,9 @@
 package com.example.cluvrapi.domain.user.dto.request;
 
+import java.time.LocalDate;
+
 import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.example.cluvrapi.domain.user.entity.enums.Gender;
 
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
@@ -10,12 +13,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateUserRequestDto {
 
-	@Email(message = "유효한 이메일 형식이 아닙니다.")
-	private String email;
+	private String name;
 
 	private String phoneNumber;
 
 	private CategoryType categoryType;
 
 	private String imageUrl;
+
+	private Gender gender;
+
+	private LocalDate birthday;
 }
