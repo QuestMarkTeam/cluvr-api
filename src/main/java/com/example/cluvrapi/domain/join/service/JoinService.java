@@ -36,6 +36,23 @@ public interface JoinService {
 
 	CreateJoinResponseDto createJoin(Long userId, Long clubId, CreateJoinRequestDto joinRequestDto);
 
+
+	/**
+	 * 설명: 클럽 가입 신청을 처리하는 메서드
+	 *
+	 * <p>DIRECT_JOIN 의 가입 양식만 가입 신청이 이루어지며,
+	 * 클럽의 현재 가입 방식과 요청의 방식이 일치하는지 확인한 뒤 적절한 프로세스를 실행합니다.
+	 *
+	 * @param userId 로그인한 유저의 고유 식별자
+	 * @param clubId 클럽의 고유 식별자
+	 * @return CreateJoinResponseDto 가입 신청의 ID를 반환
+	 * @throws BusinessException 404 NOT_FOUND: 클럽 또는 유저가 존재하지 않을 경우
+	 * @throws BusinessException 400 INVALID_REQUEST: 요청 형식이 올바르지 않거나 조건 불일치 시
+	 * @author sinyoung0403
+	 */
+
+	void createDirectJoin(Long userId, Long clubId);
+
 	/**
 	 * 설명: 클럽의 고유 식별자를 통해 Join Request 조회하는 메서드
 	 *
