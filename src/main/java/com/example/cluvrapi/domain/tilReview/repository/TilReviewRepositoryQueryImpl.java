@@ -110,6 +110,7 @@ public class TilReviewRepositoryQueryImpl implements TilReviewRepositoryQuery {
 			.from(tilReview)
 			.where(
 				tilReview.createdAt.between(startDateTime, endDateTime)
+					.and(tilReview.reviewed.isTrue())
 			)
 			.orderBy(tilReview.createdAt.desc())
 			.offset(pageable.getOffset())
@@ -121,6 +122,7 @@ public class TilReviewRepositoryQueryImpl implements TilReviewRepositoryQuery {
 			.from(tilReview)
 			.where(
 				tilReview.createdAt.between(startDateTime, endDateTime)
+					.and(tilReview.reviewed.isTrue())
 			)
 			.fetchOne();
 
