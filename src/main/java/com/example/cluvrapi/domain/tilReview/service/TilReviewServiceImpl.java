@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.til.entity.Til;
 import com.example.cluvrapi.domain.til.repository.TilRepository;
+import com.example.cluvrapi.domain.tilReview.dto.WeeklyDateRange;
 import com.example.cluvrapi.domain.tilReview.dto.response.CompletedReviewResponseDto;
 import com.example.cluvrapi.domain.tilReview.dto.response.InfoReviewResponseDto;
 import com.example.cluvrapi.domain.tilReview.entity.TilReview;
@@ -70,28 +71,28 @@ public class TilReviewServiceImpl implements TilReviewService {
 	public PageResponseDto<CompletedReviewResponseDto> findWeeklyReview(Pageable pageable) {
 		LocalDate today = LocalDate.now();
 
-		LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
-		LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
+		WeeklyDateRange weeklyDateRange = calculateWeeklyDateRange(today);
 
-		LocalDateTime startDateTime = startOfWeek.atStartOfDay();
-		LocalDateTime endDateTime = endOfWeek.atTime(23, 59, 59);
-
-		return tilReviewRepository.findWeeklyReview(startDateTime, endDateTime, pageable);
+		return tilReviewRepository.findWeeklyReview(weeklyDateRange.getStartDateTime(), weeklyDateRange.getEndDateTime(), pageable);
 	}
 
 	private void validateReview(LocalDate today, Long clubId) {
-		LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
-		LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
-
-		LocalDateTime startDateTime = startOfWeek.atStartOfDay();
-		LocalDateTime endDateTime = endOfWeek.atTime(23, 59, 59);
+		WeeklyDateRange weeklyDateRange = calculateWeeklyDateRange(today);
 
 		boolean alreadyRequested = tilReviewRepository
-			.findLatestReviewInPeriod(clubId, startDateTime, endDateTime)
+			.findLatestReviewInPeriod(clubId, weeklyDateRange.getStartDateTime(), weeklyDateRange.getEndDateTime())
 			.isPresent();
 
 		if (alreadyRequested) {
 			throw new BusinessException(ResponseCode.INVALID_REQUEST, "이번 주에 이미 리뷰 요청을 했습니다.");
 		}
+	}
+
+	private WeeklyDateRange calculateWeeklyDateRange(LocalDate date) {
+		LocalDate startOfWeek = date.with(DayOfWeek.MONDAY);
+		LocalDate endOfWeek = date.with(DayOfWeek.SUNDAY);
+		LocalDateTime startDateTime = startOfWeek.atStartOfDay();
+		LocalDateTime endDateTime = endOfWeek.atTime(23, 59, 59);
+		return new WeeklyDateRange(startDateTime, endDateTime);
 	}
 }
