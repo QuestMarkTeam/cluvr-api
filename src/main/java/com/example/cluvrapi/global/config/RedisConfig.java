@@ -1,13 +1,13 @@
 package com.example.cluvrapi.global.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,9 +20,21 @@ import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 @Configuration
 @EnableCaching
 public class RedisConfig {
+
+	@Value("${REDIS_HOST:localhost}")
+	private String redisHost;
+
+	@Value("${REDIS_PORT:6379}")
+	private int redisPort;
 
 	@Bean
 	public RedisTemplate<String, Long> redisCountViewTemplate(RedisConnectionFactory connectionFactory) {
@@ -71,6 +83,22 @@ public class RedisConfig {
 			.build();
 	}
 
+	// Redisson Client
+	@Bean
+	public RedissonClient redissonClient() {
+		Config config = new Config();
+		config.useSingleServer()
+			.setAddress("redis://" + redisHost + ":" + redisPort)
+			.setConnectionPoolSize(10)
+			.setConnectionMinimumIdleSize(5)
+			.setConnectTimeout(10000)
+			.setTimeout(3000)
+			.setRetryAttempts(3)
+			.setRetryInterval(1500);
+
+		return Redisson.create(config);
+	}
+
 	private ObjectMapper createRedisObjectMapper() {
 		ObjectMapper redisObjectMapper = new ObjectMapper();
 		redisObjectMapper.registerModule(new JavaTimeModule());
@@ -85,6 +113,5 @@ public class RedisConfig {
 
 		return redisObjectMapper;
 	}
-
 
 }

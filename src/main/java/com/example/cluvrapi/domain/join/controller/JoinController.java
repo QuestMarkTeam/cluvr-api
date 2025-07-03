@@ -68,6 +68,26 @@ public class JoinController {
 	}
 
 	/**
+	 * 특정 클럽에 즉시 가입을 요청합니다.
+	 * <p>
+	 * 가입 방식이 즉시 가입(DIRECT_JOIN)인 클럽에 대해, 별도 요청 없이 바로 가입을 처리합니다.
+	 *
+	 * @param authUser 인증된 사용자 정보
+	 * @param clubId   즉시 가입할 클럽의 ID
+	 * @return 응답 상태만 포함된 기본 응답 객체 (가입 성공 시 OK)
+	 * @author sinyoung0403
+	 */
+
+	@PostMapping("/clubs/{clubId}/direct-join")
+	public ResponseEntity<BaseResponse<Void>> createDirectJoin(
+		@Auth AuthUser authUser,
+		@PathVariable Long clubId
+	) {
+		joinService.createDirectJoin(authUser.id(), clubId);
+		return ResponseEntity.ok(BaseResponse.success(null, ResponseCode.OK));
+	}
+
+	/**
 	 * 설명: 특정 클럽에 도착한 모든 가입 요청을 페이징하여 조회합니다.
 	 *
 	 * @param clubId   클럽 ID
