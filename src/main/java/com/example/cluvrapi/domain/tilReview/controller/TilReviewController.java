@@ -2,7 +2,10 @@ package com.example.cluvrapi.domain.tilReview.controller;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,18 +13,44 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.tilReview.dto.response.CompletedReviewResponseDto;
+import com.example.cluvrapi.domain.tilReview.dto.response.InfoReviewResponseDto;
 import com.example.cluvrapi.domain.tilReview.service.TilReviewService;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
-@RequestMapping("/api/clubs/{clubId}/til")
+/**
+ * TIL 리뷰 관련 API를 제공하는 컨트롤러입니다.
+ *
+ * <p> 주요 기능:
+ * - 특정 TIL에 대한 리뷰 요청
+ * - 특정 리뷰 단건 조회
+ * - 클럽 내 TIL 리뷰 목록 조회
+ * - 최근 일주일 이내 완료된 리뷰 목록 조회
+ * </p>
+ *
+ * @author sinyoung0403
+ */
+
+@RequestMapping("/api/clubs")
 @RestController
 @RequiredArgsConstructor
 public class TilReviewController {
 
 	private final TilReviewService tilReviewService;
 
-	@PostMapping("/{tilId}/request-review")
+	/**
+	 * 특정 TIL에 대해 리뷰 요청을 수행하는 API
+	 *
+	 * @param authUser 인증된 사용자 정보
+	 * @param clubId   클럽 고유 식별자
+	 * @param tilId    리뷰를 요청할 TIL 고유 식별자
+	 * @return 200 OK (요청 성공), 내부 응답 코드로 CREATED 반환
+	 * @author sinyoung0403
+	 */
+
+	@PostMapping("/{clubId}/tils/{tilId}/reviews/request")
 	public ResponseEntity<BaseResponse<Void>> requestReview(
 		@Auth AuthUser authUser,
 		@PathVariable Long clubId,
