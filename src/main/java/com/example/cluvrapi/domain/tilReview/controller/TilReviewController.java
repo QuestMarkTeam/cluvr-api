@@ -90,7 +90,7 @@ public class TilReviewController {
 	 * @author sinyoung0403
 	 */
 
-	@GetMapping("/{clubId}/tils/reviews")
+	@GetMapping("/{clubId}/tils/{tilId}/reviews")
 	public ResponseEntity<BaseResponse<PageResponseDto<InfoReviewResponseDto>>> findReviewByClub(
 		@PathVariable Long clubId,
 		@PathVariable Long tilId,
