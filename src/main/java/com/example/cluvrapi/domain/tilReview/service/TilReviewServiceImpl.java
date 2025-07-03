@@ -3,15 +3,20 @@ package com.example.cluvrapi.domain.tilReview.service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.til.entity.Til;
 import com.example.cluvrapi.domain.til.repository.TilRepository;
+import com.example.cluvrapi.domain.tilReview.dto.response.CompletedReviewResponseDto;
+import com.example.cluvrapi.domain.tilReview.dto.response.InfoReviewResponseDto;
 import com.example.cluvrapi.domain.tilReview.entity.TilReview;
 import com.example.cluvrapi.domain.tilReview.repository.TilReviewRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
@@ -45,6 +50,33 @@ public class TilReviewServiceImpl implements TilReviewService {
 
 		// 4) DB 저장
 		tilReviewRepository.save(tilReview);
+	}
+
+	@Override
+	public InfoReviewResponseDto findReviewById(Long clubId, Long tilId, Long reviewId) {
+		Optional<InfoReviewResponseDto> infoReviewResponseDtoOpt = tilReviewRepository.findReviewById(clubId, tilId,
+			reviewId);
+		return infoReviewResponseDtoOpt.orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당하는 리뷰 요청이 존재하지 않습니다.")
+		);
+	}
+
+	@Override
+	public PageResponseDto<InfoReviewResponseDto> findReviewByClub(Long clubId, Long tilId, Pageable pageable) {
+		return tilReviewRepository.findReviewByClub(clubId, tilId, pageable);
+	}
+
+	@Override
+	public PageResponseDto<CompletedReviewResponseDto> findWeeklyReview(Pageable pageable) {
+		LocalDate today = LocalDate.now();
+
+		LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
+		LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
+
+		LocalDateTime startDateTime = startOfWeek.atStartOfDay();
+		LocalDateTime endDateTime = endOfWeek.atTime(23, 59, 59);
+
+		return tilReviewRepository.findWeeklyReview(startDateTime, endDateTime, pageable);
 	}
 
 	private void validateReview(LocalDate today, Long clubId) {
