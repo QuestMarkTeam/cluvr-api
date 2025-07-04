@@ -3,13 +3,30 @@ server:
     include-message: always
   port: 80
 
+logging:
+  level:
+    root: INFO
+    io.lettuce.core: DEBUG
+    software.amazon.awssdk: DEBUG
+    software.amazon.awssdk.auth: DEBUG
+    com.amazonaws: DEBUG
+    com.example.cluvrapi: DEBUG
+    org.springframework.data.redis: DEBUG
+    org.springframework.security: INFO
+    org.springframework.web: INFO
+
+
 spring:
+  application:
+    name: cluvr
+
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://cognito-idp.us-west-2.amazonaws.com/${USER_POOL_ID}
-          jwk-set-uri: https://cognito-idp.us-west-2.amazonaws.com/${USER_POOL_ID}/.well-known/jwks.json
+          issuer-uri: https://cognito-idp.us-west-2.amazonaws.com/us-west-2_Nt2iRhUaQ
+          jwk-set-uri: https://cognito-idp.us-west-2.amazonaws.com/us-west-2_Nt2iRhUaQ/.well-known/jwks.json
+
       client:
         registration:
           cognito:
@@ -28,8 +45,6 @@ spring:
             issuer-uri: https://cognito-idp.us-west-2.amazonaws.com/${USER_POOL_ID}
             user-name-attribute: sub
 
-  application:
-    name: cluvr
   data:
     redis:
       host: ${REDIS_HOST}
@@ -37,27 +52,26 @@ spring:
       ssl:
         enabled: true
       timeout: 10
+
   batch:
     job:
-      enabled: false  # 앱 실행 시 자동 실행 방지 (직접 JobLauncher 사용하기 위함)
+      enabled: false
     jdbc:
-      initialize-schema: never
+      initialize-schema: always
 
   rabbitmq:
-    host: ${RMQ_HOST}
-    port: ${RMQ_PORT}
-    username: ${RMQ_USERNAME}
-    password: ${RMQ_PASSWORD}
-
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
   datasource:
-#    username: ${DB_USERNAME}
-#    password: ${DB_PASSWORD}
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
-    username: root
-    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/test1234?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+      username: yong311
+      password: yong311
+  #    username: ${DB_USERNAME}
+  #    password: ${DB_PASSWORD}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  #    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+      url: jdbc:mysql://localhost:3306/query?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
 
   jpa:
     hibernate:
@@ -69,6 +83,7 @@ spring:
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQLDialect
         highlight_sql: true
+
   mail:
     host: ${SPRING_MAIL_HOST}
     port: ${SPRING_MAIL_PORT}
@@ -99,6 +114,8 @@ cognito:
   clientId: ${CLIENT_ID}
   jwkSetUri: https://cognito-idp.us-west-2.amazonaws.com/${USER_POOL_ID}/.well-known/jwks.json
   clientSecret: ${CLIENT_SECRET}
+  redirect-uri: https://d84l1y8p4kdic.cloudfront.net
+  token-endpoint: https://us-west-2nt2irhuaq.auth.us-west-2.amazoncognito.com/oauth2/token
 
 cloud:
   aws:
@@ -108,10 +125,3 @@ cloud:
       access-key: ${ACCESS_AWS}
       secret-key: ${SECRET_AWS}
 
-logging:
-  level:
-    root: INFO
-    software.amazon.awssdk: DEBUG
-    software.amazon.awssdk.auth: DEBUG
-    com.amazonaws: DEBUG
-    com.example.cluvrapi: DEBUG
