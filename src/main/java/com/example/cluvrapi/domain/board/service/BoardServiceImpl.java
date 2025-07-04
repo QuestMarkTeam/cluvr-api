@@ -16,6 +16,7 @@ import com.example.cluvrapi.domain.board.dto.response.ReadAllBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
+import com.example.cluvrapi.domain.board.enums.BoardType;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.clover.entity.Clover;
@@ -62,8 +63,8 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PageResponseDto<ReadAllBoardsResponseDto> readBoards(CategoryType category, Pageable pageable) {
-		PageResponseDto<Board> boards = boardRepository.findAllBoardsByCategory(category, pageable);
+	public PageResponseDto<ReadAllBoardsResponseDto> readBoards(CategoryType category, BoardType boardType, Pageable pageable) {
+		PageResponseDto<Board> boards = boardRepository.findAllBoardsByCategory(category, boardType, pageable);
 
 		List<ReadAllBoardsResponseDto> dtos = boards.getContent().stream().map(board -> {
 			return new ReadAllBoardsResponseDto(board, boardViewCountRedisService.getViewCountFromRedis(board, false));

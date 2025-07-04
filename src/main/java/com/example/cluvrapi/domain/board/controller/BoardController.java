@@ -25,6 +25,7 @@ import com.example.cluvrapi.domain.board.dto.request.UpdateBoardRequestDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadAllBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
+import com.example.cluvrapi.domain.board.enums.BoardType;
 import com.example.cluvrapi.domain.board.service.BoardService;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.annotation.Auth;
@@ -59,9 +60,10 @@ public class BoardController {
 	@GetMapping
 	public ResponseEntity<BaseResponse<PageResponseDto<ReadAllBoardsResponseDto>>> readBoards(
 		@RequestParam CategoryType category,
+		@RequestParam BoardType boardType,
 		@PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
 		return ResponseEntity.ok(
-			BaseResponse.success(boardService.readBoards(category, pageable), ResponseCode.OK));
+			BaseResponse.success(boardService.readBoards(category, boardType, pageable), ResponseCode.OK));
 	}
 
 	@GetMapping("/{boardId}")

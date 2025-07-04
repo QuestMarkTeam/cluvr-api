@@ -8,12 +8,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.example.cluvrapi.domain.board.dto.response.QReadAllBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.QReadMyBoardsResponseDto;
-import com.example.cluvrapi.domain.board.dto.response.ReadAllBoardsResponseDto;
 import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.entity.QBoard;
+import com.example.cluvrapi.domain.board.enums.BoardType;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.user.entity.QUser;
@@ -42,7 +41,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 	}
 
 	@Override
-	public PageResponseDto<Board> findAllBoardsByCategory(CategoryType category, Pageable pageable) {
+	public PageResponseDto<Board> findAllBoardsByCategory(CategoryType category, BoardType boardType, Pageable pageable) {
 		QBoard board = QBoard.board;
 
 		List<Board> dtos = queryFactory
@@ -50,6 +49,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 			.where(
 				board.isDeleted.isFalse()
 					.and(category != null ? board.category.eq(category) : null)
+					.and(board.boardType.eq(boardType))
 			)
 			.orderBy(board.createdAt.desc())
 			.offset(pageable.getOffset())
@@ -59,7 +59,11 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 		Long total = queryFactory
 			.select(board.count())
 			.from(board)
-			.where(board.isDeleted.isFalse().and(board.category.eq(category)))
+			.where(
+				board.isDeleted.isFalse()
+					.and(category != null ? board.category.eq(category) : null)
+					.and(board.boardType.eq(boardType))
+			)
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, total));
