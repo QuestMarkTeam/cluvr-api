@@ -29,7 +29,7 @@ public class GemController {
 
 	private final GemService gemService;
 
-	@GetMapping
+	@GetMapping("/logs")
 	public ResponseEntity<BaseResponse<List<FindGemLogResponseDto>>> findGemLogByUserId(@Auth AuthUser user) {
 		return ResponseEntity.ok(BaseResponse.success(gemService.findGemLogByUserId(user.id()), ResponseCode.OK));
 	}
