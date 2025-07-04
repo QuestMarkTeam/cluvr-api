@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberStatus;
 import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
+import com.example.cluvrapi.domain.user.entity.User;
+import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -18,18 +20,28 @@ import com.example.cluvrapi.global.response.ResponseCode;
 public class ClubSecurityService {
 
 	private final ClubMemberRepository clubMemberRepository;
+	private final UserRepository userRepository;
 
 	private Long currentUserId() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) {
-			throw new BusinessException(
-				ResponseCode.AUTH_REQUIRED
-			);
+		if (!(auth.getPrincipal() instanceof Jwt jwt)) {
+			throw new BusinessException(ResponseCode.AUTH_REQUIRED);
 		}
-		Long userId = jwt.getClaim("custom:userId");
 
-		return userId;
+		String sub = jwt.getSubject();
+		if (sub == null || sub.isBlank()) {
+			throw new BusinessException(ResponseCode.INVALID_TOKEN,
+				"JWT에 sub(claim)이 없습니다.");
+		}
 
+		// 레포지토리에서 직접 조회
+		User user = userRepository.findBySub(sub)
+			.orElseThrow(() -> new BusinessException(
+				ResponseCode.USER_NOT_FOUND,
+				"sub에 해당하는 사용자를 찾을 수 없습니다."
+			));
+
+		return user.getId();
 	}
 
 	public boolean isMember(Long clubId) {

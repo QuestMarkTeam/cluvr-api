@@ -9,6 +9,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("@ClubSec.isOwner(#clubId)")
+@PreAuthorize("@clubSec.isOwner(#clubId)")
 public @interface IsClubOwner {
 }

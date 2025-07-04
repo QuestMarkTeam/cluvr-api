@@ -58,6 +58,7 @@ public enum ResponseCode {
 	/* 결제 */
 	PAYMENT_PREPARE_NOT_FOUND(HttpStatus.BAD_REQUEST, "결제 정보가 존재하지 않습니다"),
 	PAYMENT_AMOUNT_FAILED(HttpStatus.BAD_REQUEST, "결제 금액이 동일하지 않습니다"),
+	INVALID_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
 	;
 
 	private final HttpStatus status;
