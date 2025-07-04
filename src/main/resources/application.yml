@@ -98,8 +98,6 @@ cognito:
   clientId: ${CLIENT_ID}
   jwkSetUri: https://cognito-idp.us-west-2.amazonaws.com/${USER_POOL_ID}/.well-known/jwks.json
   clientSecret: ${CLIENT_SECRET}
-  redirect-uri: https://d84l1y8p4kdic.cloudfront.net
-  token-endpoint: https://us-west-2nt2irhuaq.auth.us-west-2.amazoncognito.com/oauth2/token
 
 cloud:
   aws:
