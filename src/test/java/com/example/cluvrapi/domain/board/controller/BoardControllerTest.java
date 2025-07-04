@@ -27,6 +27,7 @@
 // import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
 // import com.example.cluvrapi.domain.board.dto.request.UpdateBoardRequestDto;
 // import com.example.cluvrapi.domain.board.dto.response.ReadBoardResponseDto;
+// import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
 // import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 // import com.example.cluvrapi.domain.board.enums.BoardType;
 // import com.example.cluvrapi.domain.board.service.BoardService;
@@ -108,13 +109,13 @@
 // 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
 //
 //
-// 		List<ReadBoardResponseDto> content = List.of(
-// 			new ReadBoardResponseDto(1L, "title1", "content1", 5, "nickname1", LocalDateTime.now(), LocalDateTime.now()),
-// 			new ReadBoardResponseDto(2L, "title2", "content2", 50, "nickname2", LocalDateTime.now(), LocalDateTime.now())
+// 		List<ReadBoardsResponseDto> content = List.of(
+// 			new ReadBoardsResponseDto(1L, "title1", "content1", 5, "nickname1", LocalDateTime.now(), LocalDateTime.now()),
+// 			new ReadBoardsResponseDto(2L, "title2", "content2", 50, "nickname2", LocalDateTime.now(), LocalDateTime.now())
 // 		);
 //
-// 		PageResponseDto<ReadBoardResponseDto> fakeResponse =
-// 			PageResponseDto.<ReadBoardResponseDto>builder()
+// 		PageResponseDto<ReadBoardsResponseDto> fakeResponse =
+// 			PageResponseDto.<ReadBoardsResponseDto>builder()
 // 				.content(content)
 // 				.page(1)
 // 				.size(5)

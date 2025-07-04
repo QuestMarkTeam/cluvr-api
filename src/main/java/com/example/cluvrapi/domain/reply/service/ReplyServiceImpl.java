@@ -15,6 +15,8 @@ import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
+import com.example.cluvrapi.domain.reaction.enums.ReactionType;
+import com.example.cluvrapi.domain.reaction.service.ReactionCountRedisService;
 import com.example.cluvrapi.domain.reply.dto.request.CreateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.request.UpdateReplyRequestDto;
 import com.example.cluvrapi.domain.reply.dto.response.ReadMyReplyResponseDto;
@@ -33,7 +35,8 @@ public class ReplyServiceImpl implements ReplyService {
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
 	private final NotificationProducer notificationProducer;
-	private final ReplyReactionRedisService replyReactionCountRedisService;
+	// private final ReplyReactionRedisService replyReactionCountRedisService;
+	private final ReactionCountRedisService reactionCountRedisService;
 
 	@Transactional
 	@Override
@@ -70,8 +73,8 @@ public class ReplyServiceImpl implements ReplyService {
 
 		List<ReadReplyResponseDto> dtos = replies.getContent().stream()
 			.map(reply -> {
-				long like = replyReactionCountRedisService.readLikeCountFromRedis(reply.getId());
-				long dislike = replyReactionCountRedisService.readDislikeCountFromRedis(reply.getId());
+				long like = reactionCountRedisService.readReplyReactionCount(reply, ReactionType.LIKE);
+				long dislike = reactionCountRedisService.readReplyReactionCount(reply, ReactionType.DISLIKE);
 				return new ReadReplyResponseDto(reply, like, dislike);
 			}).toList();
 

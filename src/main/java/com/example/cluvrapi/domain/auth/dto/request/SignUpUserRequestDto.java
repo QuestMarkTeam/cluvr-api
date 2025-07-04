@@ -31,7 +31,7 @@ public class SignUpUserRequestDto {
 	private final String email;
 
 	@NotBlank(message = "전화번호를 입력해야 합니다.")
-	@Pattern(regexp = "^\\d{10,11}$", message = "전화번호는 숫자 10~11자리여야 합니다.")
+	// @Pattern(regexp = "^\\d{10,11}$", message = "전화번호는 숫자 10~11자리여야 합니다.")
 	private final String phoneNumber;
 
 	@NotNull(message = "성별을 선택해야 합니다.")

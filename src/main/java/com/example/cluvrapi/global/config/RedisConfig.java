@@ -1,16 +1,26 @@
 package com.example.cluvrapi.global.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.RequiredArgsConstructor;
+
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -28,15 +38,34 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
 @EnableCaching
+@RequiredArgsConstructor
 public class RedisConfig {
-
 	@Value("${REDIS_HOST:localhost}")
 	private String redisHost;
 
 	@Value("${REDIS_PORT:6379}")
 	private int redisPort;
 
-	@Bean
+	@Bean(name = "redisStringTemplate")
+	public RedisTemplate<String, String> redisStringTemplate(RedisConnectionFactory redisConnectionFactory) {
+		RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+
+		// redis template에 connection factory 연결
+		redisTemplate.setConnectionFactory(redisConnectionFactory);
+
+		// key에 대한 직렬화 방법 등록
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
+		// value에 대한 직렬화 방법 등록
+		redisTemplate.setValueSerializer(new StringRedisSerializer());
+		// hash key에 대한 직렬화 방법 등록
+		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+		// hash value에 대한 직렬화 방법 등록
+		redisTemplate.setHashValueSerializer(new StringRedisSerializer());
+
+		return redisTemplate;
+	}
+
+	@Bean(name = "redisCountViewTemplate" )
 	public RedisTemplate<String, Long> redisCountViewTemplate(RedisConnectionFactory connectionFactory) {
 		RedisTemplate<String, Long> template = new RedisTemplate<>();
 		template.setConnectionFactory(connectionFactory);
@@ -113,5 +142,6 @@ public class RedisConfig {
 
 		return redisObjectMapper;
 	}
+
 
 }

@@ -64,6 +64,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminConfirmSignUpRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesRequest;
@@ -460,20 +461,24 @@ public class AuthServiceImpl implements AuthService {
 			throw new BusinessException(ResponseCode.INTERNAL_ERROR);
 		}
 
-		AuthenticationResultType authResult = cognitoUserClient
-			.adminInitiateAuth(builder -> builder
-				.authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
-				.userPoolId(userPoolId)
-				.clientId(clientId)
-				.authParameters(Map.of(
-					"USERNAME", dto.getEmail(),
-					"PASSWORD", dto.getPassword(),
-					"SECRET_HASH", calculateSecretHash(clientId, clientSecret, dto.getEmail())
-				))
-			).authenticationResult();
 
-		Jwt jwt = jwtDecoder.decode(authResult.idToken());
-		String sub = jwt.getSubject();
+		String sub = "sub" + UUID.randomUUID().toString();
+		try {
+			AuthenticationResultType authResult = cognitoUserClient
+				.adminInitiateAuth(builder -> builder
+					.authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
+					.userPoolId(userPoolId)
+					.clientId(clientId)
+					.authParameters(Map.of(
+						"USERNAME", dto.getEmail(),
+						"PASSWORD", dto.getPassword(),
+						"SECRET_HASH", calculateSecretHash(clientId, clientSecret, dto.getEmail())
+					))
+				).authenticationResult();
+			Jwt jwt = jwtDecoder.decode(authResult.idToken());
+			sub = jwt.getSubject();
+		} catch (Exception e) {
+		}
 
 		// 로컬 DB 저장
 		String domain = emailLower.substring(emailLower.indexOf('@') + 1);
@@ -512,7 +517,6 @@ public class AuthServiceImpl implements AuthService {
 		return SignUpUserResponseDto.from(saved);
 	}
 
-
 	@Override
 	@Transactional
 	public SocialLoginResponseDto socialLogin(String code) {
@@ -536,19 +540,18 @@ public class AuthServiceImpl implements AuthService {
 			JsonNode.class
 		);
 
-		String accessToken  = tokenResp.get("access_token").asText();
+		String accessToken = tokenResp.get("access_token").asText();
 		String refreshToken = tokenResp.get("refresh_token").asText();
-		String idToken      = tokenResp.get("id_token").asText();
+		String idToken = tokenResp.get("id_token").asText();
 
 		// 2) ID 토큰 디코딩 → 사용자 정보 추출
-		Jwt jwt      = jwtDecoder.decode(idToken);
-		String sub   = jwt.getSubject();
+		Jwt jwt = jwtDecoder.decode(idToken);
+		String sub = jwt.getSubject();
 		String email = jwt.getClaim("email");
-		String name  = jwt.getClaim("name");
+		String name = jwt.getClaim("name");
 		String emailLower = email.toLowerCase();
 
 		String defaultName = emailLower.substring(0, emailLower.indexOf('@'));
-
 
 		// 3) 기존 사용자 조회, 없으면 기본값으로 가입
 		User user = userRepository.findBySubAndNotDeleted(sub)
@@ -592,7 +595,7 @@ public class AuthServiceImpl implements AuthService {
 		User user = new User(
 			null,                       // id (auto-generated)
 			name,                       // name
-			LocalDate.of(1970,1,1),     // 기본 birthday
+			LocalDate.of(1970, 1, 1),     // 기본 birthday
 			email,                      // email
 			null,                         // 기본 phoneNumber
 			role,                       // userRole

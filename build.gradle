@@ -34,6 +34,8 @@ repositories {
 }
 
 dependencies {
+    implementation("io.netty:netty-resolver-dns-native-macos:4.1.108.Final:osx-aarch_64")
+    implementation("io.netty:netty-tcnative-boringssl-static:2.0.62.Final")
 
     // Core
     implementation 'org.springframework.boot:spring-boot-starter-web'
