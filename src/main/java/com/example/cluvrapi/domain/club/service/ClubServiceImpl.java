@@ -33,6 +33,8 @@ import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberStatus;
 import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.image.entity.ImageType;
+import com.example.cluvrapi.domain.image.service.ImageService;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
@@ -54,6 +56,8 @@ public class ClubServiceImpl implements ClubService {
 	private final ClubRedisService clubRedisService;
 	private final ClubMemberRepository clubMemberRepository;
 	private final SubmissionFormRepository submissionFormRepository;
+
+	private final ImageService imageService;
 
 	// 상수 선언
 	private static final int FREE_LIMIT = 20;
@@ -95,6 +99,10 @@ public class ClubServiceImpl implements ClubService {
 		ClubMember ownerMember = new ClubMember(newClub, findUser, ClubMemberRole.OWNER, ClubMemberStatus.ACTIVE);
 
 		clubMemberRepository.save(ownerMember);
+
+		if (createClubRequestDto.getPosterUrl() != null && !createClubRequestDto.getPosterUrl().isBlank()) {
+			imageService.moveImageToUserProfile(createClubRequestDto.getPosterUrl(),newClub.getId(), ImageType.CLUB);
+		}
 
 		// 6) DTO 변환
 		return CreateClubResponseDto.from(newClub.getId());
