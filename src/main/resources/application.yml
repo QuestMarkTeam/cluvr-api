@@ -106,7 +106,8 @@ cloud:
     credentials:
       access-key: ${ACCESS_AWS}
       secret-key: ${SECRET_AWS}
-
+    s3:
+      bucket: cluvr-image
 logging:
   level:
     root: INFO
