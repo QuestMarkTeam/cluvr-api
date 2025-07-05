@@ -93,7 +93,7 @@ public class SecurityConfig {
 
 				// /admin/** 은 ADMIN 권한 필요
 				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/verify", "/my-monitor/**",
+				.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/verify", "/my-monitor/**","/api/image/**",
 					"/favicon.ico", "/api/auth/test-signup", "/api/auth/social-login", "/api/auth/complete-profile").permitAll()
 				.requestMatchers("/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated()

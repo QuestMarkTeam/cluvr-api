@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -54,6 +55,8 @@ import com.example.cluvrapi.domain.gem.dto.request.UpdateGemRequestDto;
 import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.gem.service.GemEvent;
 import com.example.cluvrapi.domain.gem.service.GemService;
+import com.example.cluvrapi.domain.image.entity.ImageType;
+import com.example.cluvrapi.domain.image.service.ImageService;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.entity.enums.Gender;
 import com.example.cluvrapi.domain.user.entity.enums.UserRole;
@@ -93,6 +96,7 @@ public class AuthServiceImpl implements AuthService {
 	private final SecureRandom random = new SecureRandom();
 	private final ApplicationEventPublisher publisher; // 이벤트 발행
 	private final GemService gemService;
+	private final ImageService imageService;
 
 	private final JavaMailSender mailSender;
 
@@ -398,6 +402,10 @@ public class AuthServiceImpl implements AuthService {
 			sub
 		);
 		User saved = userRepository.save(user);
+
+		if (dto.getImageUrl() != null && !dto.getImageUrl().isBlank()) {
+			saved.updateImageUrl(imageService.moveImageToUserProfile(dto.getImageUrl(),saved.getId(),ImageType.USER));
+		}
 
 		categoryRepository.save(new Category(
 			saved.getId(),

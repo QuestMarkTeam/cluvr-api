@@ -130,6 +130,10 @@ public class User extends BaseTimeEntity {
 
 	}
 
+	public void updateImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
 	public void updateGem(Integer gem) {
 		this.gem = gem;
 	}
