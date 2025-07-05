@@ -85,7 +85,7 @@ public class BoardServiceImpl implements BoardService {
 		// 최초 시 조회 수 증가 및 조회 수 조회
 		long viewCount = boardViewCountRedisService.getViewCountFromRedis(board,isFirst);
 
-		return ReadBoardResponseDto.ofDto(board, viewCount, likeCount, dislikeCount);
+		return ReadBoardResponseDto.ofDto(board, viewCount, likeCount, dislikeCount, board.getUser().getId() == userId);
 	}
 
 	@Transactional

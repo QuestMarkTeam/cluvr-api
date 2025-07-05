@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import com.example.cluvrapi.domain.board.entity.Board;
+import com.example.cluvrapi.domain.board.enums.BoardType;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 
 @AllArgsConstructor
@@ -15,6 +16,7 @@ public class ReadBoardResponseDto {
 	private String title;
 	private String content;
 	private CategoryType category;
+	private BoardType boardType;
 	private boolean isSelected;
 	private int clover;
 	private long viewCount;
@@ -23,13 +25,15 @@ public class ReadBoardResponseDto {
 	private long dislike;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private boolean isAuthor;
 
-	public static ReadBoardResponseDto ofDto(Board board, long viewCount, long likeCount, long dislikeCount) {
+	public static ReadBoardResponseDto ofDto(Board board, long viewCount, long likeCount, long dislikeCount, boolean isAuthor) {
 		return new ReadBoardResponseDto(
 			board.getId(),
 			board.getTitle(),
 			board.getContent(),
 			board.getCategory(),
+			board.getBoardType(),
 			board.isSelected(),
 			board.getClover(),
 			viewCount,
@@ -37,7 +41,8 @@ public class ReadBoardResponseDto {
 			likeCount,
 			dislikeCount,
 			board.getCreatedAt(),
-			board.getModifiedAt()
+			board.getModifiedAt(),
+			isAuthor
 		);
 	}
 }
