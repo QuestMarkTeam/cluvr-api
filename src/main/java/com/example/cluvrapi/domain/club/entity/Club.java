@@ -166,6 +166,8 @@ public class Club extends BaseTimeEntity {
 		this.name = name;
 	}
 
+	public void updatePosterUrl(String posterUrl) {this.posterUrl =  posterUrl;}
+
 	/**
 	 * 설명: 소개말 수정
 	 *

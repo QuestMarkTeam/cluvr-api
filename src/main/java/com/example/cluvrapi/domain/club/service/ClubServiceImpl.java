@@ -33,10 +33,13 @@ import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberRole;
 import com.example.cluvrapi.domain.clubMember.entity.enums.ClubMemberStatus;
 import com.example.cluvrapi.domain.clubMember.repository.ClubMemberRepository;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.image.entity.ImageType;
 import com.example.cluvrapi.domain.image.service.ImageService;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
+import com.example.cluvrapi.global.annotation.EventGem;
+import com.example.cluvrapi.global.annotation.UpdateGem;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -65,6 +68,7 @@ public class ClubServiceImpl implements ClubService {
 	private static final String INVITE_CODE_KEY_PREFIX = "ic:";
 	private static final Duration EXPIRE_TTL_TIME = Duration.ofDays(3);
 
+	@EventGem(value = GemUserActivityType.CLUB_CREATE)
 	@Override
 	@Transactional
 	public CreateClubResponseDto createClub(Long userId, CreateClubRequestDto createClubRequestDto) {
@@ -101,7 +105,7 @@ public class ClubServiceImpl implements ClubService {
 		clubMemberRepository.save(ownerMember);
 
 		if (createClubRequestDto.getPosterUrl() != null && !createClubRequestDto.getPosterUrl().isBlank()) {
-			imageService.moveImageToUserProfile(createClubRequestDto.getPosterUrl(),newClub.getId(), ImageType.CLUB);
+			newClub.updatePosterUrl(imageService.moveImageToUserProfile(createClubRequestDto.getPosterUrl(),newClub.getId(), ImageType.CLUB));
 		}
 
 		// 6) DTO 변환
