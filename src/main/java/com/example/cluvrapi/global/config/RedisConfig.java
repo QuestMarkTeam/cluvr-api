@@ -117,8 +117,8 @@ public class RedisConfig {
 	public RedissonClient redissonClient() {
 		Config config = new Config();
 		config.useSingleServer()
-			// .setAddress("rediss://" + redisHost + ":" + redisPort)
-			.setAddress("redis://" + redisHost + ":" + redisPort)
+			.setAddress("rediss://" + redisHost + ":" + redisPort)
+			// .setAddress("redis://" + redisHost + ":" + redisPort)
 			.setConnectionPoolSize(10)
 			.setConnectionMinimumIdleSize(5)
 			.setConnectTimeout(10000)
