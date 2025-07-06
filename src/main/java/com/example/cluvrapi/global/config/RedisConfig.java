@@ -119,7 +119,7 @@ public class RedisConfig {
 	public RedissonClient redissonClient(
 		@Value("${redis.host}") String redisHost,
 		@Value("${redis.port}") int redisPort,
-		@Value("${redis.ssl.enabled:false}") boolean sslEnabled
+		@Value("${spring.data.redis.ssl.enabled:false}") boolean sslEnabled
 	) {
 		Config config = new Config();
 		SingleServerConfig serverConfig = config.useSingleServer();
