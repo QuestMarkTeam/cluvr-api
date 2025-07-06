@@ -49,7 +49,6 @@ public class CreateClubRequestDto {
 	@Size(min = 2, max = 255, message = "설명은 2자 이상 255자 이하로 작성해주세요.")
 	private String description;
 
-	@NotBlank(message = "이미지는 필수값입니다.")
 	private String posterUrl;
 
 	@NotNull(message = "공개여부는 반드시 true 또는 false 여야 합니다.")

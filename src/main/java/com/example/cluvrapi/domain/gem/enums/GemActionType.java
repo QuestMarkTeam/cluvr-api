@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public enum GemActionType {
 	EVENT_EARN(1),   // 적립
 	USE(-1),  // 사용
+	CHAT_USE(-1),  // 사용
 	EXPIRE(-1), // 소멸
 	REFUND(1),// 환불
 	CHARGE(1) //충전

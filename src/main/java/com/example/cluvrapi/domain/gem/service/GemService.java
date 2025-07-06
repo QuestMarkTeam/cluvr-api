@@ -24,14 +24,16 @@ public interface GemService extends GemLogService {
 	 *
 	 *
 	 * @param userId 유저 식별자
-	 * @param requestDto 포인트 차감 dto : amount 담고 있음
+	 * @param dto 포인트 차감 dto : amount 담고 있음
 	 * @return {반환값에 대한 설명}
 	 * @throws  {포인트 부족하면 400에러 }
 	 *
 	 * @author 나원준
 	 */
 
-	UpdateGemResponseDto useGem(Long userId, UseGemRequestDto requestDto);
+	UpdateGemResponseDto useGem(Long userId, UpdateGemRequestDto dto);
+
+	UpdateGemResponseDto useGemExternal(Long userId, UseGemRequestDto requestDto);
 
 	/**
 	 * 설명: {메서드에 대한 간략한 설명을 작성합니다.}

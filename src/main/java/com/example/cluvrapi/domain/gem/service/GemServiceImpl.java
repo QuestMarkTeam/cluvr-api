@@ -43,12 +43,22 @@ public class GemServiceImpl implements GemService {
 		return UpdateGemResponseDto.from(user.getGem()); // 충전 후 포인트 반환
 	}
 
+
+	@Transactional
+	@Override
+	public UpdateGemResponseDto useGem(Long userId, UpdateGemRequestDto requestDto) {
+		return checkGem(userId,requestDto.getGem());
+	}
+
 	@UpdateGem(value = GemUserActivityType.CHAT_CREATE)
 	@Transactional
 	@Override
-	public UpdateGemResponseDto useGem(Long userId, UseGemRequestDto requestDto) {
-		User user = userRepository.findByIdOrElseThrow(userId);
-		Integer gem = requestDto.getGem(); // 감소량
+	public UpdateGemResponseDto useGemExternal(Long userId, UseGemRequestDto requestDto) {
+		return checkGem(userId,requestDto.getGem());
+	}
+
+	private UpdateGemResponseDto checkGem(Long userId, Integer gem){
+		User user = userRepository.findByIdOrElseThrow(userId);// 감소량
 		Integer currentGem = user.getGem(); // 현재 보유 포인트
 
 		if (currentGem < gem) { // 포인트 부족하면 에러 발생
@@ -56,7 +66,6 @@ public class GemServiceImpl implements GemService {
 		}
 		Integer finalGem = currentGem - gem;
 		user.updateGem(finalGem);
-
 		return UpdateGemResponseDto.from(finalGem); // 남은 포인트 리턴
 	}
 

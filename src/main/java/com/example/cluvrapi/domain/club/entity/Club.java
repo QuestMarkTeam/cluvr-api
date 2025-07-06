@@ -107,13 +107,11 @@ public class Club extends BaseTimeEntity {
 	 * 이미지 URL
 	 */
 
-	@Column(nullable = false)
 	private String posterUrl;
 
 	/**
 	 * 공개 여부
 	 */
-
 	@Column(nullable = false)
 	private Boolean isPublic = true;
 
