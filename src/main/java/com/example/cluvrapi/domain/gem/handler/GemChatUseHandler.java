@@ -18,7 +18,7 @@ public class GemChatUseHandler implements GemMethodHandler { // 이벤트 적립
 
 	@Override
 	public boolean supports(GemActionType type) {
-		return GemActionType.USE.equals(type);
+		return GemActionType.CHAT_USE.equals(type);
 	}
 
 	@Override
