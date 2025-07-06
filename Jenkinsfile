@@ -41,6 +41,7 @@ pipeline {
                     string(credentialsId: 'SPRING_MAIL_PORT', variable: 'SPRING_MAIL_PORT'),
                     string(credentialsId: 'SPRING_MAIL_USERNAME', variable: 'SPRING_MAIL_USERNAME'),
                     string(credentialsId: 'SPRING_MAIL_PASSWORD', variable: 'SPRING_MAIL_PASSWORD'),
+                    string(credentialsId: 'TOSS_SECRET_KEY', variable: 'TOSS_SECRET_KEY'),
                     string(credentialsId: 'TOSS_SECRET_KEY', variable: 'TOSS_SECRET_KEY')
                 ]) {
                     sh """

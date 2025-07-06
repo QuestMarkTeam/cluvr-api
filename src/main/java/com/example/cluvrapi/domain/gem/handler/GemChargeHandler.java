@@ -16,7 +16,7 @@ public class GemChargeHandler implements GemMethodHandler { // 이벤트 적립 
 
 	@Override
 	public boolean supports(GemActionType type) {
-		return GemActionType.CHARGE == type;
+		return GemActionType.CHARGE.equals(type);
 	}
 
 	@Override

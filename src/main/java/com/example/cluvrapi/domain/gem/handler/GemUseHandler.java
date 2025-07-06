@@ -17,12 +17,14 @@ public class GemUseHandler implements GemMethodHandler { // 이벤트 적립 처
 
 	@Override
 	public boolean supports(GemActionType type) {
-		return GemActionType.USE == type;
+		return GemActionType.USE.equals(type);
 	}
 
 	@Override
 	public void handle(Long userId, UpdateGemRequestDto dto) {
-
+		if (dto.getGemUserActivityType() != GemUserActivityType.CHAT_CREATE) {
+			gemService.useGem(userId,dto);
+		}
 	}
 
 }

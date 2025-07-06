@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.redisson.config.SingleServerConfig;
+import org.redisson.config.SslProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
@@ -114,11 +116,16 @@ public class RedisConfig {
 
 	// Redisson Client
 	@Bean
-	public RedissonClient redissonClient() {
+	public RedissonClient redissonClient(
+		@Value("${redis.host}") String redisHost,
+		@Value("${redis.port}") int redisPort,
+		@Value("${redis.ssl.enabled:false}") boolean sslEnabled
+	) {
 		Config config = new Config();
-		config.useSingleServer()
-			.setAddress("rediss://" + redisHost + ":" + redisPort)
-			// .setAddress("redis://" + redisHost + ":" + redisPort)
+		SingleServerConfig serverConfig = config.useSingleServer();
+
+		String scheme = sslEnabled ? "rediss" : "redis";
+		serverConfig.setAddress(scheme + "://" + redisHost + ":" + redisPort)
 			.setConnectionPoolSize(10)
 			.setConnectionMinimumIdleSize(5)
 			.setConnectTimeout(10000)
@@ -126,9 +133,16 @@ public class RedisConfig {
 			.setRetryAttempts(3)
 			.setRetryInterval(1500);
 
+		if (sslEnabled) {
+			serverConfig.setSslEnableEndpointIdentification(false); // 호스트 이름 검증 비활성
+			serverConfig.setSslProvider(SslProvider.JDK); // 또는 OPENSSL 사용 가능
+			// 필요 시: 인증서 파일 지정도 가능 (보통은 생략 가능)
+			// serverConfig.setSslKeystore("classpath:your-truststore.jks");
+			// serverConfig.setSslKeystorePassword("password");
+		}
+
 		return Redisson.create(config);
 	}
-
 	private ObjectMapper createRedisObjectMapper() {
 		ObjectMapper redisObjectMapper = new ObjectMapper();
 		redisObjectMapper.registerModule(new JavaTimeModule());

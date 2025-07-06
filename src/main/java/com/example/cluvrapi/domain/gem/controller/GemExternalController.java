@@ -31,6 +31,6 @@ public class GemExternalController {
 		 @RequestBody UseGemRequestDto amount,
 		 @Auth AuthUser authUser
 		) {
-		return ResponseEntity.ok(BaseResponse.success(gemService.useGem(authUser.id(), amount), ResponseCode.OK));
+		return ResponseEntity.ok(BaseResponse.success(gemService.useGemExternal(authUser.id(), amount), ResponseCode.OK));
 	}
 }
