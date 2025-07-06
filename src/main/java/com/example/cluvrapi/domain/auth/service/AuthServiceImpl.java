@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -147,12 +148,8 @@ public class AuthServiceImpl implements AuthService {
 		redisTemplate.opsForValue().set(key, cacheDto, VERIFY_TTL);
 		SimpleMailMessage msg = new SimpleMailMessage();
 		log.warn("--------------------------------------------------------------------------------------------------------------------------------------------");
-		log.warn("--------------------------------------------------------------------------------------------------------------------------------------------");
-		log.warn("--------------------------------------------------------------------------------------------------------------------------------------------");
-		log.warn(msg.toString());
-		log.warn("--------------------------------------------------------------------------------------------------------------------------------------------");
-		log.warn("--------------------------------------------------------------------------------------------------------------------------------------------");
-		log.warn("--------------------------------------------------------------------------------------------------------------------------------------------");
+
+
 		msg.setFrom(mailFrom);
 		msg.setTo(emailLower);
 		msg.setSubject("【Cluvr】 회원가입 인증번호 안내");
@@ -164,6 +161,13 @@ public class AuthServiceImpl implements AuthService {
 				"감사합니다."
 		);
 		try {
+			System.out.println("MAIL_USERNAME = " + System.getenv("SPRING_MAIL_USERNAME"));
+			System.out.println("REDIS_HOST = " + System.getenv("REDIS_HOST"));
+			System.out.println("메일 발신 시도 - from: " + msg.getFrom());
+			System.out.println("to: " + Arrays.toString(msg.getTo()));
+			System.out.println("subject: " + msg.getSubject());
+			System.out.println("text: " + msg.getText());
+			log.warn(msg.toString());
 			log.warn("--------------------------------------------------------------------------------------------------------------------------------------------");
 			mailSender.send(msg);
 		} catch (Exception e) {
@@ -173,9 +177,6 @@ public class AuthServiceImpl implements AuthService {
 			redisTemplate.delete(key);
 			log.info("에러" + e);
 			log.info("에러11" + e.getMessage());
-			log.warn("--------------------------------------------------------------------------------------------------------------------------------------------");
-			log.warn("--------------------------------------------------------------------------------------------------------------------------------------------");
-			log.warn("--------------------------------------------------------------------------------------------------------------------------------------------");
 			log.warn("--------------------------------------------------------------------------------------------------------------------------------------------");
 			throw new BusinessException(ResponseCode.DB_FAIL, "이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.");
 		}
