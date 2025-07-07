@@ -99,12 +99,12 @@ public class SecurityConfig {
 					"/favicon.ico", "/api/auth/test-signup", "/api/auth/social-login", "/api/auth/complete-profile").permitAll()
 				.requestMatchers("/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated()
-			// ).oauth2ResourceServer(oauth2 -> oauth2
-			// 	.jwt(jwt -> jwt.decoder(jwtDecoder))
-			// )        .oauth2Login(oauth2 -> oauth2
-			// 	.loginPage("/oauth2/authorization/cognito")
-			// 	.userInfoEndpoint(userInfo -> userInfo.oidcUserService(new OidcUserService()))
-			// 	.successHandler(OAuth2LoginSuccessHandler)
+			).oauth2ResourceServer(oauth2 -> oauth2
+				.jwt(jwt -> jwt.decoder(jwtDecoder))
+			)        .oauth2Login(oauth2 -> oauth2
+				.loginPage("/oauth2/authorization/cognito")
+				.userInfoEndpoint(userInfo -> userInfo.oidcUserService(new OidcUserService()))
+				.successHandler(OAuth2LoginSuccessHandler)
 			);
 
 		return http.build();
