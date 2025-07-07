@@ -48,6 +48,9 @@ spring:
     port: ${RMQ_PORT}
     username: ${RMQ_USERNAME}
     password: ${RMQ_PASSWORD}
+    logging:
+      level:
+        org.springframework.amqp.rabbit: DEBUG
 
   datasource:
     username: ${DB_USERNAME}
