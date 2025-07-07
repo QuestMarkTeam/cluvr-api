@@ -119,7 +119,7 @@ public class JoinServiceImpl implements JoinService {
 	}
 
 	@Transactional
-	@DirectJoinLock(clubId = "#clubId")
+	@DirectJoinLock(userId = "#userId", clubId = "#clubId")
 	public void createDirectJoin(Long userId, Long clubId) {
 		// 1) Direct Join 일 경우 별도 처리 - Early Return
 		User findUser = userRepository.findByIdOrElseThrow(userId);
