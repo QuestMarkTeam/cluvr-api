@@ -9,6 +9,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.redisson.api.RBucket;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,60 +37,64 @@ public class DirectJoinLockAspect {
 
 	@Around("@annotation(directJoinLock)")
 	public Object lock(ProceedingJoinPoint joinPoint, DirectJoinLock directJoinLock) throws Throwable {
-		// 메서드 시그니처
-		MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
-		String[] parameterNames = methodSignature.getParameterNames(); // 파라미터 이름 배열
-		Object[] args = joinPoint.getArgs(); // 실제 파라미터 값 배열
+		MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+		String[] parameterNames = methodSignature.getParameterNames();
+		Object[] args = joinPoint.getArgs();
 
-		// SpEL 파서와 컨텍스트 준비
+		// SpEL 준비
 		SpelExpressionParser parser = new SpelExpressionParser();
 		StandardEvaluationContext context = new StandardEvaluationContext();
-
-		// 파라미터 이름과 값 context에 세팅
 		for (int i = 0; i < parameterNames.length; i++) {
 			context.setVariable(parameterNames[i], args[i]);
 		}
 
-		// SpEL 평가
+		// clubId 및 userId 추출
 		String clubId = parser.parseExpression(directJoinLock.clubId()).getValue(context, String.class);
-		if (clubId == null) {
-			throw new IllegalArgumentException("clubId 파라미터를 찾을 수 없습니다.");
+		String userId = parser.parseExpression(directJoinLock.userId()).getValue(context, String.class);
+		if (clubId == null || userId == null) {
+			throw new IllegalArgumentException("clubId 또는 userId 파라미터가 누락되었습니다.");
 		}
 
-		String key = "direct-club-join:" + clubId;
+		String lockKey = "lock:club-join:" + clubId;
+		String cacheKey = "join-request:club:" + clubId + ":user:" + userId;
 
-		RLock lock = redissonClient.getLock(key);
+		RBucket<Boolean> bucket = redissonClient.getBucket(cacheKey);
+		if (Boolean.TRUE.equals(bucket.get())) {
+			log.warn("중복 요청 차단: {}", cacheKey);
+			throw new IllegalStateException("이미 처리 중인 요청입니다.");
+		}
 
+		// 캐시 등록 (중복 방지)
+		bucket.set(true, 6, TimeUnit.SECONDS);
+
+		RLock lock = redissonClient.getLock(lockKey);
 		boolean isLocked = false;
+
 		try {
 			isLocked = lock.tryLock(waitTime, leaseTime, TimeUnit.SECONDS);
 			if (!isLocked) {
-				throw new IllegalStateException("락 획득 실패: key = " + key);
+				throw new IllegalStateException("락 획득 실패: key = " + lockKey);
 			}
 
-			log.info("락 획득 성공: key = {}", key);
-			TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-			transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+			log.info("락 획득 성공: key = {}", lockKey);
 
-			return transactionTemplate.execute(status -> {
+			TransactionTemplate tx = new TransactionTemplate(transactionManager);
+			tx.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+
+			return tx.execute(status -> {
 				try {
 					return joinPoint.proceed();
-				} catch (Throwable throwable) {
+				} catch (Throwable t) {
 					status.setRollbackOnly();
-					if (throwable instanceof RuntimeException) {
-						throw (RuntimeException)throwable;
-					} else if (throwable instanceof Error) {
-						throw (Error)throwable;
-					} else {
-						throw new RuntimeException("트랜잭션 실행 중 오류 발생", throwable);
-					}
+					throw new RuntimeException("트랜잭션 실행 중 오류 발생", t);
 				}
 			});
 		} finally {
 			if (isLocked && lock.isHeldByCurrentThread()) {
 				lock.unlock();
-				log.info("락 해제: key = {}", key);
+				log.info("락 해제: key = {}", lockKey);
 			}
 		}
 	}
+
 }
