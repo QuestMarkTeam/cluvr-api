@@ -81,8 +81,10 @@ public class TilServiceImpl implements TilService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public InfoTilResponseDto findTilById(Long tilId) {
-		return tilRepository.findTilById(tilId);
+	public InfoTilResponseDto findTilById(Long clubId, Long tilId) {
+		return tilRepository.findTilById(clubId, tilId).orElseThrow(
+			() -> new BusinessException(ResponseCode.NOT_FOUND, "해당 TIL 이 존재하지 않습니다.")
+		);
 	}
 
 	@Override

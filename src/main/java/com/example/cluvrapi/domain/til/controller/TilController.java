@@ -46,9 +46,10 @@ public class TilController {
 
 	@GetMapping("/{tilId}")
 	public ResponseEntity<BaseResponse<InfoTilResponseDto>> findTilById(
+		@PathVariable Long clubId,
 		@PathVariable Long tilId
 	) {
-		InfoTilResponseDto infoTilResponseDto = tilService.findTilById(tilId);
+		InfoTilResponseDto infoTilResponseDto = tilService.findTilById(clubId, tilId);
 		return ResponseEntity.ok(BaseResponse.success(infoTilResponseDto, ResponseCode.OK));
 	}
 

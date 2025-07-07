@@ -20,7 +20,7 @@ public interface TilRepositoryQuery {
 	 * @author sinoyoung0403
 	 */
 
-	InfoTilResponseDto findTilById(Long tilId);
+	Optional<InfoTilResponseDto> findTilById(Long clubId, Long tilId);
 
 	/**
 	 * 설명: Til 를 다건 조회하는 쿼리문
