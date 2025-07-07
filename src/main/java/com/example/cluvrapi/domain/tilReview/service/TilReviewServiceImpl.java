@@ -63,8 +63,8 @@ public class TilReviewServiceImpl implements TilReviewService {
 	}
 
 	@Override
-	public PageResponseDto<InfoReviewResponseDto> findReviewByClub(Long clubId, Long tilId, Pageable pageable) {
-		return tilReviewRepository.findReviewByClub(clubId, tilId, pageable);
+	public PageResponseDto<InfoReviewResponseDto> findReviewByClub(Long clubId, Pageable pageable) {
+		return tilReviewRepository.findReviewByClub(clubId, pageable);
 	}
 
 	@Override

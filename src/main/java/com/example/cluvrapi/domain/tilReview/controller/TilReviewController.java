@@ -84,19 +84,17 @@ public class TilReviewController {
 	 * 특정 클럽의 TIL에 대해 작성된 전체 리뷰 목록을 조회하는 API
 	 *
 	 * @param clubId   클럽 고유 식별자
-	 * @param tilId    TIL 고유 식별자
 	 * @param pageable 페이지네이션 정보 (기본: size=5, createdAt 기준 정렬)
 	 * @return 클럽의 TIL에 작성된 리뷰 목록 (페이지네이션 포함)
 	 * @author sinyoung0403
 	 */
 
-	@GetMapping("/{clubId}/tils/{tilId}/reviews")
+	@GetMapping("/{clubId}/tils/reviews")
 	public ResponseEntity<BaseResponse<PageResponseDto<InfoReviewResponseDto>>> findReviewByClub(
 		@PathVariable Long clubId,
-		@PathVariable Long tilId,
 		@PageableDefault(size = 5, sort = "createdAt") Pageable pageable
 	) {
-		PageResponseDto<InfoReviewResponseDto> pageResponseDto = tilReviewService.findReviewByClub(clubId, tilId,
+		PageResponseDto<InfoReviewResponseDto> pageResponseDto = tilReviewService.findReviewByClub(clubId,
 			pageable);
 		return ResponseEntity.ok(BaseResponse.success(pageResponseDto, ResponseCode.OK));
 	}
