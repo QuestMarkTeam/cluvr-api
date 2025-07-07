@@ -61,7 +61,7 @@ public class TilReviewRepositoryQueryImpl implements TilReviewRepositoryQuery {
 	}
 
 	@Override
-	public PageResponseDto<InfoReviewResponseDto> findReviewByClub(Long clubId, Long tilId, Pageable pageable) {
+	public PageResponseDto<InfoReviewResponseDto> findReviewByClub(Long clubId, Pageable pageable) {
 		List<InfoReviewResponseDto> content = jpaQueryFactory
 			.select(
 				new QInfoReviewResponseDto(
@@ -75,8 +75,7 @@ public class TilReviewRepositoryQueryImpl implements TilReviewRepositoryQuery {
 					tilReview.feedback
 				))
 			.from(tilReview)
-			.where(tilReview.clubId.eq(clubId)
-				.and(tilReview.tilId.eq(tilId)))
+			.where(tilReview.clubId.eq(clubId))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -84,8 +83,7 @@ public class TilReviewRepositoryQueryImpl implements TilReviewRepositoryQuery {
 		Long total = jpaQueryFactory
 			.select(tilReview.count())
 			.from(tilReview)
-			.where(tilReview.clubId.eq(clubId)
-				.and(tilReview.tilId.eq(tilId)))
+			.where(tilReview.clubId.eq(clubId))
 			.fetchOne();
 
 		return PageResponseDto.toDto(new PageImpl<>(content, pageable, total));

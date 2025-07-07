@@ -22,17 +22,20 @@ public class TilRepositoryQueryImpl implements TilRepositoryQuery {
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
-	public InfoTilResponseDto findTilById(Long tilId) {
-		InfoTilResponseDto content = jpaQueryFactory
-			.select(new QInfoTilResponseDto(
-				til.user.id,    // User 고유 식별자
-				til.club.id,    // Club 고유 식별자
-				til.title,        // title 제목
-				til.content))    // content 내용
-			.from(til)
-			.where(til.id.eq(tilId).and(til.isDeleted.isFalse()))
-			.fetchOne();
-		return content;
+	public Optional<InfoTilResponseDto> findTilById(Long clubId, Long tilId) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.select(new QInfoTilResponseDto(
+					til.user.id,    // User 고유 식별자
+					til.club.id,    // Club 고유 식별자
+					til.title,        // title 제목
+					til.content))    // content 내용
+				.from(til)
+				.where(til.id.eq(tilId)
+					.and(til.club.id.eq(clubId))
+					.and(til.isDeleted.isFalse()))
+				.fetchOne()
+		);
 	}
 
 	@Override

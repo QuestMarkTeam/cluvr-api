@@ -2,6 +2,7 @@ package com.example.cluvrapi.global.config;
 
 import java.util.Arrays;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -26,6 +27,7 @@ import com.example.cluvrapi.global.security.OAuth2LoginSuccessHandler;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@EnableConfigurationProperties(CorsProperties.class)
 public class SecurityConfig {
 
 	private final JwtDecoder jwtDecoder;
@@ -110,7 +112,8 @@ public class SecurityConfig {
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
-		System.out.println(corsProperties);
+		System.out.println(corsProperties.getAllowedOrigins());
+		System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOriginPatterns(corsProperties.getAllowedOrigins());
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));

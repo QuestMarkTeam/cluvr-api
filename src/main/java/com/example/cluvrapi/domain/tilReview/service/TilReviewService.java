@@ -41,13 +41,12 @@ public interface TilReviewService {
 	 * 특정 클럽의 TIL에 대해 작성된 리뷰 목록을 조회하는 메서드
 	 *
 	 * @param clubId 클럽 고유 식별자
-	 * @param tilId  TIL 고유 식별자
 	 * @return 해당 클럽 TIL에 작성된 전체 리뷰 목록 (페이지네이션 적용)
 	 * @author sinyoung0403
 	 */
 
 	@IsClubMember
-	PageResponseDto<InfoReviewResponseDto> findReviewByClub(Long clubId, Long tilId, Pageable pageable);
+	PageResponseDto<InfoReviewResponseDto> findReviewByClub(Long clubId, Pageable pageable);
 
 	/**
 	 * 일주일 이내 작성된 '리뷰 완료된' 리뷰 목록을 조회하는 메서드

@@ -1,7 +1,7 @@
 server:
   error:
     include-message: always
-  port: 80
+  port: 8082
 
 spring:
   security:
@@ -36,6 +36,8 @@ spring:
       port: ${REDIS_PORT}
       ssl:
         enabled: true
+
+
   batch:
     job:
       enabled: false  # 앱 실행 시 자동 실행 방지 (직접 JobLauncher 사용하기 위함)

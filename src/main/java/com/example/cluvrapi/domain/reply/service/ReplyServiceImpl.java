@@ -14,6 +14,9 @@ import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
+import com.example.cluvrapi.domain.notification.enums.NotificationType;
+import com.example.cluvrapi.domain.notification.event.NotificationEvent;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.reaction.enums.ReactionType;
 import com.example.cluvrapi.domain.reaction.service.ReactionCountRedisService;
@@ -47,21 +50,21 @@ public class ReplyServiceImpl implements ReplyService {
 		Reply reply = dto.fromDto(user, board);
 		Long savedId = replyRepository.save(reply).getId();
 
-		// 알림
-		// if (dto.getParentId() == null && !user.getId().equals(board.getUser().getId())) {
-		// 	Long receiverId = board.getUser().getId();
-		// 	String content = String.format("'%s'님이 회원님의 게시글에 댓글을 남겼습니다.", user.getName());
-		//
-		// 	NotificationEvent event = NotificationEvent.from(
-		// 		receiverId,
-		// 		NotificationType.REPLY,
-		// 		content,
-		// 		NotiTargetType.BOARD,
-		// 		boardId
-		// 	);
-		//
-		// 	notificationProducer.send(event);
-		// }
+
+		if (dto.getParentId() == null && !user.getId().equals(board.getUser().getId())) {
+			Long receiverId = board.getUser().getId();
+			String content = String.format("'%s'님이 회원님의 게시글에 댓글을 남겼습니다.", user.getName());
+
+			NotificationEvent event = NotificationEvent.from(
+				receiverId,
+				NotificationType.REPLY,
+				content,
+				NotiTargetType.BOARD,
+				boardId
+			);
+
+			notificationProducer.send(event);
+		}
 
 		return savedId;
 	}
