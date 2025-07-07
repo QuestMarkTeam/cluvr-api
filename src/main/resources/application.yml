@@ -34,8 +34,8 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-#      ssl:
-#        enabled: true
+      ssl:
+        enabled: true
 
   batch:
     job:
