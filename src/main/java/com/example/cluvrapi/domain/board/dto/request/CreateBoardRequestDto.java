@@ -16,7 +16,7 @@ import com.example.cluvrapi.domain.user.entity.User;
 
 @Getter
 @AllArgsConstructor
-public class CreateBoardRequestDto implements CloverUpdateDto {
+public class CreateBoardRequestDto {
 	@NotBlank(message = "제목은 필수입니다.")
 	private String title;
 
@@ -45,8 +45,4 @@ public class CreateBoardRequestDto implements CloverUpdateDto {
 		);
 	}
 
-	@Override
-	public Integer getClover() {
-		return this.clover;
-	}
 }
