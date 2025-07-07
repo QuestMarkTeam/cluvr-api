@@ -32,6 +32,7 @@ pipeline {
                     string(credentialsId: 'ACCESS_AWS', variable: 'ACCESS_AWS'),
                     string(credentialsId: 'CLIENT_ID', variable: 'CLIENT_ID'),
                     string(credentialsId: 'CLIENT_SECRET', variable: 'CLIENT_SECRET'),
+                    string(credentialsId: 'ACCESS_AWS', variable: 'ACCESS_AWS'),
                     string(credentialsId: 'SECRET_AWS', variable: 'SECRET_AWS'),
                     string(credentialsId: 'USER_POOL_ID', variable: 'USER_POOL_ID'),
                     string(credentialsId: 'COGNITO_REDIRECT_URI', variable: 'COGNITO_REDIRECT_URI'),
@@ -42,7 +43,6 @@ pipeline {
                     string(credentialsId: 'SPRING_MAIL_USERNAME', variable: 'SPRING_MAIL_USERNAME'),
                     string(credentialsId: 'SPRING_MAIL_PASSWORD', variable: 'SPRING_MAIL_PASSWORD'),
                     string(credentialsId: 'TOSS_SECRET_KEY', variable: 'TOSS_SECRET_KEY'),
-                    string(credentialsId: 'TOSS_SECRET_KEY', variable: 'TOSS_SECRET_KEY')
                 ]) {
                     sh """
                         echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" > .env
@@ -110,14 +110,6 @@ pipeline {
                 }
 
                 script {
-                    // 포트 80 점유 중인지 사전 체크
-                    sh '''
-                    ssh -i /var/lib/jenkins/.ssh/id_rsa ubuntu@$EC2_IP '
-                        if lsof -i:80 -sTCP:LISTEN -t >/dev/null; then
-                            echo "❌ 포트 80 이미 사용 중 - 배포 중단"; exit 1;
-                        fi
-                    '
-                    '''
 
                     // SSH 호스트 키 등록
                     sh '''

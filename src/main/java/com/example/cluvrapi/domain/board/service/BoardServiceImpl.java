@@ -52,7 +52,7 @@ public class BoardServiceImpl implements BoardService {
 	private final RecommendBoardRedisService recommendBoardRedisService;
 	private final ReactionCountRedisService reactionCountRedisService;
 
-	@EventGem(value = GemUserActivityType.BOARD)
+	// @EventGem(value = GemUserActivityType.BOARD)
 	@UpdateClover(value = CloverUserActivityType.CREATE_QUESTION)
 	@Override
 	@Transactional
