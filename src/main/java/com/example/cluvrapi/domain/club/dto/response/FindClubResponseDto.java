@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 
 import com.example.cluvrapi.domain.club.enums.ClubType;
+import com.example.cluvrapi.domain.club.enums.JoinType;
 import com.querydsl.core.annotations.QueryProjection;
 
 /**
@@ -31,17 +32,19 @@ public class FindClubResponseDto {
 	private String greeting;
 	private String description;
 	private String postUrl;
+	private JoinType joinType;
 	private LocalDateTime createAt;
 
 	@QueryProjection
 	public FindClubResponseDto(ClubType clubType, String name, String categoryDetail, String greeting,
-		String description,
+		String description, JoinType joinType,
 		String postUrl, LocalDateTime createAt) {
 		this.name = name;
 		this.clubType = clubType;
 		this.categoryDetail = categoryDetail;
 		this.greeting = greeting;
 		this.description = description;
+		this.joinType = joinType;
 		this.postUrl = postUrl;
 		this.createAt = createAt;
 	}

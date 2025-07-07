@@ -55,6 +55,7 @@ public class ClubRepositoryQueryImpl implements ClubRepositoryQuery {
 						category.categoryType.stringValue(),
 						club.greeting,
 						club.description,
+						club.joinType,
 						club.posterUrl,
 						club.createdAt)
 				)
