@@ -64,9 +64,6 @@ public class DirectJoinLockAspect {
 			throw new IllegalStateException("이미 처리 중인 요청입니다.");
 		}
 
-		// 캐시 등록 (중복 방지)
-		bucket.set(true, 6, TimeUnit.SECONDS);
-
 		RLock lock = redissonClient.getLock(lockKey);
 		boolean isLocked = false;
 
@@ -75,6 +72,9 @@ public class DirectJoinLockAspect {
 			if (!isLocked) {
 				throw new IllegalStateException("락 획득 실패: key = " + lockKey);
 			}
+
+			// 캐시 등록 (중복 방지)
+			bucket.set(true, 30, TimeUnit.SECONDS);
 
 			log.info("락 획득 성공: key = {}", lockKey);
 
