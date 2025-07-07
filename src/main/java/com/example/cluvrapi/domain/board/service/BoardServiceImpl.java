@@ -52,8 +52,8 @@ public class BoardServiceImpl implements BoardService {
 	private final RecommendBoardRedisService recommendBoardRedisService;
 	private final ReactionCountRedisService reactionCountRedisService;
 
-	// @EventGem(value = GemUserActivityType.BOARD)
-	@UpdateClover(value = CloverUserActivityType.CREATE_QUESTION)
+	@EventGem(value = GemUserActivityType.BOARD)
+	// @UpdateClover(value = CloverUserActivityType.CREATE_QUESTION)
 	@Override
 	@Transactional
 	public long createBoard(long userId, CreateBoardRequestDto dto) {
@@ -131,7 +131,7 @@ public class BoardServiceImpl implements BoardService {
 	public PageResponseDto<ReadMyBoardsResponseDto> readBoardsWithUser(long userId, Pageable pageable) {
 		return boardRepository.findBoardsByUser(userId, pageable);
 	}
-
+	@UpdateClover(value = CloverUserActivityType.ACCEPTED_ANSWER)
 	@Override
 	@Transactional
 	public void selectBestReply(long userId, long boardId, long replyId) {
