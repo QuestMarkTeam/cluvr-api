@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +42,7 @@ import com.example.cluvrapi.global.response.ResponseCode;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BoardServiceImpl implements BoardService {
 
 	private final UserRepository userRepository;
@@ -131,32 +133,36 @@ public class BoardServiceImpl implements BoardService {
 	public PageResponseDto<ReadMyBoardsResponseDto> readBoardsWithUser(long userId, Pageable pageable) {
 		return boardRepository.findBoardsByUser(userId, pageable);
 	}
-	@UpdateClover(value = CloverUserActivityType.ACCEPTED_ANSWER)
+
 	@Override
 	@Transactional
 	public void selectBestReply(long userId, long boardId, long replyId) {
+		log.info("시작1");
 		User user = userRepository.findByIdOrElseThrow(userId);
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
 		Reply reply = replyRepository.findByIdOrElseThrow(replyId);
 		Clover clover = cloverRepository.findByUserIdOrElseThrow(reply.getUser().getId());
-
+		log.info("시작2");
 		// 보드의 isSelected가 true일 경우 사용 불가능
 		if (board.isSelected()) {
+			log.info("보드의 isSelected가 true일 경우 사용 불가능");
 			throw new BusinessException(ResponseCode.ALREADY_SELECTED);
-
 		}
 		// 게시글을 작성한 유저가 아닐 경우 채택 불가능
 		if (!user.equals(board.getUser())) {
+			log.info("게시글을 작성한 유저가 아닐 경우 채택 불가능");
 			throw new NoPermissionException(ResponseCode.ACCESS_DENIED, ResponseCode.ACCESS_DENIED.getDefaultMessage());
 		}
 
 		// 게시글 유저와 댓글 유저가 동일하면 채택 불가능
 		if (board.getUser().equals(reply.getUser())) {
+			log.info(" 게시글 유저와 댓글 유저가 동일하면 채택 불가능");
 			throw new BusinessException(ResponseCode.CANNOT_SELECT_OWN_REPLY);
 		}
 
 		// 댓글이 게시글 소속의 댓글이 아니면 채택 불가능
 		if (!board.equals(reply.getBoard())) {
+			log.info(" 댓글이 게시글 소속의 댓글이 아니면 채택 불가능");
 			throw new BusinessException(ResponseCode.REPLY_NOT_MATCHED_WITH_BOARD);
 		}
 
@@ -168,7 +174,7 @@ public class BoardServiceImpl implements BoardService {
 
 		// 댓글 엔티티에서 is_selected가 true가 된다.
 		reply.updateSelection();
-
+		log.info("종료");
 		// 알림
 		// 은세님 알림 이런 식으로 만들면 되는지 확인해주세요.
 		// if (board.getUser() != user) {
