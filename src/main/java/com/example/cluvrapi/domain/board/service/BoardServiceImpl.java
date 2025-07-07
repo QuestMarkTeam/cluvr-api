@@ -133,6 +133,7 @@ public class BoardServiceImpl implements BoardService {
 	public PageResponseDto<ReadMyBoardsResponseDto> readBoardsWithUser(long userId, Pageable pageable) {
 		return boardRepository.findBoardsByUser(userId, pageable);
 	}
+
 	@Override
 	@Transactional
 	public void selectBestReply(long userId, long boardId, long replyId) {
