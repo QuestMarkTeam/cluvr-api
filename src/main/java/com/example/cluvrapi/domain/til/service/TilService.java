@@ -29,13 +29,14 @@ public interface TilService {
 	/**
 	 * 설명: Til 단건 조회하는 메서드
 	 *
+	 * @param clubId {설명: Club 고유 식별자}
 	 * @param tilId {설명: Til 고유 식별자}
 	 * @return InfoTilResponseDto {클럽 정보}
 	 * @author {sinyoung0403}
 	 */
 
 	@IsClubMember
-	InfoTilResponseDto findTilById(Long tilId);
+	InfoTilResponseDto findTilById(Long clubId, Long tilId);
 
 	/**
 	 * 설명: Til 다건 조회하는 메서드
@@ -62,7 +63,6 @@ public interface TilService {
 	 * @author {sinyoung0403}
 	 */
 
-	@IsClubMember
 	void updateTil(Long userId, Long tilId, UpdateTilRequestDto updateTilRequestDto);
 
 	/**
@@ -75,6 +75,5 @@ public interface TilService {
 	 * @author {sinyoung0403}
 	 */
 
-	@IsClubMember
 	void deleteTil(Long userId, Long clubId, Long tilId);
 }
