@@ -38,16 +38,15 @@ public interface TilReviewRepositoryQuery {
 	Optional<InfoReviewResponseDto> findReviewById(Long clubId, Long tilId, Long reviewId);
 
 	/**
-	 * 특정 클럽의 특정 TIL에 대한 리뷰 목록을 페이지 단위로 조회하는 메서드
+	 * 특정 클럽의 TIL에 대한 리뷰 목록을 페이지 단위로 조회하는 메서드
 	 *
 	 * @param clubId   클럽 고유 식별자
-	 * @param tilId    TIL 고유 식별자
 	 * @param pageable 페이지 정보 (page, size 등)
 	 * @return PageResponseDto<InfoReviewResponseDto> 리뷰 목록 페이징 응답 DTO
 	 * @author sinyoung0403
 	 */
 
-	PageResponseDto<InfoReviewResponseDto> findReviewByClub(Long clubId, Long tilId, Pageable pageable);
+	PageResponseDto<InfoReviewResponseDto> findReviewByClub(Long clubId, Pageable pageable);
 
 	/**
 	 * 지정된 주간 기간 내 완료된 리뷰 목록을 페이징 조회하는 메서드
