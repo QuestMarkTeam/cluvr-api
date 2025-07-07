@@ -16,6 +16,7 @@ public class ReadReplyResponseDto {
 	private long dislike;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private boolean isBest;
 
 	public ReadReplyResponseDto(Reply reply, long like, long dislike) {
 		this.id = reply.getId();
@@ -25,5 +26,6 @@ public class ReadReplyResponseDto {
 		this.dislike = dislike;
 		this.createdAt = reply.getCreatedAt();
 		this.updatedAt = reply.getModifiedAt();
+		this.isBest = reply.isSelected();
 	}
 }
