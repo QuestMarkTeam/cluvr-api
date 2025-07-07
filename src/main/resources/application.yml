@@ -91,6 +91,7 @@ app:
       - http://localhost:63342
       - http://localhost:3000
       - http://54.200.146.243
+      - https://cluvr.co.kr
 
 
 cognito:
