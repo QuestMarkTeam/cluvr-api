@@ -7,15 +7,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cluvrapi.domain.common.annotation.Auth;
 import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.reaction.dto.request.ReactionRequestDto;
+import com.example.cluvrapi.domain.reaction.dto.response.ReactionStatusResponseDto;
 import com.example.cluvrapi.domain.reaction.service.ReactionService;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
@@ -69,5 +72,21 @@ public class ReactionController {
 	public ResponseEntity<BaseResponse<Void>> resetReactionCount(@PathVariable Long boardId) {
 		reactionService.resetBoardReactionCount(boardId);
 		return ResponseEntity.ok(BaseResponse.success(ResponseCode.NO_CONTENT));
+	}
+
+	/**
+	 * 사용자의 리액션 상태 조회
+	 * @param user 인증된 사용자
+	 * @param boardId 게시글 ID
+	 * @param replyId 댓글 ID (선택사항)
+	 * @return 사용자의 리액션 상태
+	 */
+	@GetMapping("/status/{boardId}")
+	public ResponseEntity<BaseResponse<ReactionStatusResponseDto>> getReactionStatus(
+		@Auth AuthUser user,
+		@PathVariable Long boardId,
+		@RequestParam(required = false) Long replyId) {
+		ReactionStatusResponseDto status = reactionService.getReactionStatus(user.id(), boardId, replyId);
+		return ResponseEntity.ok(BaseResponse.success(status, ResponseCode.OK));
 	}
 }

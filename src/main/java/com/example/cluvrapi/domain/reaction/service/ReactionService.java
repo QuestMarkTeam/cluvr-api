@@ -1,6 +1,7 @@
 package com.example.cluvrapi.domain.reaction.service;
 
 import com.example.cluvrapi.domain.reaction.dto.request.ReactionRequestDto;
+import com.example.cluvrapi.domain.reaction.dto.response.ReactionStatusResponseDto;
 
 public interface ReactionService {
 	/**
@@ -30,4 +31,13 @@ public interface ReactionService {
 	 * @param boardId 게시글 ID
 	 */
 	void resetBoardReactionCount(Long boardId);
+
+	/**
+	 * 사용자의 리액션 상태 조회
+	 * @param userId 사용자 ID
+	 * @param boardId 게시글 ID
+	 * @param replyId 댓글 ID (선택사항)
+	 * @return 사용자의 리액션 상태
+	 */
+	ReactionStatusResponseDto getReactionStatus(Long userId, Long boardId, Long replyId);
 }

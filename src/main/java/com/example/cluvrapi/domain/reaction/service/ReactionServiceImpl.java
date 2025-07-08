@@ -21,6 +21,7 @@ import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
 import com.example.cluvrapi.global.exception.SelfReactionNotAllowedException;
 import com.example.cluvrapi.global.response.ResponseCode;
+import com.example.cluvrapi.domain.reaction.dto.response.ReactionStatusResponseDto;
 
 @Service
 @RequiredArgsConstructor
@@ -52,9 +53,16 @@ public class ReactionServiceImpl implements ReactionService {
 		Reaction reaction = reactionRepository.findReaction(user, board, reply).orElse(null);
 		// 리액션 존재 할 때
 		if (reaction != null) {
-			// 동일한 리액션 타입까지 가지고 있을 때
+			// 동일한 리액션 타입까지 가지고 있을 때 - 취소 처리
 			if (reaction.getReactionType() == dto.getReactionType()) {
-				throw new SelfReactionNotAllowedException(ResponseCode.SELF_REACTION_NOT_ALLOWED);
+				reactionRepository.deleteById(reaction.getId());
+				// Redis 카운트 감소
+				if (reply == null) {
+					reactionCountRedisService.decreaseBoardReactionCount(dto.getReactionType(), board);
+				} else {
+					reactionCountRedisService.decreaseReplyReactionCount(dto.getReactionType(), reply);
+				}
+				return;
 			}
 			// 다른 리액션 타입을 가지고 있을 때 업데이트
 			reaction.update(dto.getReactionType());
@@ -128,5 +136,25 @@ public class ReactionServiceImpl implements ReactionService {
 	@Override
 	public void resetBoardReactionCount(Long boardId) {
 		reactionCountRedisService.resetReactionCount("board", boardId);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ReactionStatusResponseDto getReactionStatus(Long userId, Long boardId, Long replyId) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		Board board = boardRepository.findByIdOrElseThrow(boardId);
+		Reply reply = null;
+		
+		if (replyId != null) {
+			reply = replyRepository.findByIdOrElseThrow(replyId);
+		}
+		
+		Reaction reaction = reactionRepository.findReaction(user, board, reply).orElse(null);
+		
+		if (reaction == null) {
+			return ReactionStatusResponseDto.noReaction();
+		}
+		
+		return ReactionStatusResponseDto.of(true, reaction.getReactionType());
 	}
 }
