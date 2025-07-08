@@ -24,4 +24,10 @@ public interface ReactionService {
 	 * @author yong
 	 */
 	void cancelReaction(long userId, ReactionRequestDto dto);
+
+	/**
+	 * Redis 리액션 카운트 초기화 (개발용)
+	 * @param boardId 게시글 ID
+	 */
+	void resetBoardReactionCount(Long boardId);
 }

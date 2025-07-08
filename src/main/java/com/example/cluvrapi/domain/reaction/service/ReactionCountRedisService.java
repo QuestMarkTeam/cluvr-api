@@ -50,7 +50,21 @@ public class ReactionCountRedisService {
 		String key = generateKey(targetType, id);
 		String hashKey = type.name().toLowerCase();
 		ensureHashKeyExists(key, hashKey, targetType, id, type);
-		redisTemplate.opsForHash().increment(key, hashKey, -1);
+		
+		// 현재 값을 가져와서 0보다 클 때만 감소
+		HashOperations<String, Object, Object> hashOps = redisTemplate.opsForHash();
+		Object currentValue = hashOps.get(key, hashKey);
+		long currentCount = 0;
+		
+		if (currentValue instanceof Number) {
+			currentCount = ((Number) currentValue).longValue();
+		}
+		
+		// 0보다 클 때만 감소
+		if (currentCount > 0) {
+			hashOps.increment(key, hashKey, -1);
+		}
+		
 		redisTemplate.expire(key, TTL);
 	}
 
@@ -84,7 +98,13 @@ public class ReactionCountRedisService {
 		try {
 			Object value = hashOps.get(key, hashKey);
 			if (value instanceof Number) {
-				return ((Number) value).longValue();
+				long count = ((Number) value).longValue();
+				// 음수 값이면 데이터베이스에서 다시 조회하여 정정
+				if (count < 0) {
+					log.warn("Redis에서 음수 값 발견: {}:{} = {}", targetType, type.name(), count);
+					return setReactionToRedis(key, hashKey, targetType, id, type);
+				}
+				return count;
 			} else {
 				return setReactionToRedis(key, hashKey, targetType, id, type);
 			}
@@ -108,5 +128,24 @@ public class ReactionCountRedisService {
 
 	private String generateKey(String targetType, Long id) {
 		return String.format("reaction:%s:%d", targetType.toLowerCase(), id);
+	}
+
+	/**
+	 * Redis에서 잘못된 리액션 카운트를 초기화하는 메서드
+	 * @param targetType "board" 또는 "reply"
+	 * @param id 대상 ID
+	 */
+	public void resetReactionCount(String targetType, Long id) {
+		String key = generateKey(targetType, id);
+		HashOperations<String, Object, Object> hashOps = redisTemplate.opsForHash();
+		
+		// LIKE와 DISLIKE 모두 초기화
+		hashOps.delete(key, "like", "dislike");
+		
+		// 데이터베이스에서 정확한 값으로 다시 설정
+		ensureHashKeyExists(key, "like", targetType, id, ReactionType.LIKE);
+		ensureHashKeyExists(key, "dislike", targetType, id, ReactionType.DISLIKE);
+		
+		log.info("Redis 리액션 카운트 초기화 완료: {}:{}", targetType, id);
 	}
 }

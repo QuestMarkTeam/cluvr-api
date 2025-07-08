@@ -116,6 +116,17 @@ public class ReactionServiceImpl implements ReactionService {
 		}
 
 		reactionRepository.deleteById(reaction.getId());
-		reactionCountRedisService.decreaseBoardReactionCount(dto.getReactionType(), board);
+		
+		// 댓글 리액션인지 게시글 리액션인지에 따라 다른 Redis 서비스 호출
+		if (reply == null) {
+			reactionCountRedisService.decreaseBoardReactionCount(dto.getReactionType(), board);
+		} else {
+			reactionCountRedisService.decreaseReplyReactionCount(dto.getReactionType(), reply);
+		}
+	}
+
+	@Override
+	public void resetBoardReactionCount(Long boardId) {
+		reactionCountRedisService.resetReactionCount("board", boardId);
 	}
 }
