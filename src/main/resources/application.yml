@@ -120,3 +120,7 @@ logging:
     software.amazon.awssdk.auth: DEBUG
     com.amazonaws: DEBUG
     com.example.cluvrapi: DEBUG
+
+noti:
+  server:
+    url: http://54.218.142.135:8080

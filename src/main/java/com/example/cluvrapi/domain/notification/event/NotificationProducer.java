@@ -7,6 +7,7 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
+import com.example.cluvrapi.global.client.NotificationQueueClient;
 import com.example.cluvrapi.global.config.RabbitConfig;
 
 @Component
@@ -15,9 +16,13 @@ import com.example.cluvrapi.global.config.RabbitConfig;
 public class NotificationProducer {
 
 	private final RabbitTemplate rabbitTemplate;
+	private final NotificationQueueClient queueClient;
 
 	public void send(NotificationEvent dto) {
+		Long receiverId = dto.getReceiverId();
 		try {
+			queueClient.initQueueIfNecessary(receiverId);
+
 			rabbitTemplate.convertAndSend(
 				RabbitConfig.EXCHANGE_NAME,           // 교환기 이름
 				"user." + dto.getReceiverId(),     // 라우팅 키 - user별 큐
