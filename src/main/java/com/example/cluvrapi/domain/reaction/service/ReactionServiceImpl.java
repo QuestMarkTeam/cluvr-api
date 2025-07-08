@@ -7,6 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cluvrapi.domain.board.entity.Board;
 import com.example.cluvrapi.domain.board.repository.BoardRepository;
+import com.example.cluvrapi.domain.notification.enums.NotiTargetType;
+import com.example.cluvrapi.domain.notification.enums.NotificationType;
+import com.example.cluvrapi.domain.notification.event.NotificationEvent;
 import com.example.cluvrapi.domain.notification.event.NotificationProducer;
 import com.example.cluvrapi.domain.reaction.dto.request.ReactionRequestDto;
 import com.example.cluvrapi.domain.reaction.entity.Reaction;
@@ -72,21 +75,22 @@ public class ReactionServiceImpl implements ReactionService {
 			reactionCountRedisService.increaseReplyReactionCount(dto.getReactionType(), reply);
 		}
 
-		// 알림
-		// if (board.getUser() != user && reply == null) {
-		// 	String content = String.format("'%s'님이 회원님의 게시글에 '%s'를 남겼습니다.", user.getName(),
-		// 		dto.getReactionType().name());
-		//
-		// 	NotificationEvent event = NotificationEvent.from(
-		// 		board.getUser().getId(),
-		// 		NotificationType.REACTION,
-		// 		content,
-		// 		NotiTargetType.BOARD,
-		// 		board.getId()
-		// 	);
-		//
-		// 	notificationProducer.send(event);
-		// }
+		if (board.getUser() != user && reply == null) {
+			String content = String.format("'%s'님이 회원님의 게시글에 '%s'를 남겼습니다.", user.getName(),
+				dto.getReactionType().name());
+
+			NotificationEvent event = NotificationEvent.from(
+				board.getUser().getId(),
+				NotificationType.REACTION,
+				content,
+				NotiTargetType.BOARD,
+				board.getId()
+			);
+
+			notificationProducer.send(event);
+		}
+
+
 	}
 
 	@Override
