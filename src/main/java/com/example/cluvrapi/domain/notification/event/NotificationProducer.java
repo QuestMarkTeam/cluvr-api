@@ -28,6 +28,11 @@ public class NotificationProducer {
 				"user." + dto.getReceiverId(),     // 라우팅 키 - user별 큐
 				dto                                 // 메시지 본문
 			);
+
+			log.info("메시지 전송 시도: exchange={}, routingKey={}, receiverId={}",
+				RabbitConfig.EXCHANGE_NAME,
+				"user." + dto.getReceiverId(),
+				dto.getReceiverId());
 		} catch (AmqpException e) {
 			//현재는 로그만 찍어서, 로그 추적 수동조치하게끔 했지만, 추후 고도화 작업때
 			//@TransactionalListener or Outbox or Kafka 도입예정
