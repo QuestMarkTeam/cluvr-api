@@ -105,7 +105,7 @@ public class SecurityConfig {
 				.loginPage("/oauth2/authorization/cognito")
 				.userInfoEndpoint(userInfo -> userInfo.oidcUserService(new OidcUserService()))
 				.successHandler(OAuth2LoginSuccessHandler)
-			);;
+			);
 
 		return http.build();
 	}
