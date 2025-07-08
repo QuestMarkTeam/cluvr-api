@@ -39,7 +39,8 @@ public class GemServiceImpl implements GemService {
 	@Override
 	public UpdateGemResponseDto chargeGem(Long userId, UpdateGemRequestDto requestDto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		user.updateGem(requestDto.getGem());
+		Integer finalGem = user.getGem() + requestDto.getGem();
+		user.updateGem(finalGem);
 		return UpdateGemResponseDto.from(user.getGem()); // 충전 후 포인트 반환
 	}
 
