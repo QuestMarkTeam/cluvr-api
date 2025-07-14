@@ -16,14 +16,14 @@ import com.example.cluvrapi.domain.auth.dto.request.LoginUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.RefreshTokenDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpUserRequestDto;
 import com.example.cluvrapi.domain.auth.dto.request.SignUpVerifyRequestDto;
-import com.example.cluvrapi.domain.auth.dto.request.SocialLoginRequestDto;
 import com.example.cluvrapi.domain.auth.dto.response.LoginUserResponseDto;
 import com.example.cluvrapi.domain.auth.dto.response.SignUpUserResponseDto;
-import com.example.cluvrapi.domain.auth.dto.response.SocialLoginResponseDto;
 import com.example.cluvrapi.domain.auth.service.AuthService;
 import com.example.cluvrapi.domain.user.dto.response.GetUserMeResponseDto;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.global.exception.BusinessException;
+import com.example.cluvrapi.global.jwt.JwtUtil;
+import com.example.cluvrapi.global.jwt.RefreshTokenService;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
 
@@ -35,6 +35,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthController {
 	private final AuthService authService;
+	private final JwtUtil jwtUtil;
+	private final RefreshTokenService refreshTokenService;
 
 	@PostMapping("/signup")
 	public ResponseEntity<BaseResponse<String>> signUp(
@@ -44,7 +46,7 @@ public class AuthController {
 		return ResponseEntity
 			.status(HttpStatus.CREATED)
 			.body(BaseResponse.success(
-				"회원가입 요청이 성공적으로 전송되었습니다. 이메일 인증을 진행해주세요.",
+				"회원가입이 완료되었습니다.",
 				CREATED
 			));
 	}
@@ -64,6 +66,38 @@ public class AuthController {
 		return ResponseEntity.ok(BaseResponse.success("로그아웃 되었습니다.", OK));
 	}
 
+	@PostMapping("/refresh")
+	public ResponseEntity<BaseResponse<LoginUserResponseDto>> refreshToken(
+		@RequestBody RefreshTokenDto dto
+	) {
+		String refreshToken = dto.getRefreshToken();
+		
+		if (!refreshTokenService.validateRefreshToken(refreshToken)) {
+			throw new BusinessException(ResponseCode.TOKEN_INVALID, "유효하지 않은 리프레시 토큰입니다.");
+		}
+		
+		Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+		String email = jwtUtil.getEmailFromToken(refreshToken);
+		String role = jwtUtil.getUserRoleFromToken(refreshToken);
+		
+		// 새로운 액세스 토큰과 리프레시 토큰 생성
+		String newAccessToken = jwtUtil.generateAccessToken(userId, email, role);
+		String newRefreshToken = jwtUtil.generateRefreshToken(userId, email, role);
+		
+		// 새로운 리프레시 토큰 저장
+		refreshTokenService.saveRefreshToken(userId, newRefreshToken);
+		
+		LoginUserResponseDto responseDto = LoginUserResponseDto.from(
+			email,
+			"", // name은 필요시 조회
+			newAccessToken,
+			newRefreshToken,
+			null
+		);
+		
+		return ResponseEntity.ok(BaseResponse.success(responseDto, ResponseCode.OK));
+	}
+
 	private String resolveBearer(String authorizationHeader) {
 		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
 			throw new BusinessException(ResponseCode.TOKEN_INVALID);
@@ -71,36 +105,13 @@ public class AuthController {
 		return authorizationHeader.substring(7);
 	}
 
-	@PostMapping("/verify")
-	public ResponseEntity<BaseResponse<String>> verifyEmail(
-		@Valid @RequestBody SignUpVerifyRequestDto req
-	) {
-		authService.completeSignUp(req);
-		return ResponseEntity
-			.status(HttpStatus.CREATED)
-			.body(BaseResponse.success(
-				"이메일 인증이 완료되었습니다.",
-				CREATED
-			));
-	}
-
-	@Profile({"local", "test"})
-	@PostMapping("/test-signup")
-	public ResponseEntity<BaseResponse<SignUpUserResponseDto>> simpleSignUp(
-		@Valid @RequestBody SignUpUserRequestDto dto) {
-		SignUpUserResponseDto res = authService.testSignUp(dto);
-		return ResponseEntity
-			.status(HttpStatus.CREATED)
-			.body(BaseResponse.success(res, ResponseCode.CREATED));
-	}
-
-
-	@PostMapping("/social-login")
-	public ResponseEntity<BaseResponse<SocialLoginResponseDto>> socialLogin(
-		@Valid @RequestBody SocialLoginRequestDto req
-	) {
-		SocialLoginResponseDto resp = authService.socialLogin(req.getCode());
-		return ResponseEntity.ok(BaseResponse.success(resp, OK));
-	}
-
+	// @Profile({"local", "test"})
+	// @PostMapping("/test-signup")
+	// public ResponseEntity<BaseResponse<SignUpUserResponseDto>> simpleSignUp(
+	// 	@Valid @RequestBody SignUpUserRequestDto dto) {
+	// 	SignUpUserResponseDto res = authService.testSignUp(dto);
+	// 	return ResponseEntity
+	// 		.status(HttpStatus.CREATED)
+	// 		.body(BaseResponse.success(res, ResponseCode.CREATED));
+	// }
 }

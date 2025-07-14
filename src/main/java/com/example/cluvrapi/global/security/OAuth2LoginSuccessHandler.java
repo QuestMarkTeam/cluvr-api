@@ -41,13 +41,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		String idToken = oidcUser.getIdToken().getTokenValue();
 
 		// 비즈니스 로직 실행 (소셜 로그인·연동)
-		SocialLoginResponseDto loginResp = authService.socialLogin(idToken);
+		// SocialLoginResponseDto loginResp = authService.socialLogin(idToken);
 
 		// JSON 응답
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		objectMapper.writeValue(response.getWriter(),
-			BaseResponse.success(loginResp, ResponseCode.OK)
-		);
+		// objectMapper.writeValue(response.getWriter(),
+		// 	BaseResponse.success(loginResp, ResponseCode.OK)
+		// );
 	}
 }

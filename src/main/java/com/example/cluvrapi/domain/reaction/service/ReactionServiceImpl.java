@@ -56,16 +56,18 @@ public class ReactionServiceImpl implements ReactionService {
 			// 다른 리액션 타입을 가지고 있을 때 업데이트
 			reaction.update(dto.getReactionType());
 			if (reply == null) {
-				reactionCountRedisService.decreaseBoardReactionCount(dto.getReactionType(), board);
+				reactionCountRedisService.decreaseBoardReactionCount(reaction.getReactionType(), board);
 			} else {
-				reactionCountRedisService.decreaseReplyReactionCount(dto.getReactionType(), reply);
+				reactionCountRedisService.decreaseReplyReactionCount(reaction.getReactionType(), reply);
 			}
+			reaction.update(dto.getReactionType());
 
 		} else {
 			// 리액션이 존재하지 않을 때
 			reactionRepository.save(new Reaction(user, board, reply, dto.getReactionType()));
 		}
 
+		// 새로운 리액션 타입을 증가시킴
 		if (reply == null) {
 			reactionCountRedisService.increaseBoardReactionCount(dto.getReactionType(), board);
 		} else {
@@ -112,6 +114,12 @@ public class ReactionServiceImpl implements ReactionService {
 		}
 
 		reactionRepository.deleteById(reaction.getId());
-		reactionCountRedisService.decreaseBoardReactionCount(dto.getReactionType(), board);
+		
+		// 댓글 리액션인지 게시글 리액션인지에 따라 올바른 메서드 호출
+		if (reply == null) {
+			reactionCountRedisService.decreaseBoardReactionCount(reaction.getReactionType(), board);
+		} else {
+			reactionCountRedisService.decreaseReplyReactionCount(reaction.getReactionType(), reply);
+		}
 	}
 }

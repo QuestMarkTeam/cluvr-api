@@ -16,6 +16,7 @@ import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.repository.UserRepository;
 import com.example.cluvrapi.global.exception.BusinessException;
+import com.example.cluvrapi.global.jwt.CustomUserDetails;
 import com.example.cluvrapi.global.response.ResponseCode;
 
 @Component
@@ -39,6 +40,7 @@ public class AuthenticationArgumentResolver implements HandlerMethodArgumentReso
 		NativeWebRequest webRequest,
 		WebDataBinderFactory binderFactory) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 		if (authentication == null || !authentication.isAuthenticated()) {
 			throw new ResponseStatusException(
 				ResponseCode.AUTH_REQUIRED.getStatus(),
@@ -47,28 +49,38 @@ public class AuthenticationArgumentResolver implements HandlerMethodArgumentReso
 		}
 
 		Object principal = authentication.getPrincipal();
-		if (!(principal instanceof Jwt jwt)) {
+		// if (!(principal instanceof Jwt jwt)) {
+		// 	throw new ResponseStatusException(
+		// 		ResponseCode.TOKEN_INVALID.getStatus(),
+		// 		ResponseCode.TOKEN_INVALID.getDefaultMessage()
+		// 	);
+		// }
+		//
+		// String email = jwt.getClaim("email"); // claim 없으면 null
+		//
+		// // sub -> 사용자 ID, email은 클레임에 따라 없을 수도 있음
+		// String sub = jwt.getSubject();
+		// User user = userRepository.findBySub(sub)
+		// 	.orElseThrow(() -> new BusinessException(ResponseCode.USER_NOT_FOUND));
+		//
+		// Long userId = user.getId();
+		// if (userId == null) {
+		// 	throw new ResponseStatusException(
+		// 		ResponseCode.TOKEN_INVALID.getStatus(),
+		// 		ResponseCode.TOKEN_BLACKLISTED.getDefaultMessage()
+		// 	);
+		// }
+
+		// return new AuthUser(userId, email);
+
+		if (!(principal instanceof CustomUserDetails userDetails)) {
 			throw new ResponseStatusException(
 				ResponseCode.TOKEN_INVALID.getStatus(),
 				ResponseCode.TOKEN_INVALID.getDefaultMessage()
 			);
 		}
-
-		String email = jwt.getClaim("email"); // claim 없으면 null
-
-		// sub -> 사용자 ID, email은 클레임에 따라 없을 수도 있음
-		String sub = jwt.getSubject();
-		User user = userRepository.findBySub(sub)
-			.orElseThrow(() -> new BusinessException(ResponseCode.USER_NOT_FOUND));
-
-		Long userId = user.getId();
-		if (userId == null) {
-			throw new ResponseStatusException(
-				ResponseCode.TOKEN_INVALID.getStatus(),
-				ResponseCode.TOKEN_BLACKLISTED.getDefaultMessage()
-			);
-		}
-
+		Long userId = userDetails.getId();
+		String email = userDetails.getUsername();
 		return new AuthUser(userId, email);
 	}
 }

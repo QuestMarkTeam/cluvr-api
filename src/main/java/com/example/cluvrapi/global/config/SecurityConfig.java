@@ -14,34 +14,41 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.example.cluvrapi.global.security.OAuth2LoginSuccessHandler;
+import com.example.cluvrapi.global.jwt.JwtAuthenticationFilter;
+import com.example.cluvrapi.global.jwt.JwtUtil;
+import com.example.cluvrapi.global.jwt.RefreshTokenService;
+import com.example.cluvrapi.global.jwt.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	private final JwtDecoder jwtDecoder;
 	private final CorsProperties corsProperties;
+	private final JwtUtil jwtUtil;
+	private final RefreshTokenService refreshTokenService;
+	private final CustomUserDetailsService customUserDetailsService;
 
 	public SecurityConfig(
-		JwtDecoder jwtDecoder,
-		CorsProperties corsProperties
+		CorsProperties corsProperties,
+		JwtUtil jwtUtil,
+		RefreshTokenService refreshTokenService,
+		CustomUserDetailsService customUserDetailsService
 	) {
-		this.jwtDecoder = jwtDecoder;
 		this.corsProperties = corsProperties;
+		this.jwtUtil = jwtUtil;
+		this.refreshTokenService = refreshTokenService;
+		this.customUserDetailsService = customUserDetailsService;
 	}
 
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
-
 		return new BCryptPasswordEncoder();
 	}
 
@@ -50,6 +57,11 @@ public class SecurityConfig {
 		AuthenticationConfiguration configuration
 	) throws Exception {
 		return configuration.getAuthenticationManager();
+	}
+
+	@Bean
+	public JwtAuthenticationFilter jwtAuthenticationFilter() {
+		return new JwtAuthenticationFilter(jwtUtil, customUserDetailsService, refreshTokenService);
 	}
 
 	@Bean
@@ -62,10 +74,7 @@ public class SecurityConfig {
 			.formLogin(form -> form.disable())
 			.httpBasic(basic -> basic.disable())
 			.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			// Cognito JWT 사용
-			.oauth2ResourceServer(oauth2 -> oauth2
-				.jwt(jwt -> jwt.decoder(jwtDecoder))
-			)
+			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				.anyRequest().authenticated()
@@ -76,9 +85,7 @@ public class SecurityConfig {
 
 	@Bean
 	@Order(2)
-	public SecurityFilterChain defaultChain(HttpSecurity http, OAuth2LoginSuccessHandler OAuth2LoginSuccessHandler) throws
-		Exception {
-
+	public SecurityFilterChain defaultChain(HttpSecurity http) throws Exception {
 		http
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(csrf -> csrf.disable())
@@ -87,23 +94,19 @@ public class SecurityConfig {
 			.sessionManagement(sm ->
 				sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			)
+			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 			.authorizeHttpRequests(auth -> auth
 				// 회원가입·로그인만 공개
 				.requestMatchers("/api/auth/**", "/my-monitor/**", "/api/users/sub/**").permitAll()
 
 				// /admin/** 은 ADMIN 권한 필요
 				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/verify", "/my-monitor/**","/api/image/**",
+				.requestMatchers(
+					"/api/auth/signup", "/api/auth/login", "/api/auth/verify", "/my-monitor/**","/api/image/**",
 					"/favicon.ico", "/api/auth/test-signup", "/api/auth/social-login", "/api/auth/complete-profile").permitAll()
 				.requestMatchers("/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated()
-			).oauth2ResourceServer(oauth2 -> oauth2
-				.jwt(jwt -> jwt.decoder(jwtDecoder))
-			)        .oauth2Login(oauth2 -> oauth2
-				.loginPage("/oauth2/authorization/cognito")
-				.userInfoEndpoint(userInfo -> userInfo.oidcUserService(new OidcUserService()))
-				.successHandler(OAuth2LoginSuccessHandler)
-			);;
+			);
 
 		return http.build();
 	}
@@ -122,6 +125,7 @@ public class SecurityConfig {
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}
+	
 	// 정적파일 시큐리티 무시
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
@@ -130,5 +134,4 @@ public class SecurityConfig {
 			"/css/**", "/js/**", "/images/**", "/payment/**"
 		);
 	}
-
 }

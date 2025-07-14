@@ -41,8 +41,10 @@ public class ReactionCountRedisService {
 	private void increaseReactionCount(String targetType, Long id, ReactionType type) {
 		String key = generateKey(targetType, id);
 		String hashKey = type.name().toLowerCase();
-		ensureHashKeyExists(key, hashKey, targetType, id, type);
-		redisTemplate.opsForHash().increment(key, hashKey, 1);
+		boolean hasKey = ensureHashKeyExists(key, hashKey, targetType, id, type);
+		if(hasKey) {
+			redisTemplate.opsForHash().increment(key, hashKey, 1);
+		}
 		redisTemplate.expire(key, TTL);
 	}
 
@@ -54,7 +56,7 @@ public class ReactionCountRedisService {
 		redisTemplate.expire(key, TTL);
 	}
 
-	private void ensureHashKeyExists(String key, String hashKey, String targetType, Long id, ReactionType type) {
+	private boolean ensureHashKeyExists(String key, String hashKey, String targetType, Long id, ReactionType type) {
 		HashOperations<String, Object, Object> hashOps = redisTemplate.opsForHash();
 		if (!hashOps.hasKey(key, hashKey)) {
 			long count = switch (targetType) {
@@ -65,7 +67,9 @@ public class ReactionCountRedisService {
 			// putIfAbsent은 동시성-safe
 			hashOps.putIfAbsent(key, hashKey, count);
 			redisTemplate.expire(key, TTL);
+			return false;
 		}
+		return true;
 	}
 
 	public long readBoardReactionCount(Board board, ReactionType type) {

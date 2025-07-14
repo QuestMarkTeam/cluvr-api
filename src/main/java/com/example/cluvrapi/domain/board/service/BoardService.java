@@ -31,6 +31,7 @@ public interface BoardService {
 	 *
 	 * @param category - 게시글 카테고리
 	 * @param pageable - 페이지 번호, 페이지당 게시글 수
+	 * @param boardType - 보드 타입
 	 * @return 조회된 게시글 목록
 	 * @author yong
 	 */
