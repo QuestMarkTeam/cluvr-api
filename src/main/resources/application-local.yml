@@ -1,0 +1,112 @@
+#server:
+#  error:
+#    include-message: always
+#  port: 80
+#
+#logging:
+#  level:
+#    root: INFO
+#    io.lettuce.core: DEBUG
+#    software.amazon.awssdk: DEBUG
+#    software.amazon.awssdk.auth: DEBUG
+#    com.amazonaws: DEBUG
+#    com.example.cluvrapi: DEBUG
+#    org.springframework.data.redis: DEBUG
+#    org.springframework.security: INFO
+#    org.springframework.web: INFO
+#
+#
+#spring:
+#  application:
+#    name: cluvr
+#
+#  data:
+#    redis:
+#      host: ${REDIS_HOST}
+#      port: ${REDIS_PORT}
+#      ssl:
+#        enabled: true
+#      timeout: 10
+#
+#  batch:
+#    job:
+#      enabled: false
+#    jdbc:
+#      initialize-schema: always
+#
+#  rabbitmq:
+#    host: localhost
+#    port: 5672
+#    username: guest
+#    password: guest
+#  datasource:
+#    username: yong311
+#    password: yong311
+#    #    username: ${DB_USERNAME}
+#    #    password: ${DB_PASSWORD}
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    #    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+#    url: jdbc:mysql://localhost:3306/query?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    properties:
+#      hibernate:
+#        show_sql: true
+#        format_sql: true
+#        use_sql_comments: true
+#        dialect: org.hibernate.dialect.MySQLDialect
+#        highlight_sql: true
+#
+#  mail:
+#    host: ${SPRING_MAIL_HOST}
+#    port: ${SPRING_MAIL_PORT}
+#    username: ${SPRING_MAIL_USERNAME}
+#    password: ${SPRING_MAIL_PASSWORD}
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls:
+#            enable: true
+#        debug: true
+#
+#jwt:
+#  secret:
+#    key: ${JWT_SECRET_KEY:cluvr-jwt-secret-key-for-development-environment}
+#
+#app:
+#  cors:
+#    allowed-origins:
+#      - http://localhost:*
+#      - http://127.0.0.1:*
+#      - http://localhost:63342
+#      - http://localhost:3000
+#      - http://54.200.146.243
+#
+#cloud:
+#  aws:
+#    region:
+#      static: us-west-2
+#    credentials:
+#      access-key: ${ACCESS_AWS}
+#      secret-key: ${SECRET_AWS}
+#    s3:
+#      bucket: cluvr-image
+#
+#management:
+#  endpoint:
+#    health:
+#      show-details: always
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#      base-path: /my-monitor
+#  server:
+#    port: 9292
+#  prometheus:
+#    metrics:
+#      export:
+#        enabled: true

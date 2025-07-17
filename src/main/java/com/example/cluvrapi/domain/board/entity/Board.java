@@ -85,4 +85,12 @@ public class Board extends BaseTimeEntity {
 	public void updateSelection() {
 		this.isSelected = true;
 	}
+
+	public void increaseViewCount() {
+		this.viewCount++;
+	}
+
+	public void delete() {
+		this.isDeleted = true;
+	}
 }

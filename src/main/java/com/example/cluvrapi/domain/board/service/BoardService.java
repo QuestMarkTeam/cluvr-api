@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.board.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 
 import com.example.cluvrapi.domain.board.dto.request.CreateBoardRequestDto;
@@ -11,6 +13,9 @@ import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 
 public interface BoardService {
+
+	List<ReadBoardsResponseDto> readRecommendedBoards(CategoryType categoryType);
+
 	/**
 	 *
 	 * 설명: 게시글 생성 서비스

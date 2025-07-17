@@ -1,14 +1,16 @@
 server:
   error:
     include-message: always
-  port: 8080
+  port: 80
 spring:
   application:
     name: cluvr
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
+      host: localhost
+      port: 6379
+#      host: ${REDIS_HOST}
+#      port: ${REDIS_PORT}
   batch:
     job:
       enabled: false  # 앱 실행 시 자동 실행 방지 (직접 JobLauncher 사용하기 위함)
@@ -22,10 +24,12 @@ spring:
     password: ${RMQ_PASSWORD}
 
   datasource:
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+#    username: ${DB_USERNAME}
+#    password: ${DB_PASSWORD}
+    username: yong311
+    password: yong311
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/query?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
 
   jpa:
     hibernate:

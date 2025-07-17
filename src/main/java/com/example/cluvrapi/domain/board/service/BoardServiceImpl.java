@@ -1,5 +1,6 @@
 package com.example.cluvrapi.domain.board.service;
 
+import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,12 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	@Transactional
+	public List<ReadBoardsResponseDto> readRecommendedBoards(CategoryType categoryType){
+		return boardRepository.findRecommendedBoards(categoryType);
+	}
+
+	@Override
+	@Transactional
 	public long createBoard(long userId, CreateBoardRequestDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		// Clover clover = cloverRepository.findByUserId(userId)
@@ -63,7 +70,7 @@ public class BoardServiceImpl implements BoardService {
 		boardRepository.incrementViewCount(boardId);
 		Board board = boardRepository.findBoardById(boardId);
 		Map<ReactionType, Long> reactionCountMap = reactionRepository.countBoardReactions(board);
-
+		board.increaseViewCount();
 		long likeCount = reactionCountMap.getOrDefault(ReactionType.LIKE, 0L);
 		long dislikeCount = reactionCountMap.getOrDefault(ReactionType.DISLIKE, 0L);
 

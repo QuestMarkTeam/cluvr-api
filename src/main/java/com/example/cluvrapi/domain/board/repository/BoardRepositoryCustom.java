@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.board.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 
 import com.example.cluvrapi.domain.board.dto.response.ReadBoardsResponseDto;
@@ -9,6 +11,9 @@ import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 
 public interface BoardRepositoryCustom {
+
+	public List<ReadBoardsResponseDto> findRecommendedBoards(CategoryType categoryType);
+
 	/**
 	 *
 	 * 설명: 게시판 상세 정보입니다.

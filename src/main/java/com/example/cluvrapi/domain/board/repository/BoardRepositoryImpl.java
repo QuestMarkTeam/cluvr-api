@@ -1,5 +1,7 @@
 package com.example.cluvrapi.domain.board.repository;
 
+import static com.example.cluvrapi.domain.category.entity.QCategory.category;
+
 import java.util.List;
 
 import jakarta.persistence.EntityManager;
@@ -25,6 +27,30 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 
 	public BoardRepositoryImpl(EntityManager entityManager) {
 		this.queryFactory = new JPAQueryFactory(entityManager);
+	}
+
+	@Override
+	public List<ReadBoardsResponseDto> findRecommendedBoards(CategoryType categoryType) {
+		QBoard board = QBoard.board;
+
+		return queryFactory
+			.select(new QReadBoardsResponseDto(
+				board.id,
+				board.title,
+				board.content,
+				board.viewCount,
+				board.user.name,
+				board.createdAt,
+				board.modifiedAt
+			))
+			.from(board)
+			.where(
+				board.isDeleted.isFalse().and(categoryType != null ? board.category.eq(categoryType) : null)
+			)
+			.orderBy(board.viewCount.desc())
+			.offset(0)
+			.limit(5)
+			.fetch();
 	}
 
 	@Override
