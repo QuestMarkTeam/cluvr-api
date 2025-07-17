@@ -46,8 +46,11 @@ public class BoardController {
 	public ResponseEntity<BaseResponse<List<ReadAllBoardsResponseDto>>> readRecommendBoards(
 		@RequestParam CategoryType category
 		) {
+		long start = System.currentTimeMillis();
+		List<ReadAllBoardsResponseDto> results = boardService.readRecommendedBoards(category);
+		System.out.println("service fetch time = " + (System.currentTimeMillis() - start) + "ms");
 		return ResponseEntity.ok(
-			BaseResponse.success(boardService.readRecommendedBoards(category), ResponseCode.OK)
+			BaseResponse.success(results, ResponseCode.OK)
 		);
 	}
 
@@ -57,14 +60,14 @@ public class BoardController {
 		return ResponseEntity.ok(BaseResponse.success(boardService.createBoard(user.id(), dto), ResponseCode.CREATED));
 	}
 
-	@GetMapping
-	public ResponseEntity<BaseResponse<PageResponseDto<ReadAllBoardsResponseDto>>> readBoards(
-		@RequestParam CategoryType category,
-		@RequestParam BoardType boardType,
-		@PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
-		return ResponseEntity.ok(
-			BaseResponse.success(boardService.readBoards(category, boardType, pageable), ResponseCode.OK));
-	}
+	// @GetMapping
+	// public ResponseEntity<BaseResponse<PageResponseDto<ReadAllBoardsResponseDto>>> readBoards(
+	// 	@RequestParam CategoryType category,
+	// 	@RequestParam BoardType boardType,
+	// 	@PageableDefault(size = 5, sort = "createdAt") Pageable pageable) {
+	// 	return ResponseEntity.ok(
+	// 		BaseResponse.success(boardService.readBoards(category, boardType, pageable), ResponseCode.OK));
+	// }
 
 	@GetMapping("/{boardId}")
 	public ResponseEntity<BaseResponse<ReadBoardResponseDto>> readBoard(@Auth AuthUser user,

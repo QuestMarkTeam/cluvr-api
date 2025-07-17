@@ -19,8 +19,8 @@ public class HeaderLoggingFilter extends OncePerRequestFilter {
 		FilterChain filterChain)
 		throws ServletException, IOException {
 
-		System.out.println("🔍 Authorization Header = " + request.getHeader("Authorization"));
-		System.out.println("🔍 Request URI = " + request.getRequestURI());
+		// System.out.println("🔍 Authorization Header = " + request.getHeader("Authorization"));
+		// System.out.println("🔍 Request URI = " + request.getRequestURI());
 		filterChain.doFilter(request, response);
 	}
 }

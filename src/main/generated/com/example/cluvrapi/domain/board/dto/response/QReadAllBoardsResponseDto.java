@@ -13,8 +13,8 @@ public class QReadAllBoardsResponseDto extends ConstructorExpression<ReadAllBoar
 
     private static final long serialVersionUID = -2113736483L;
 
-    public QReadAllBoardsResponseDto(com.querydsl.core.types.Expression<? extends com.example.cluvrapi.domain.board.entity.Board> board, com.querydsl.core.types.Expression<Long> viewCount) {
-        super(ReadAllBoardsResponseDto.class, new Class<?>[]{com.example.cluvrapi.domain.board.entity.Board.class, long.class}, board, viewCount);
+    public QReadAllBoardsResponseDto(com.querydsl.core.types.Expression<? extends com.example.cluvrapi.domain.board.entity.Board> board) {
+        super(ReadAllBoardsResponseDto.class, new Class<?>[]{com.example.cluvrapi.domain.board.entity.Board.class}, board);
     }
 
 }

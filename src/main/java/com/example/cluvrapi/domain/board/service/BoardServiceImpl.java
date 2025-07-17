@@ -61,16 +61,16 @@ public class BoardServiceImpl implements BoardService {
 		return boardRepository.save(dto.fromDto(user)).getId();
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public PageResponseDto<ReadAllBoardsResponseDto> readBoards(CategoryType category, BoardType boardType, Pageable pageable) {
-		PageResponseDto<Board> boards = boardRepository.findAllBoardsByCategory(category, boardType, pageable);
-
-		List<ReadAllBoardsResponseDto> dtos = boards.getContent().stream().map(board -> {
-			return new ReadAllBoardsResponseDto(board, boardViewCountRedisService.getViewCountFromRedis(board, false));
-		}).toList();
-		return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, boards.getTotalElements()));
-	}
+	// @Override
+	// @Transactional(readOnly = true)
+	// public PageResponseDto<ReadAllBoardsResponseDto> readBoards(CategoryType category, BoardType boardType, Pageable pageable) {
+	// 	PageResponseDto<Board> boards = boardRepository.findAllBoardsByCategory(category, boardType, pageable);
+	//
+	// 	List<ReadAllBoardsResponseDto> dtos = boards.getContent().stream().map(board -> {
+	// 		return new ReadAllBoardsResponseDto(board, boardViewCountRedisService.getViewCountFromRedis(board, false));
+	// 	}).toList();
+	// 	return PageResponseDto.toDto(new PageImpl<>(dtos, pageable, boards.getTotalElements()));
+	// }
 
 	@Override
 	@Transactional
@@ -192,11 +192,15 @@ public class BoardServiceImpl implements BoardService {
 	@Transactional
 	public List<ReadAllBoardsResponseDto> readRecommendedBoards(CategoryType categoryType) {
 		List<Long> recommendedBoardIds = recommendBoardRedisService.getRecommendedBoardFromRedis(categoryType);
+
 		List<Board> boards = boardRepository.findByIdIn(recommendedBoardIds);
 
-		return boards.stream().map(board -> {
-			long viewCount = boardViewCountRedisService.getViewCountFromRedis(board, false);
-			return new ReadAllBoardsResponseDto(board, viewCount);
-		}).toList();
+
+		// long start = System.currentTimeMillis();
+		List<ReadAllBoardsResponseDto> dtos = boards.stream()
+			.map(ReadAllBoardsResponseDto::new)
+			.toList();
+		// System.out.println("boards -> dtos = " + (System.currentTimeMillis() - start) + "ms");
+		return dtos;
 	}
 }

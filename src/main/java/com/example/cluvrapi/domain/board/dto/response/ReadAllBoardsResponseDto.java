@@ -18,11 +18,11 @@ public class ReadAllBoardsResponseDto {
 	private LocalDateTime updatedAt;
 
 	@QueryProjection
-	public ReadAllBoardsResponseDto(Board board, long viewCount) {
+	public ReadAllBoardsResponseDto(Board board) {
 		this.id = board.getId();
 		this.title = board.getTitle();
 		this.content = board.getContent();
-		this.viewCount = viewCount;
+		this.viewCount = 0;
 		this.userName = board.getUser().getName();
 		this.createdAt = board.getCreatedAt();
 		this.updatedAt = board.getModifiedAt();

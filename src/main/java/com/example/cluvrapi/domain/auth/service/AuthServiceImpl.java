@@ -54,7 +54,7 @@ import com.example.cluvrapi.domain.gem.enums.GemUserActivityType;
 import com.example.cluvrapi.domain.gem.service.GemEvent;
 import com.example.cluvrapi.domain.gem.service.GemService;
 import com.example.cluvrapi.domain.image.entity.ImageType;
-import com.example.cluvrapi.domain.image.service.ImageService;
+// import com.example.cluvrapi.domain.image.service.ImageService;
 import com.example.cluvrapi.domain.user.entity.User;
 import com.example.cluvrapi.domain.user.entity.enums.Gender;
 import com.example.cluvrapi.domain.user.entity.enums.UserRole;
@@ -81,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
 	private final SecureRandom random = new SecureRandom();
 	private final ApplicationEventPublisher publisher; // 이벤트 발행
 	private final GemService gemService;
-	private final ImageService imageService;
+	// private final ImageService imageService;
 	private final JavaMailSender mailSender;
 	private final JwtUtil jwtUtil;
 	private final RefreshTokenService refreshTokenService;

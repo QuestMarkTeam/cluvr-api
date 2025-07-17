@@ -35,7 +35,7 @@ public interface BoardService {
 	 * @return 조회된 게시글 목록
 	 * @author yong
 	 */
-	PageResponseDto<ReadAllBoardsResponseDto> readBoards(CategoryType category, BoardType boardType, Pageable pageable);
+	// PageResponseDto<ReadAllBoardsResponseDto> readBoards(CategoryType category, BoardType boardType, Pageable pageable);
 
 	/**
 	 * 설명: 특정 게시글 상세 조회

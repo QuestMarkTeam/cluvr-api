@@ -1,9 +1,12 @@
 package com.example.cluvrapi.domain.board.service;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +58,35 @@ public class BoardViewCountRedisService {
 
 		return countStr + 1;
 	}
+
+	/**
+	 * Redis Pipeline을 사용하여 여러 board의 viewCount를 한 번에 조회
+	 */
+	// public List<Long> getViewCountsFromRedis(List<Board> boards) {
+	// 	List<String> keys = boards.stream()
+	// 		.map(board -> buildViewCountKey(board.getId()))
+	// 		.toList();
+	//
+	// 	// Redis Pipeline 사용
+	// 	return redisLongTemplate.executePipelined((RedisCallback<Object>) connection -> {
+	// 		List<Long> results = new ArrayList<>();
+	// 		for (int i = 0; i < boards.size(); i++) {
+	// 			Board board = boards.get(i);
+	// 			String key = keys.get(i);
+	//
+	// 			// Redis에서 조회
+	// 			byte[] value = connection.get(key.getBytes());
+	// 			Long count = value != null ? Long.parseLong(new String(value)) : null;
+	//
+	// 			if (count == null) {					// Redis에 없으면 DB 값 + 1					count = board.getViewCount() + 1				connection.set(key.getBytes(), String.valueOf(count).getBytes());
+	// 				connection.expire(key.getBytes(), TTL.toSeconds());
+	// 			}
+	//
+	// 			results.add(count);
+	// 		}
+	// 		return results;
+	// 	});
+	// }
 
 	private String buildViewCountKey(Long boardId) {
 		return String.format(VIEW_COUNT_KEY, boardId);
