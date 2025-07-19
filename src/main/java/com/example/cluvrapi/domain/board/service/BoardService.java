@@ -12,6 +12,7 @@ import com.example.cluvrapi.domain.board.dto.response.ReadMyBoardsResponseDto;
 import com.example.cluvrapi.domain.board.enums.BoardType;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public interface BoardService {
 	/**
@@ -97,6 +98,6 @@ public interface BoardService {
 	 *
 	 * @author yong
 	 */
-	List<ReadAllBoardsResponseDto> readRecommendedBoards(CategoryType categoryType);
+	List<ReadAllBoardsResponseDto> readRecommendedBoards(CategoryType categoryType) throws JsonProcessingException;
 }
 

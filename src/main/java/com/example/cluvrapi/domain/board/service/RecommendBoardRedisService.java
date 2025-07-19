@@ -16,18 +16,24 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
+import com.example.cluvrapi.domain.board.dto.response.ReadAllBoardsResponseDto;
 import com.example.cluvrapi.domain.category.enums.CategoryType;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 @Slf4j
 public class RecommendBoardRedisService {
 	private final RedisTemplate<String, String> redisTemplate;
+	private final ObjectMapper objectMapper;
 
 	private static final String REDIS_KEY_FORMAT = "recommend:board:%s";
 	private static final long TTL_SECONDS = 60 * 60 * 24; // 24시간
 
-	public RecommendBoardRedisService(@Qualifier("redisStringTemplate") RedisTemplate<String, String> redisTemplate) {
+	public RecommendBoardRedisService(@Qualifier("redisStringTemplate") RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
 		this.redisTemplate = redisTemplate;
+		this.objectMapper = objectMapper;
 	}
 
 	/**
@@ -63,5 +69,15 @@ public class RecommendBoardRedisService {
 			.map(ZSetOperations.TypedTuple::getValue).filter(Objects::nonNull)
 			.map(Long::parseLong)
 			.collect(Collectors.toList());
+	}
+
+	public List<ReadAllBoardsResponseDto> getRecommendedBoardsFromRedis(CategoryType categoryType) throws
+		JsonProcessingException {
+		String json = redisTemplate.opsForValue().get("board:popular:list");
+
+		List<ReadAllBoardsResponseDto> dtos =  objectMapper.readValue(json,
+			new TypeReference<List<ReadAllBoardsResponseDto>>() {
+			});
+		return dtos;
 	}
 }

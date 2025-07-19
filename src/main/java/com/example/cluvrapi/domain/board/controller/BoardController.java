@@ -33,6 +33,7 @@ import com.example.cluvrapi.domain.common.dto.AuthUser;
 import com.example.cluvrapi.domain.common.dto.PageResponseDto;
 import com.example.cluvrapi.global.response.BaseResponse;
 import com.example.cluvrapi.global.response.ResponseCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @RestController
 @RequestMapping("/api/boards")
@@ -45,12 +46,13 @@ public class BoardController {
 	@GetMapping("/recommendation")
 	public ResponseEntity<BaseResponse<List<ReadAllBoardsResponseDto>>> readRecommendBoards(
 		@RequestParam CategoryType category
-		) {
-		long start = System.currentTimeMillis();
-		List<ReadAllBoardsResponseDto> results = boardService.readRecommendedBoards(category);
-		System.out.println("service fetch time = " + (System.currentTimeMillis() - start) + "ms");
+	) throws JsonProcessingException {
+		long start = System.nanoTime();
+		List<ReadAllBoardsResponseDto> dtos = boardService.readRecommendedBoards(category);
+		long end = System.nanoTime();
+		System.out.println("Deserialization took: " + (end - start) / 1_000_000 + "ms");
 		return ResponseEntity.ok(
-			BaseResponse.success(results, ResponseCode.OK)
+			BaseResponse.success(dtos, ResponseCode.OK)
 		);
 	}
 

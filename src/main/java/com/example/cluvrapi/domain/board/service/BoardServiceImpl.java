@@ -1,5 +1,6 @@
 package com.example.cluvrapi.domain.board.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ import com.example.cluvrapi.global.annotation.EventGem;
 
 import com.example.cluvrapi.global.exception.NoPermissionException;
 import com.example.cluvrapi.global.response.ResponseCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Service
 @RequiredArgsConstructor
@@ -190,17 +192,15 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	@Transactional
-	public List<ReadAllBoardsResponseDto> readRecommendedBoards(CategoryType categoryType) {
-		List<Long> recommendedBoardIds = recommendBoardRedisService.getRecommendedBoardFromRedis(categoryType);
+	public List<ReadAllBoardsResponseDto> readRecommendedBoards(CategoryType categoryType) throws
+		JsonProcessingException {
+		// List<Long> recommendedBoardIds = recommendBoardRedisService.getRecommendedBoardFromRedis(categoryType);
+		// List<Board> boards = boardRepository.findByIdIn(recommendedBoardIds);
 
-		List<Board> boards = boardRepository.findByIdIn(recommendedBoardIds);
+		// return boards.stream()
+		// 	.map(ReadAllBoardsResponseDto::new)
+		// 	.toList();
 
-
-		// long start = System.currentTimeMillis();
-		List<ReadAllBoardsResponseDto> dtos = boards.stream()
-			.map(ReadAllBoardsResponseDto::new)
-			.toList();
-		// System.out.println("boards -> dtos = " + (System.currentTimeMillis() - start) + "ms");
-		return dtos;
+		return recommendBoardRedisService.getRecommendedBoardsFromRedis(categoryType);
 	}
 }
